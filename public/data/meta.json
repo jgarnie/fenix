@@ -31,7 +31,58 @@
   "ndvi_b",
   "ndvi_a",
   "ndvi_n",
-  "pn"
+  "pn",
+  "mun"
+ ],
+ "municipios": [
+  "Aín",
+  "Alcudia de Veo",
+  "Algimia de Almonacid",
+  "Almenara",
+  "Castellnovo",
+  "Castelló de la Plana",
+  "Xilxes",
+  "Chóvar",
+  "Eslida",
+  "Espadilla",
+  "Fuentes de Ayódar",
+  "Matet",
+  "Onda",
+  "Ribesalbes",
+  "Segorbe",
+  "Tales",
+  "Vallat",
+  "la Vall d'Uixó",
+  "Vila-real",
+  "la Vilavella",
+  "les Alqueries",
+  "Algímia d'Alfara",
+  "l'Alcora",
+  "Alfondeguilla",
+  "Almassora",
+  "Almedíjar",
+  "Artana",
+  "Ayódar",
+  "Azuébar",
+  "Betxí",
+  "Borriol",
+  "Borriana",
+  "Fanzara",
+  "la Llosa",
+  "Moncofa",
+  "Nules",
+  "Soneja",
+  "Sot de Ferrer",
+  "Suera",
+  "Toga",
+  "Torralba del Pinar",
+  "Torrechiva",
+  "Vall de Almonacid",
+  "Villamalur",
+  "Alfara de la Baronia",
+  "Algar de Palància",
+  "Quart de les Valls",
+  "Sagunt"
  ],
  "legends": {
   "owner": {
@@ -105,6 +156,56 @@
   "public_forest_ha": 282.3,
   "pn_ha": 2673.8,
   "pn_total_ha": 31192.0,
+  "municipios": {
+   "Artana": {
+    "total": 2533.1,
+    "forestal": 2294.5
+   },
+   "la Vall d'Uixó": {
+    "total": 1263.4,
+    "forestal": 1126.6
+   },
+   "Alcudia de Veo": {
+    "total": 681.3,
+    "forestal": 681.1
+   },
+   "Alfondeguilla": {
+    "total": 611.4,
+    "forestal": 610.1
+   },
+   "Onda": {
+    "total": 546.8,
+    "forestal": 524.6
+   },
+   "Tales": {
+    "total": 463.8,
+    "forestal": 446.9
+   },
+   "Eslida": {
+    "total": 441.8,
+    "forestal": 430.8
+   },
+   "Nules": {
+    "total": 385.4,
+    "forestal": 352.4
+   },
+   "la Vilavella": {
+    "total": 250.7,
+    "forestal": 200.9
+   },
+   "Betxí": {
+    "total": 136.1,
+    "forestal": 133.6
+   },
+   "Aín": {
+    "total": 36.8,
+    "forestal": 34.1
+   },
+   "Chóvar": {
+    "total": 2.1,
+    "forestal": 2.1
+   }
+  },
   "recurrent_ha": 1812.2,
   "severity": {
    "No quemado": 49.3,
@@ -249,6 +350,76 @@
     "Carrascal-coscojar sobre arcillas y yesos": 12.4,
     "Vegetación de ribera (sauceda, chopera, adelfar)": 4.4
    }
+  },
+  "arboles": {
+   "total": 2180000,
+   "total_ci90": [
+    1679000,
+    2684000
+   ],
+   "coniferas": 1660000,
+   "frondosas": 520000,
+   "muertos": 1475000,
+   "muertos_ci90": [
+    1094000,
+    1890000
+   ],
+   "muertos_coniferas": 1389000,
+   "muertos_frondosas": 87000,
+   "parcelas_dentro": 51,
+   "parcelas_usadas": 53,
+   "densidad_media_ha": 354.0,
+   "por_clase": {
+    "Alcornocal": {
+     "ha": 451.0,
+     "parcelas": 7,
+     "pies_ha": 516.0,
+     "arboles": 233000
+    },
+    "Pinar de rodeno (P. pinaster)": {
+     "ha": 157.0,
+     "parcelas": 5,
+     "pies_ha": 611.0,
+     "arboles": 96000
+    },
+    "Pinar de pino carrasco": {
+     "ha": 3667.0,
+     "parcelas": 24,
+     "pies_ha": 407.0,
+     "arboles": 1494000
+    },
+    "Bosque mixto pino + frondosas": {
+     "ha": 1100.0,
+     "parcelas": 9,
+     "pies_ha": 276.0,
+     "arboles": 304000
+    },
+    "Encinar, quejigar y frondosas": {
+     "ha": 449.0,
+     "parcelas": 4,
+     "pies_ha": 111.0,
+     "arboles": 50000
+    },
+    "Algarrobal / acebuchal": {
+     "ha": 361.0,
+     "parcelas": 4,
+     "pies_ha": 12.0,
+     "arboles": 4000
+    },
+    "Matorral": {
+     "ha": 499.0,
+     "parcelas": 0,
+     "pies_ha": 0,
+     "arboles": 0
+    },
+    "Pastizal-matorral": {
+     "ha": 154.0,
+     "parcelas": 0,
+     "pies_ha": 0,
+     "arboles": 0
+    }
+   },
+   "fuente": "IFN3 Castellón (MITECO, campo 2006), pies mayores con diámetro ≥ 7,5 cm"
   }
  }
 }

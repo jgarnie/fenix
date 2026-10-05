@@ -46,6 +46,7 @@ EMS_GRA = "https://rapidmapping.emergency.copernicus.eu/backend/EMSR905/AOI01/GR
 GVA = "https://carto.icv.gva.es/arcgis/rest/services/tm_medio_ambiente/"
 IGME = "https://mapas.igme.es/gis/rest/services/Cartografia_Geologica/IGME_Geode_50/MapServer/8/query"
 STAC = "https://earth-search.aws.element84.com/v1/collections/sentinel-2-l2a/items/"
+MUNI = "https://carto.icv.gva.es/arcgis/rest/services/0105_delimitaciones/0105_Delimitaciones/MapServer/0/query"
 DEM = "https://copernicus-dem-30m.s3.amazonaws.com/Copernicus_DSM_COG_10_N39_00_W001_00_DEM/Copernicus_DSM_COG_10_N39_00_W001_00_DEM.tif"
 
 SCENES = {
@@ -73,19 +74,20 @@ def cached(name, producer):
     return path
 
 
-def arcgis_query(base, fields="*", page=1000):
+def arcgis_query(base, fields="*", page=1000, paginate=True):
     def produce(path):
         feats, off = [], 0
         while True:
             q = dict(where="1=1", geometry=FETCH_BBOX, geometryType="esriGeometryEnvelope", inSR=4326,
-                     spatialRel="esriSpatialRelIntersects", outFields=fields, outSR=4326, f="geojson",
-                     resultOffset=off, resultRecordCount=page)
+                     spatialRel="esriSpatialRelIntersects", outFields=fields, outSR=4326, f="geojson")
+            if paginate:  # algunas capas del ICV rechazan resultOffset
+                q.update(resultOffset=off, resultRecordCount=page)
             d = http_json(base + "?" + urllib.parse.urlencode(q))
             if "error" in d:
                 raise RuntimeError(f"{base}: {d['error']}")
             fs = d.get("features", [])
             feats += fs
-            if len(fs) < page:
+            if not paginate or len(fs) < page:
                 break
             off += page
         with open(path, "w") as f:
@@ -217,6 +219,7 @@ log("4/7 Capas GVA / IGME")
 montes = read_gdf("gva_montes.geojson", arcgis_query(GVA + "forestal/MapServer/25/query"))
 mfe = read_gdf("gva_mfe50.geojson", arcgis_query(GVA + "forestal/MapServer/41/query"))
 pn = read_gdf("gva_parque_natural.geojson", arcgis_query(GVA + "espacios_protegidos/MapServer/10/query"))
+muni = read_gdf("icv_municipios.geojson", arcgis_query(MUNI, "cod_ine_mun,nom_mun,comarca,area_ha", paginate=False)).reset_index(drop=True)
 geo = read_gdf("igme_geode50.geojson", arcgis_query(IGME, "CODE_UNIO,DESC_UNIT,NAME_EDA1,NAME_EDA2"))
 fire_layers = {1993 + i: 1 + i for i in range(28)}
 fire_layers.update({2021: 101, 2022: 102, 2023: 120, 2024: 121})
@@ -306,6 +309,8 @@ for y, g in fires.groupby("anyo"):
     last_fire[m] = y
 
 in_pn = burn(pn, [1] * len(pn)).astype(bool)
+# término municipal: índice 1..n en la rejilla (0 = sin municipio)
+mun = burn(muni, muni.index + 1)
 
 # ----------------------------------------------------------------------------- modelo
 log("5/7 Modelo de vegetación potencial, acciones y viabilidad")
@@ -414,6 +419,8 @@ stats = {
     "public_forest_ha": ha(inside & public & forest),
     "pn_ha": ha(inside & in_pn),
     "pn_total_ha": round(float(pn.to_crs(25830).area.sum() / 1e4), 1),
+    "municipios": dict(sorted(((muni.nom_mun[k - 1], {"total": ha(inside & (mun == k)), "forestal": ha(inside & forest & (mun == k))})
+                              for k in range(1, len(muni) + 1) if ha(inside & (mun == k)) > 0), key=lambda kv: -kv[1]["total"])),
     "recurrent_ha": ha(inside & (recur >= 1)),
     "severity": crosstab(sev, {1: "No quemado", 2: "Baja", 3: "Moderada-baja", 4: "Moderada-alta", 5: "Alta"}, inside),
     "owner": crosstab(owner, OWNER, inside) | {"Sin catalogar (mayoritariamente privado)": ha(inside & (owner == 0))},
@@ -450,6 +457,7 @@ layers = {
     "ndvi_a": np.clip(ndvi_a * 100 + 100, 0, 255).astype("uint8"),
     "ndvi_n": np.clip(ndvi_n * 100 + 100, 0, 255).astype("uint8"),
     "pn": in_pn.astype("uint8"),
+    "mun": mun,
 }
 order = list(layers)
 with open(os.path.join(OUT, "grid.bin"), "wb") as f:
@@ -459,6 +467,7 @@ with open(os.path.join(OUT, "grid.bin"), "wb") as f:
 meta = {
     "width": W, "height": H, "bounds": BOUNDS, "pixel_ha": PIX_HA, "ground_m": GROUND,
     "layers": order,
+    "municipios": list(muni.nom_mun),
     "legends": {"owner": OWNER, "veg": VEG, "sub": GEO, "pot": POT, "act": ACT, "eros": EROS, "feas": FEAS},
     "stats": stats,
 }
@@ -477,6 +486,8 @@ save_geojson(burnt_d, "perimetro.geojson", [], tol=0.00002)
 montes["owner_label"] = montes["owner"].map(OWNER)
 save_geojson(montes, "montes.geojson", ["denominacion", "num_up", "municipio", "owner", "owner_label", "hectareas"])
 save_geojson(pn, "parque_natural.geojson", ["nombre", "hect_ofi", "legislacio"], tol=0.0002)
+muni["ha_quemadas"] = [ha(inside & (mun == k)) for k in range(1, len(muni) + 1)]
+save_geojson(muni, "municipios.geojson", ["nom_mun", "comarca", "area_ha", "ha_quemadas"], tol=0.0001)
 fd = fires.dissolve("anyo").reset_index()
 save_geojson(fd, "incendios_previos.geojson", ["anyo"], tol=0.0001)
 

@@ -14,8 +14,8 @@ const buf = new Uint8Array(await (await fetch('data/grid.bin')).arrayBuffer());
 const { width: W, height: H, stats: S } = meta;
 const N = W * H;
 const G = Object.fromEntries(meta.layers.map((k, i) => [k, buf.subarray(i * N, (i + 1) * N)]));
-const [montes, perimetro, parque, incendios] = await Promise.all(
-  ['montes', 'perimetro', 'parque_natural', 'incendios_previos'].map((f) => fetch(`data/${f}.geojson`).then((r) => r.json())),
+const [montes, perimetro, parque, incendios, municipios] = await Promise.all(
+  ['montes', 'perimetro', 'parque_natural', 'incendios_previos', 'municipios'].map((f) => fetch(`data/${f}.geojson`).then((r) => r.json())),
 );
 const PIX_HA = meta.pixel_ha;
 const leg = meta.legends;
@@ -325,8 +325,15 @@ const vec = {
     pane: 'vec',
     style: (f) => ({ color: '#7f0000', weight: 1, fillColor: '#ef6548', fillOpacity: 0.12 + Math.min(0.3, (f.properties.anyo - 1993) / 100) }),
   }),
+  municipios: L.geoJSON(municipios, {
+    pane: 'vec',
+    style: { color: '#5b5b5b', weight: 1.4, dashArray: '4 3', fill: false },
+    onEachFeature: (f, l) => l.bindTooltip(
+      `${f.properties.nom_mun}${f.properties.ha_quemadas ? `<br><small>${fmt(f.properties.ha_quemadas)} ha quemadas</small>` : ''}`,
+      { permanent: true, direction: 'center', className: `mun-label${f.properties.ha_quemadas ? ' hit' : ''}` }),
+  }),
 };
-const vecOn = { perimetro: true, montes: true, parque: true, incendios: false };
+const vecOn = { perimetro: true, montes: true, parque: true, incendios: false, municipios: true };
 function syncVec() { for (const k in vec) vecOn[k] ? vec[k].addTo(map) : map.removeLayer(vec[k]); }
 syncVec();
 
@@ -379,6 +386,7 @@ function showInfo(i, ll) {
     ['NDVI', `${nd('ndvi_b')} antes → ${nd('ndvi_a')} después → ${nd('ndvi_n')} ahora`],
     ['Vegetación antes', v ? pill(C.veg[v], leg.veg[v]) : 's/d'],
     ['Propiedad', o ? `${pill(C.owner[o], leg.owner[o])}${monte ? `<br><small>${monte.properties.denominacion || ''} ${monte.properties.num_up ? '· nº ' + monte.properties.num_up : ''} · ${monte.properties.municipio}</small>` : ''}` : 'No catalogado como monte público (probablemente privado)'],
+    ['Municipio', G.mun[i] ? meta.municipios[G.mun[i] - 1] : 's/d'],
     ['Parque Natural', G.pn[i] ? 'Sí · Serra d\'Espadà' : 'No'],
     ['Sustrato', leg.sub[G.sub[i]] || 's/d'],
     ['Altitud · pendiente', `${fmt(G.elev[i] * 5)} m · ${fmt(G.slope[i])} %`],
@@ -426,6 +434,9 @@ const byLabel = (legend, colors) => (lbl) => colors[Object.keys(legend).find((k)
   const feasOk = (feas['Alta (≥70)'] || 0) + (feas['Media (45–70)'] || 0);
   const potLabels = Object.fromEntries(Object.entries(leg.pot).map(([k, v]) => [v, POT_INFO[k]?.corto || v]));
   const potShort = Object.fromEntries(Object.entries(S.potential).map(([k, v]) => [potLabels[k] || k, v]));
+  const T = S.arboles;
+  const mill = (n) => `${fmt(n / 1e6, 1)} M`;
+  const mun = Object.fromEntries(Object.entries(S.municipios || {}).map(([k, v]) => [k, v.total]));
   $('#tab-resumen').innerHTML = `
     <div class="kpis">
       <div class="kpi accent"><b>9.568 ha</b><span>superficie oficial (CCE Generalitat)</span></div>
@@ -434,6 +445,8 @@ const byLabel = (legend, colors) => (lbl) => colors[Object.keys(legend).find((k)
       <div class="kpi"><b>${ha(S.pn_ha)}</b><span>dentro del Parque Natural de la Serra d'Espadà</span></div>
       <div class="kpi accent"><b>${ha(S.public_ha)}</b><span>es monte público catalogado (${fmt((S.public_ha / S.grid_ha) * 100, 1)} %)</span></div>
       <div class="kpi"><b>${ha(S.recurrent_ha)}</b><span>ya había ardido al menos una vez desde 1993</span></div>
+      ${T ? `<div class="kpi accent"><b>≈ ${mill(T.total)} árboles</b><span>en la zona quemada (entre ${mill(T.total_ci90[0])} y ${mill(T.total_ci90[1])})</span></div>
+      <div class="kpi accent"><b>≈ ${mill(T.muertos)} muertos</b><span>sobre todo pinos; la mayoría de alcornoques y carrascas rebrotará</span></div>` : ''}
     </div>
     <div class="callout">
       <b>En pocas palabras.</b> El ${fmt((sevHigh / S.grid_ha) * 100)} % del área ardió con severidad moderada-alta o alta.
@@ -448,6 +461,17 @@ const byLabel = (legend, colors) => (lbl) => colors[Object.keys(legend).find((k)
     ${bars(S.veg_before, byLabel(leg.veg, C.veg))}
     <h2>Qué debería haber (vegetación potencial)</h2>
     ${bars(potShort, (k) => C.pot[Object.keys(POT_INFO).find((i) => POT_INFO[i].corto === k)])}
+    <h2>Por municipio</h2>
+    ${bars(mun, () => '#7a6a5a')}
+    <p class="muted">Superficie vista quemada por satélite; las cifras oficiales por municipio suelen ser mayores porque usan el perímetro exterior.</p>
+    ${T ? `<h2>¿Cuántos árboles ardieron?</h2>
+    <table><thead><tr><th>Tipo de bosque</th><th>ha</th><th>árboles/ha</th><th>árboles</th></tr></thead><tbody>
+      ${Object.entries(T.por_clase).filter(([, c]) => c.arboles > 0).map(([k, c]) => `<tr><td>${k}</td><td>${fmt(c.ha)}</td><td>${fmt(c.pies_ha)}</td><td>${fmt(c.arboles)}</td></tr>`).join('')}
+    </tbody><tfoot><tr><td>Total</td><td></td><td></td><td>${fmt(T.total)}</td></tr></tfoot></table>
+    <p class="muted">Árboles con tronco de al menos 7,5 cm de diámetro, según ${T.parcelas_dentro} parcelas del Inventario Forestal Nacional
+    (IFN3, medidas en 2006) que caen dentro del área quemada. De ellos, unos ${mill(T.muertos_coniferas)} pinos habrían muerto (no rebrotan)
+    y unas ${fmt(T.muertos_frondosas / 1e3)} mil frondosas; el resto de frondosas (${mill(T.frondosas - T.muertos_frondosas)}) debería rebrotar.
+    No incluye árboles jóvenes ni dispersos en el matorral. Ver método en Fuentes.</p>` : ''}
     <h2>¿De quién es?</h2>
     ${bars(S.owner, byLabel(leg.owner, C.owner))}
     <h2>¿Es posible recuperarlo?</h2>
@@ -480,6 +504,7 @@ const byLabel = (legend, colors) => (lbl) => colors[Object.keys(legend).find((k)
       <label><input type="checkbox" data-v="perimetro" checked> Área quemada (Copernicus EMS)</label>
       <label><input type="checkbox" data-v="montes" checked> Montes de utilidad pública <span class="sw" style="background:#08519c"></span></label>
       <label><input type="checkbox" data-v="parque" checked> Parque Natural Serra d'Espadà <span class="sw" style="background:#1b7837"></span></label>
+      <label><input type="checkbox" data-v="municipios" checked> Términos municipales <span class="sw" style="background:#5b5b5b"></span></label>
       <label><input type="checkbox" data-v="incendios"> Incendios 1993–2024 <span class="sw" style="background:#ef6548"></span></label>
     </div>
     <h2>Imágenes</h2>
@@ -672,7 +697,8 @@ $('#tab-fuentes').innerHTML = `
     <li><b>Vegetación previa:</b> Mapa Forestal de España 1:50.000 (MITECO), servido por el ICV.</li>
     <li><b>Geología:</b> <a href="https://mapas.igme.es/gis/rest/services/Cartografia_Geologica/IGME_Geode_50/MapServer" target="_blank" rel="noopener">IGME GEODE 1:50.000</a>.</li>
     <li><b>Relieve:</b> Copernicus DEM GLO-30.</li>
-    <li><b>Incendios 1993–2024</b> y <b>Parque Natural</b>: Generalitat Valenciana (ICV).</li>
+    <li><b>Incendios 1993–2024</b>, <b>Parque Natural</b> y <b>términos municipales</b>: Generalitat Valenciana (ICV).</li>
+    <li><b>Árboles:</b> <a href="https://www.miteco.gob.es/es/biodiversidad/servicios/banco-datos-naturaleza/informacion-disponible/ifn3_base_datos_1_25.html" target="_blank" rel="noopener">Tercer Inventario Forestal Nacional (IFN3), Castellón</a>, MITECO.</li>
     <li><b>Cifras oficiales</b> (9.568 ha, 89 km de perímetro, 4,2 M€): Centro de Coordinación de Emergencias y Generalitat, según prensa.</li>
   </ul>
   <h2>Método</h2>
@@ -680,6 +706,10 @@ $('#tab-fuentes').innerHTML = `
     <li><b>Severidad:</b> dNBR = NBR(antes) − NBR(después), con NBR = (B8 − B12)/(B8 + B12). Umbrales de Key &amp; Benson (USGS): 0,10 · 0,27 · 0,44 · 0,66.</li>
     <li><b>Vegetación potencial:</b> modelo propio siguiendo las series de vegetación de Rivas-Martínez: sustrato (IGME) + altitud + orientación. Donde la geología es ambigua, el alcornoque o el pino rodeno indican suelo ácido.</li>
     <li><b>Actuación:</b> rebrotadoras → regeneración natural; pinar maduro poco dañado y sin incendios desde 2011 → natural; resto de pinar → asistida; pinar con daño alto donde debería haber alcornocal o zonas con ≥2 incendios previos → restauración activa.</li>
+    <li><b>Árboles quemados:</b> densidad (árboles/ha con diámetro ≥ 7,5 cm) de las parcelas IFN3 dentro del área quemada, media por tipo de bosque
+    × hectáreas quemadas de ese tipo; clases con menos de 3 parcelas se completan con las más cercanas, y en matorral y pastizal se cuentan 0.
+    Mortalidad supuesta según la severidad: pinos 10 % (baja), 50 % (moderada-baja), 90 % (moderada-alta), 100 % (alta);
+    frondosas 0–25 %, porque rebrotan. Intervalo del 90 % por remuestreo de parcelas. Los datos de campo son de 2006.</li>
     <li><b>Erosión:</b> (clase de severidad − 1) × pendiente/25 %.</li>
     <li><b>Viabilidad:</b> base según la cercanía entre lo que había y lo que debería haber; ajustes por severidad, recurrencia (−12 por incendio previo), pendiente &gt;50 %, solanas secas sobre rodeno y rebrote observado (+10).</li>
   </ul>

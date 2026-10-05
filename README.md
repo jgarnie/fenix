@@ -5,6 +5,8 @@ Mapa interactivo del incendio de la Vall d'Uixó / Serra d'Espadà (Castellón, 
 - **Antes / después / ahora:** comparador deslizante con imágenes Sentinel-2 (color natural y falso color) y ortofoto PNOA.
 - **Capas:** severidad del fuego (dNBR), monte público (catálogo de utilidad pública), vegetación previa (Mapa Forestal de España),
   vegetación potencial (modelo a partir de geología, altitud y orientación), riesgo de erosión, rebrote observado e incendios anteriores.
+- **Árboles quemados:** estimación a partir de las parcelas del Inventario Forestal Nacional dentro del área quemada.
+- **Términos municipales** y hectáreas quemadas en cada uno.
 - **Ficha de cada punto:** al pulsar el mapa, qué había, qué debería haber, de quién es, la viabilidad de recuperarlo y cómo actuar.
 - **Plan:** superficie y coste por actuación según el alcance. Los costes salen de tarifas forestales oficiales y se pueden editar.
 
@@ -17,8 +19,9 @@ python3 -m http.server 5173 -d public   # abre http://localhost:5173
 ## Regenerar los datos
 
 ```bash
-pip3 install geopandas rasterio pillow
+pip3 install geopandas rasterio pillow access-parser
 python3 scripts/build_data.py           # descarga a data-raw/ (no versionado) y escribe public/data/
+python3 scripts/trees.py                # estimación de árboles quemados (Inventario Forestal Nacional)
 ```
 
 ## Datos y licencias
@@ -29,6 +32,8 @@ python3 scripts/build_data.py           # descarga a data-raw/ (no versionado) y
 | Imágenes | Contiene datos modificados de Copernicus Sentinel (2026), vía Earth Search (Element 84) | Datos Copernicus de acceso libre y abierto |
 | Relieve | Copernicus DEM GLO-30: © DLR e.V. 2010-2014 y © Airbus Defence and Space GmbH 2014-2018, suministrado bajo COPERNICUS por la UE y la ESA | Licencia Copernicus DEM |
 | Montes, Mapa Forestal 1:50.000, Parque Natural, incendios 1993–2024 | Institut Cartogràfic Valencià / Generalitat Valenciana (el Mapa Forestal de España es obra del MITECO) | CC BY 4.0 |
+| Términos municipales | Institut Cartogràfic Valencià | CC BY 4.0 |
+| Árboles por hectárea | Tercer Inventario Forestal Nacional (IFN3), Castellón, MITECO | Datos públicos del Banco de Datos de la Naturaleza |
 | Geología | IGME-CSIC, GEODE 1:50.000 | CC BY 4.0 |
 | Mapa base y ortofoto (se cargan en directo) | Instituto Geográfico Nacional | CC BY 4.0 scne.es |
 | Precios unitarios | Tarifas forestales de la Junta de Extremadura (2024); recargos de VAERSA según el DOGV (30/9/2025) | Documentos públicos (solo se citan cifras) |

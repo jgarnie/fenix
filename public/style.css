@@ -159,3 +159,9 @@ details ul { padding-left: 18px; margin: 6px 0; }
 
 #recargo { width: 100%; max-width: 100%; }
 .row label:has(#recargo) { flex-direction: column; align-items: stretch; width: 100%; }
+
+.leaflet-tooltip.mun-label { background: none; border: 0; box-shadow: none; color: #3d3d3d; font-size: 11px; font-weight: 600; text-align: center;
+  text-shadow: 0 0 3px #fff, 0 0 3px #fff, 0 0 3px #fff; padding: 0; }
+.leaflet-tooltip.mun-label::before { display: none; }
+.leaflet-tooltip.mun-label.hit { color: #111; font-size: 12px; }
+.leaflet-tooltip.mun-label small { font-weight: 500; }
