@@ -1,0 +1,11 @@
+# descargas brutas regenerables (scripts/build_data.py)
+data-raw/
+node_modules/
+__pycache__/
+*.pyc
+.DS_Store
+.env
+.env.*
+*.log
+.vscode/
+.idea/

@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Espadà después del fuego</title>
+  <meta name="description" content="Mapa del incendio de la Vall d'Uixó / Serra d'Espadà (julio 2026): antes y después, monte público, vegetación previa y potencial, y plan de restauración.">
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="vendor/leaflet/leaflet.css">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <aside id="panel">
+    <header class="brand">
+      <div>
+        <h1>Espadà después del fuego</h1>
+        <p class="sub">Incendio de la Vall d'Uixó · 25 jul – 1 ago 2026</p>
+      </div>
+    </header>
+
+    <nav class="tabs" role="tablist">
+      <button role="tab" data-tab="resumen" class="active">Resumen</button>
+      <button role="tab" data-tab="capas">Mapa</button>
+      <button role="tab" data-tab="plan">Plan</button>
+      <button role="tab" data-tab="como">Cómo</button>
+      <button role="tab" data-tab="fuentes">Fuentes</button>
+    </nav>
+
+    <section class="tab active" id="tab-resumen"></section>
+    <section class="tab" id="tab-capas"></section>
+    <section class="tab" id="tab-plan"></section>
+    <section class="tab" id="tab-como"></section>
+    <section class="tab" id="tab-fuentes"></section>
+  </aside>
+
+  <main id="mapwrap">
+    <div id="map"></div>
+
+    <div id="compare-bar" class="floating">
+      <label>Izquierda
+        <select id="cmp-left"></select>
+      </label>
+      <button id="cmp-toggle" class="chip" aria-pressed="true">Comparar</button>
+      <label>Derecha
+        <select id="cmp-right"></select>
+      </label>
+    </div>
+    <div id="swipe"><div class="handle" aria-label="Arrastra para comparar">⟷</div></div>
+
+    <div id="legend" class="floating"></div>
+    <div id="info" class="floating hidden"></div>
+  </main>
+
+  <script src="vendor/leaflet/leaflet.js"></script>
+  <script src="app.js" type="module"></script>
+</body>
+</html>

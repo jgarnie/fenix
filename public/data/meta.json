@@ -1,0 +1,254 @@
+{
+ "width": 698,
+ "height": 716,
+ "bounds": [
+  [
+   39.809048991490194,
+   -0.359201930487544
+  ],
+  [
+   39.969740109194795,
+   -0.15514961951245593
+  ]
+ ],
+ "pixel_ha": 0.0625,
+ "ground_m": 25.0,
+ "layers": [
+  "inside",
+  "sev",
+  "owner",
+  "veg",
+  "sub",
+  "pot",
+  "act",
+  "eros",
+  "feas",
+  "recur",
+  "last",
+  "slope",
+  "elev",
+  "dnbr",
+  "ndvi_b",
+  "ndvi_a",
+  "ndvi_n",
+  "pn"
+ ],
+ "legends": {
+  "owner": {
+   "0": "Sin catalogar (mayoritariamente privado)",
+   "1": "Utilidad pública · Ayuntamiento",
+   "2": "Utilidad pública · Generalitat",
+   "3": "Utilidad pública · Conf. Hidrográfica del Júcar",
+   "4": "Enclavado privado en monte público"
+  },
+  "veg": {
+   "0": "Sin datos",
+   "1": "Alcornocal",
+   "2": "Pinar de rodeno (P. pinaster)",
+   "3": "Pinar de pino carrasco",
+   "4": "Bosque mixto pino + frondosas",
+   "5": "Encinar, quejigar y frondosas",
+   "6": "Algarrobal / acebuchal",
+   "7": "Bosque de ribera",
+   "8": "Matorral",
+   "9": "Pastizal-matorral",
+   "10": "Agrícola",
+   "11": "Artificial / minería",
+   "12": "Agua / humedal",
+   "13": "Otros arbolados"
+  },
+  "sub": {
+   "0": "Sin datos",
+   "1": "Silíceo (areniscas del rodeno)",
+   "2": "Calizo / dolomítico",
+   "3": "Arcillas y yesos (Keuper)",
+   "4": "Fondo de valle / rambla",
+   "5": "Depósitos cuaternarios de ladera"
+  },
+  "pot": {
+   "0": "—",
+   "1": "Alcornocal (Asplenio onopteridis–Querco suberis S.)",
+   "2": "Carrascal silicícola de montaña",
+   "3": "Carrascal con quejigo (Rubio longifoliae–Querco rotundifoliae S.)",
+   "4": "Lentiscar-coscojar con carrasca, algarrobo y acebuche (termomediterráneo)",
+   "5": "Carrascal-coscojar sobre arcillas y yesos",
+   "6": "Vegetación de ribera (sauceda, chopera, adelfar)",
+   "7": "Uso no forestal (agrícola, urbano, agua)"
+  },
+  "act": {
+   "0": "—",
+   "1": "Regeneración natural: seguimiento y protección",
+   "2": "Regeneración asistida: siembra y plantación en núcleos",
+   "3": "Restauración activa hacia la vegetación potencial",
+   "4": "Recuperar cultivo / mosaico agrícola cortafuegos",
+   "5": "No quemado o afección leve: sin actuación"
+  },
+  "eros": {
+   "0": "—",
+   "1": "Bajo",
+   "2": "Medio",
+   "3": "Alto",
+   "4": "Muy alto"
+  },
+  "feas": {
+   "0": "—",
+   "1": "Baja (<45)",
+   "2": "Media (45–70)",
+   "3": "Alta (≥70)"
+  }
+ },
+ "stats": {
+  "ems_ha": 7341.8,
+  "grid_ha": 7352.9,
+  "forest_ha": 6837.6,
+  "public_ha": 283.3,
+  "public_forest_ha": 282.3,
+  "pn_ha": 2673.8,
+  "pn_total_ha": 31192.0,
+  "recurrent_ha": 1812.2,
+  "severity": {
+   "No quemado": 49.3,
+   "Baja": 517.2,
+   "Moderada-baja": 1593.4,
+   "Moderada-alta": 2699.1,
+   "Alta": 2493.9
+  },
+  "owner": {
+   "Utilidad pública · Ayuntamiento": 279.1,
+   "Utilidad pública · Generalitat": 4.2,
+   "Enclavado privado en monte público": 1.6,
+   "Sin catalogar (mayoritariamente privado)": 7068.0
+  },
+  "veg_before": {
+   "Alcornocal": 451.4,
+   "Pinar de rodeno (P. pinaster)": 156.8,
+   "Pinar de pino carrasco": 3667.4,
+   "Bosque mixto pino + frondosas": 1099.7,
+   "Encinar, quejigar y frondosas": 449.3,
+   "Algarrobal / acebuchal": 360.8,
+   "Matorral": 498.7,
+   "Pastizal-matorral": 153.6,
+   "Agrícola": 459.1,
+   "Artificial / minería": 43.8,
+   "Agua / humedal": 12.3
+  },
+  "potential": {
+   "Alcornocal (Asplenio onopteridis–Querco suberis S.)": 2616.0,
+   "Carrascal con quejigo (Rubio longifoliae–Querco rotundifoliae S.)": 2870.4,
+   "Lentiscar-coscojar con carrasca, algarrobo y acebuche (termomediterráneo)": 1098.1,
+   "Carrascal-coscojar sobre arcillas y yesos": 131.6,
+   "Vegetación de ribera (sauceda, chopera, adelfar)": 121.5,
+   "Uso no forestal (agrícola, urbano, agua)": 515.2
+  },
+  "erosion": {
+   "Bajo": 1695.2,
+   "Medio": 2803.2,
+   "Alto": 1821.3,
+   "Muy alto": 517.9
+  },
+  "actions": {
+   "Regeneración natural: seguimiento y protección": {
+    "total": 2783.6,
+    "publico": 89.2,
+    "privado": 2694.3,
+    "erosion_alta": 627.7
+   },
+   "Regeneración asistida: siembra y plantación en núcleos": {
+    "total": 2683.1,
+    "publico": 70.6,
+    "privado": 2612.5,
+    "erosion_alta": 848.4
+   },
+   "Restauración activa hacia la vegetación potencial": {
+    "total": 1347.9,
+    "publico": 122.2,
+    "privado": 1225.6,
+    "erosion_alta": 863.1
+   },
+   "Recuperar cultivo / mosaico agrícola cortafuegos": {
+    "total": 442.1,
+    "publico": 0.9,
+    "privado": 441.1,
+    "erosion_alta": 0.0
+   },
+   "No quemado o afección leve: sin actuación": {
+    "total": 96.3,
+    "publico": 0.3,
+    "privado": 96.0,
+    "erosion_alta": 0.0
+   }
+  },
+  "feasibility": {
+   "Baja (<45)": 4166.6,
+   "Media (45–70)": 2287.3,
+   "Alta (≥70)": 383.7
+  },
+  "regrowth_ha": 700.4,
+  "scenes": {
+   "antes": "2026-07-03",
+   "despues": "2026-08-19",
+   "ahora": "2026-09-08"
+  },
+  "erosion_public": {
+   "Alto": 99.8,
+   "Muy alto": 53.5
+  },
+  "veg_vs_pot": {
+   "Alcornocal": {
+    "Alcornocal (Asplenio onopteridis–Querco suberis S.)": 380.1,
+    "Carrascal con quejigo (Rubio longifoliae–Querco rotundifoliae S.)": 67.3,
+    "Lentiscar-coscojar con carrasca, algarrobo y acebuche (termomediterráneo)": 3.2,
+    "Carrascal-coscojar sobre arcillas y yesos": 0.3,
+    "Vegetación de ribera (sauceda, chopera, adelfar)": 0.5
+   },
+   "Pinar de rodeno (P. pinaster)": {
+    "Alcornocal (Asplenio onopteridis–Querco suberis S.)": 83.2,
+    "Carrascal con quejigo (Rubio longifoliae–Querco rotundifoliae S.)": 70.2,
+    "Lentiscar-coscojar con carrasca, algarrobo y acebuche (termomediterráneo)": 1.9,
+    "Carrascal-coscojar sobre arcillas y yesos": 1.2,
+    "Vegetación de ribera (sauceda, chopera, adelfar)": 0.1
+   },
+   "Pinar de pino carrasco": {
+    "Alcornocal (Asplenio onopteridis–Querco suberis S.)": 795.7,
+    "Carrascal con quejigo (Rubio longifoliae–Querco rotundifoliae S.)": 2010.5,
+    "Lentiscar-coscojar con carrasca, algarrobo y acebuche (termomediterráneo)": 693.2,
+    "Carrascal-coscojar sobre arcillas y yesos": 94.8,
+    "Vegetación de ribera (sauceda, chopera, adelfar)": 73.2
+   },
+   "Bosque mixto pino + frondosas": {
+    "Alcornocal (Asplenio onopteridis–Querco suberis S.)": 706.8,
+    "Carrascal con quejigo (Rubio longifoliae–Querco rotundifoliae S.)": 253.6,
+    "Lentiscar-coscojar con carrasca, algarrobo y acebuche (termomediterráneo)": 109.2,
+    "Carrascal-coscojar sobre arcillas y yesos": 14.0,
+    "Vegetación de ribera (sauceda, chopera, adelfar)": 16.1
+   },
+   "Encinar, quejigar y frondosas": {
+    "Alcornocal (Asplenio onopteridis–Querco suberis S.)": 274.3,
+    "Carrascal con quejigo (Rubio longifoliae–Querco rotundifoliae S.)": 85.4,
+    "Lentiscar-coscojar con carrasca, algarrobo y acebuche (termomediterráneo)": 77.7,
+    "Carrascal-coscojar sobre arcillas y yesos": 7.6,
+    "Vegetación de ribera (sauceda, chopera, adelfar)": 4.2
+   },
+   "Algarrobal / acebuchal": {
+    "Alcornocal (Asplenio onopteridis–Querco suberis S.)": 206.7,
+    "Carrascal con quejigo (Rubio longifoliae–Querco rotundifoliae S.)": 58.6,
+    "Lentiscar-coscojar con carrasca, algarrobo y acebuche (termomediterráneo)": 71.7,
+    "Carrascal-coscojar sobre arcillas y yesos": 1.2,
+    "Vegetación de ribera (sauceda, chopera, adelfar)": 22.5
+   },
+   "Matorral": {
+    "Alcornocal (Asplenio onopteridis–Querco suberis S.)": 135.5,
+    "Carrascal con quejigo (Rubio longifoliae–Querco rotundifoliae S.)": 275.3,
+    "Lentiscar-coscojar con carrasca, algarrobo y acebuche (termomediterráneo)": 87.4,
+    "Vegetación de ribera (sauceda, chopera, adelfar)": 0.4
+   },
+   "Pastizal-matorral": {
+    "Alcornocal (Asplenio onopteridis–Querco suberis S.)": 33.8,
+    "Carrascal con quejigo (Rubio longifoliae–Querco rotundifoliae S.)": 49.3,
+    "Lentiscar-coscojar con carrasca, algarrobo y acebuche (termomediterráneo)": 53.8,
+    "Carrascal-coscojar sobre arcillas y yesos": 12.4,
+    "Vegetación de ribera (sauceda, chopera, adelfar)": 4.4
+   }
+  }
+ }
+}
