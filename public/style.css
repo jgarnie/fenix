@@ -144,17 +144,35 @@ details ul { padding-left: 18px; margin: 6px 0; }
 .leaflet-popup-content { font-size: 12.5px; }
 .pixelated { image-rendering: pixelated; }
 
+.sheet-handle { display: none; }
+
+/* --- móvil: el panel es una hoja inferior que se expande y contrae */
 @media (max-width: 860px) {
-  body { grid-template-columns: 1fr; grid-template-rows: 58vh 42vh; }
-  #mapwrap { grid-row: 1; }
-  #panel { grid-row: 2; border-right: 0; border-top: 1px solid var(--line); }
-  .brand { padding: 10px 16px 6px; }
-  .tab { padding: 4px 16px 30px; }
+  :root { --sheet: 42vh; --sheet-open: 80vh; }
+  @supports (height: 1dvh) { :root { --sheet: 42dvh; --sheet-open: 80dvh; } }
+  body { display: block; }
+  #mapwrap { position: fixed; inset: 0; }
+  #panel {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 1000; height: var(--sheet);
+    border-right: 0; border-top: 1px solid var(--line); border-radius: 16px 16px 0 0;
+    box-shadow: 0 -4px 18px rgba(0, 0, 0, .18); transition: height .28s ease; will-change: height;
+  }
+  body.sheet-open #panel { height: var(--sheet-open); }
+  .sheet-handle {
+    display: flex; justify-content: center; align-items: center; width: 100%; height: 22px; flex: none;
+    border: 0; background: none; padding: 0; cursor: pointer; touch-action: none;
+  }
+  .sheet-handle span { width: 42px; height: 5px; border-radius: 3px; background: var(--line); }
+  .brand { padding: 0 16px 6px; }
+  .brand h1 { font-size: 17px; }
+  .tab { padding: 4px 16px calc(30px + env(safe-area-inset-bottom)); overscroll-behavior: contain; }
   #compare-bar { top: 8px; left: 8px; right: 8px; transform: none; justify-content: space-between; flex-wrap: wrap; }
   #compare-bar select { max-width: 110px; }
-  #info { left: 8px; right: 8px; width: auto; top: auto; bottom: 8px; max-height: 55%; }
   .cmp-label { top: 92px; }
-  #legend { left: 8px; bottom: 20px; max-width: 60%; }
+  #info { left: 8px; right: 8px; width: auto; top: 120px; bottom: auto; max-height: calc(100vh - var(--sheet) - 132px); }
+  #legend { left: 8px; bottom: calc(var(--sheet) + 10px); max-width: 60%; max-height: 30vh; }
+  .leaflet-bottom { bottom: var(--sheet); }
+  body.sheet-open #legend, body.sheet-open #info { display: none; }
 }
 
 #recargo { width: 100%; max-width: 100%; }

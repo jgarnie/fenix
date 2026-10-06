@@ -189,7 +189,9 @@ function rampLegend(stops, a, b) {
 const map = L.map('map', { zoomControl: false, attributionControl: true, minZoom: 9, maxZoom: 18 });
 L.control.zoom({ position: 'bottomright' }).addTo(map);
 const bounds = L.latLngBounds(meta.bounds);
-map.fitBounds(bounds.pad(-0.05));
+const MOBILE = matchMedia('(max-width: 860px)');
+// en móvil el panel tapa la parte inferior: centrar el incendio en la zona visible
+map.fitBounds(bounds.pad(-0.05), MOBILE.matches ? { paddingTopLeft: [0, 60], paddingBottomRight: [0, innerHeight * 0.42] } : {});
 
 for (const [name, z] of [['imgL', 300], ['imgR', 301], ['theme', 420], ['vec', 450]]) {
   map.createPane(name).style.zIndex = z;
@@ -739,5 +741,35 @@ $('#tab-fuentes').innerHTML = `
   </ul>
   <p class="muted">Regenerar los datos: <code>python3 scripts/build_data.py</code></p>
 `;
+
+// --- móvil: el panel funciona como hoja inferior
+{
+  const panel = $('#panel');
+  const handle = $('#sheet-handle');
+  const isOpen = () => document.body.classList.contains('sheet-open');
+  const setOpen = (open) => {
+    if (!MOBILE.matches || open === isOpen()) return;
+    document.body.classList.toggle('sheet-open', open);
+    handle.setAttribute('aria-expanded', open);
+  };
+  handle.addEventListener('click', () => setOpen(!isOpen()));
+  // al poner el foco o tocar algo del panel, se expande
+  panel.addEventListener('focusin', (e) => { if (e.target !== handle) setOpen(true); });
+  panel.addEventListener('click', (e) => { if (!handle.contains(e.target)) setOpen(true); });
+  // deslizar hacia arriba expande; hacia abajo (con el contenido arriba del todo) contrae
+  let y0 = null;
+  let scroller = null;
+  panel.addEventListener('touchstart', (e) => { y0 = e.touches[0].clientY; scroller = e.target.closest('.tab'); }, { passive: true });
+  panel.addEventListener('touchmove', (e) => {
+    if (y0 === null) return;
+    const dy = y0 - e.touches[0].clientY;
+    if (dy > 12 && !isOpen()) { setOpen(true); y0 = null; }
+    else if (dy < -12 && isOpen() && (!scroller || scroller.scrollTop <= 0)) { setOpen(false); y0 = null; }
+  }, { passive: true });
+  panel.addEventListener('touchend', () => { y0 = null; });
+  // al usar el mapa, se contrae
+  map.on('click dragstart zoomstart', () => setOpen(false));
+  MOBILE.addEventListener('change', () => { if (!MOBILE.matches) document.body.classList.remove('sheet-open'); });
+}
 
 renderTheme();
