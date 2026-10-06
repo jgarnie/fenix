@@ -739,7 +739,6 @@ $('#tab-fuentes').innerHTML = `
     <li>El modelo de vegetación potencial debe validarse con técnicos forestales y trabajo de campo.</li>
     <li>Costes: precios unitarios de las <a href="http://extremambiente.juntaex.es/files/2024/forestales/Tarifas%20SOGF_2024.pdf" target="_blank" rel="noopener">Tarifas forestales de la Junta de Extremadura 2024</a>; recargos de VAERSA según la <a href="https://dogv.gva.es/datos/2025/09/30/pdf/2025_41281_es.pdf" target="_blank" rel="noopener">Resolución de 25/9/2025 (DOGV)</a>. Las densidades de plantación (500 y 1.000 plantas/ha) son supuestos del modelo.</li>
   </ul>
-  <p class="muted">Regenerar los datos: <code>python3 scripts/build_data.py</code></p>
 `;
 
 // --- móvil: el panel funciona como hoja inferior
