@@ -31,6 +31,9 @@
   "ndvi_b",
   "ndvi_a",
   "ndvi_n",
+  "dndmi",
+  "recov",
+  "ceam",
   "pn",
   "mun"
  ],
@@ -85,6 +88,12 @@
   "Sagunt"
  ],
  "legends": {
+  "ceam": {
+   "0": "—",
+   "1": "<30 %: reforestar",
+   "2": "30–60 %: plantación selectiva",
+   "3": ">60 %: no plantar"
+  },
   "owner": {
    "0": "Sin catalogar (mayoritariamente privado)",
    "1": "Utilidad pública · Ayuntamiento",
@@ -285,7 +294,29 @@
    "Alta (≥70)": 383.7
   },
   "regrowth_ha": 700.4,
+  "soil_ndvi": 0.137,
+  "ceam": {
+   "<30 %: reforestar": {
+    "total": 6009.1,
+    "publico": 256.9
+   },
+   "30–60 %: plantación selectiva": {
+    "total": 725.8,
+    "publico": 23.0
+   },
+   ">60 %: no plantar": {
+    "total": 79.6,
+    "publico": 2.2
+   }
+  },
+  "sequedad": {
+   "ndmi_abril": 0.15,
+   "ndmi_julio": 0.079,
+   "ndvi_abril": 0.665,
+   "ndvi_julio": 0.557
+  },
   "scenes": {
+   "abril": "2026-04-04",
    "antes": "2026-07-03",
    "despues": "2026-08-19",
    "ahora": "2026-09-08"

@@ -50,6 +50,7 @@ MUNI = "https://carto.icv.gva.es/arcgis/rest/services/0105_delimitaciones/0105_D
 DEM = "https://copernicus-dem-30m.s3.amazonaws.com/Copernicus_DSM_COG_10_N39_00_W001_00_DEM/Copernicus_DSM_COG_10_N39_00_W001_00_DEM.tif"
 
 SCENES = {
+    "abril": "S2B_30TYK_20260404_0_L2A",   # primavera, misma órbita que "antes" (sequedad previa, como el CEAM)
     "antes": "S2B_30TYK_20260703_0_L2A",   # 3 semanas antes, sin nubes ni calima
     "despues": "S2A_30TYK_20260819_1_L2A",  # 18 días tras la estabilización, sin nubes
     "ahora": "S2A_30TYK_20260908_1_L2A",    # última escena con 0 % de nubes sobre el perímetro
@@ -172,7 +173,7 @@ for key, sid in SCENES.items():
         return read_band(a[name]["href"], tr, w, h) * scale + offset
     s = {
         "date": item["properties"]["datetime"][:10],
-        "nir": refl("nir"), "swir": refl("swir22"), "red": refl("red"),
+        "nir": refl("nir"), "swir": refl("swir22"), "swir16": refl("swir16"), "red": refl("red"),
         "scl": read_band(a["scl"]["href"], T, W, H, Resampling.nearest),
     }
     # imagen en color natural a 10 m
@@ -197,6 +198,16 @@ def ndvi(s):
 
 dnbr = nbr(scenes["antes"]) - nbr(scenes["despues"])
 ndvi_b, ndvi_a, ndvi_n = ndvi(scenes["antes"]), ndvi(scenes["despues"]), ndvi(scenes["ahora"])
+
+
+def ndmi(s):  # humedad de la vegetación: (B8 - B11) / (B8 + B11)
+    return (s["nir"] - s["swir16"]) / np.maximum(s["nir"] + s["swir16"], 1e-4)
+
+
+# Sequedad previa (abril -> julio), el mismo análisis que publicó la Fundación CEAM
+ndmi_abr, ndmi_jul = ndmi(scenes["abril"]), ndmi(scenes["antes"])
+ndvi_abr = ndvi(scenes["abril"])
+cloud_pre = np.isin(scenes["abril"]["scl"], [3, 8, 9, 10]) | np.isin(scenes["antes"]["scl"], [3, 8, 9, 10])
 cloud = np.isin(scenes["antes"]["scl"], [3, 8, 9, 10]) | np.isin(scenes["despues"]["scl"], [3, 8, 9, 10])
 
 # Severidad (Key & Benson 2006, USGS): 0 sin datos, 1 no quemado, 2 baja, 3 moderada-baja,
@@ -346,6 +357,19 @@ recent_fire = last_fire >= 2011  # pinar inmaduro: <15 años, sin piñas seróti
 cloud_now = np.isin(scenes["ahora"]["scl"], [3, 8, 9, 10])
 regrowth = ((ndvi_n - ndvi_a) > 0.05) & ~cloud_now
 
+# Criterio de la Fundación CEAM para decidir dónde plantar: recuperación de la cubierta
+# vegetal respecto a la previa (>60 % no plantar, 30-60 % plantación selectiva,
+# <30 % reforestar). Aproximación con NDVI: (NDVI ahora - suelo quemado) / (NDVI antes -
+# suelo quemado), donde el suelo quemado es la mediana del NDVI tras el fuego en severidad alta.
+soil_ndvi = float(np.median(ndvi_a[inside & (sev >= 4)]))
+recov = np.clip((ndvi_n - soil_ndvi) / np.maximum(ndvi_b - soil_ndvi, 0.05), 0, 1.5) * 100
+CEAM = {0: "—", 1: "<30 %: reforestar", 2: "30–60 %: plantación selectiva", 3: ">60 %: no plantar"}
+ceam = np.zeros((H, W), "uint8")
+ceam_ok = inside & forest & (sev >= 2) & ~cloud_now
+ceam[ceam_ok] = 1
+ceam[ceam_ok & (recov >= 30)] = 2
+ceam[ceam_ok & (recov >= 60)] = 3
+
 # Riesgo de erosión post-incendio (antes de las lluvias de otoño)
 EROS = {0: "—", 1: "Bajo", 2: "Medio", 3: "Alto", 4: "Muy alto"}
 eros = np.zeros((H, W), "uint8")
@@ -430,6 +454,15 @@ stats = {
     "actions": {},
     "feasibility": crosstab(feas_cls, FEAS, valid),
     "regrowth_ha": ha(inside & forest & regrowth),
+    "soil_ndvi": round(soil_ndvi, 3),
+    "ceam": {CEAM[k]: {"total": ha(ceam == k), "publico": ha((ceam == k) & np.isin(owner, [1, 2, 3]))} for k in (1, 2, 3)},
+    "sequedad": {
+        # cambio relativo de la media dentro del área quemada, abril -> julio (como el CEAM)
+        "ndmi_abril": round(float(ndmi_abr[inside & ~cloud_pre].mean()), 3),
+        "ndmi_julio": round(float(ndmi_jul[inside & ~cloud_pre].mean()), 3),
+        "ndvi_abril": round(float(ndvi_abr[inside & ~cloud_pre].mean()), 3),
+        "ndvi_julio": round(float(ndvi_b[inside & ~cloud_pre].mean()), 3),
+    },
     "scenes": {k: v["date"] for k, v in scenes.items()},
 }
 for k, lab in ACT.items():
@@ -456,6 +489,9 @@ layers = {
     "ndvi_b": np.clip(ndvi_b * 100 + 100, 0, 255).astype("uint8"),
     "ndvi_a": np.clip(ndvi_a * 100 + 100, 0, 255).astype("uint8"),
     "ndvi_n": np.clip(ndvi_n * 100 + 100, 0, 255).astype("uint8"),
+    "dndmi": np.where(cloud_pre, 0, np.clip((ndmi_jul - ndmi_abr) * 100 + 100, 1, 255)).astype("uint8"),
+    "recov": np.where(cloud_now, 255, np.clip(recov, 0, 150)).astype("uint8"),
+    "ceam": ceam,
     "pn": in_pn.astype("uint8"),
     "mun": mun,
 }
@@ -468,7 +504,7 @@ meta = {
     "width": W, "height": H, "bounds": BOUNDS, "pixel_ha": PIX_HA, "ground_m": GROUND,
     "layers": order,
     "municipios": list(muni.nom_mun),
-    "legends": {"owner": OWNER, "veg": VEG, "sub": GEO, "pot": POT, "act": ACT, "eros": EROS, "feas": FEAS},
+    "legends": {"ceam": CEAM, "owner": OWNER, "veg": VEG, "sub": GEO, "pot": POT, "act": ACT, "eros": EROS, "feas": FEAS},
     "stats": stats,
 }
 with open(os.path.join(OUT, "meta.json"), "w") as f:
@@ -488,6 +524,35 @@ save_geojson(montes, "montes.geojson", ["denominacion", "num_up", "municipio", "
 save_geojson(pn, "parque_natural.geojson", ["nombre", "hect_ofi", "legislacio"], tol=0.0002)
 muni["ha_quemadas"] = [ha(inside & (mun == k)) for k in range(1, len(muni) + 1)]
 save_geojson(muni, "municipios.geojson", ["nom_mun", "comarca", "area_ha", "ha_quemadas"], tol=0.0001)
+# Parajes citados por la Fundación CEAM (coordenadas del Nomenclátor Geográfico del IGN vía
+# CartoCiudad). El Puntal de Nules es el Pic de la Font de Cabres (639 m).
+from shapely.geometry import Point
+ceam_pts = [
+    ("Puntal de Nules", "mayor", "Pic de la Font de Cabres (639 m), Nules", -0.224488, 39.862488, False),
+    ("Umbría de Artana", "mayor", "La Umbría (vertientes), Artana", -0.263978, 39.873718, False),
+    ("El Solaig", "mayor", "Solaig (vértice geodésico), Betxí", -0.205475, 39.908120, False),
+    ("Penyes Aragoneses → Betxí", "menor", "Peñas Aragonesas (montaña), Artana; el CEAM sitúa la menor severidad al este, hacia Betxí", -0.240296, 39.922729, False),
+]
+pend = [k + 1 for k, n in enumerate(muni.nom_mun) if n in ("Onda", "Tales", "Alcudia de Veo", "Aín")]
+rr, cc = np.nonzero(inside & np.isin(mun, pend))
+px, py = T * (cc.mean() + 0.5, rr.mean() + 0.5)
+pend_ll = gpd.GeoSeries([Point(px, py)], crs=3857).to_crs(4326).iloc[0]
+ceam_pts.append(("Onda – Tales – l'Alcúdia – Aín", "pendiente", "Centro de lo quemado en esos cuatro municipios; el CEAM no pudo evaluarla por las nubes", pend_ll.x, pend_ll.y, False))
+
+
+def sev_near(lon, lat, r_m=500):
+    p = gpd.GeoSeries([Point(lon, lat)], crs=4326).to_crs(3857).iloc[0]
+    col, row = ~T * (p.x, p.y)
+    rad = r_m * K / RES
+    yy, xx = np.ogrid[:H, :W]
+    m = ((xx - col) ** 2 + (yy - row) ** 2 <= rad ** 2) & inside & (sev > 0)
+    return round(float(dnbr[m].mean()), 2) if m.any() else None
+
+
+cz = gpd.GeoDataFrame(
+    [{"nombre": n, "ceam": c, "ubicacion": u, "aprox": a, "dnbr_500m": sev_near(x, y)} for n, c, u, x, y, a in ceam_pts],
+    geometry=[Point(x, y) for *_, x, y, _ in ceam_pts], crs=4326)
+cz.to_file(os.path.join(OUT, "ceam_zonas.geojson"), driver="GeoJSON")
 fd = fires.dissolve("anyo").reset_index()
 save_geojson(fd, "incendios_previos.geojson", ["anyo"], tol=0.0001)
 

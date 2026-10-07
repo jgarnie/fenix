@@ -14,8 +14,8 @@ const buf = new Uint8Array(await (await fetch('data/grid.bin')).arrayBuffer());
 const { width: W, height: H, stats: S } = meta;
 const N = W * H;
 const G = Object.fromEntries(meta.layers.map((k, i) => [k, buf.subarray(i * N, (i + 1) * N)]));
-const [montes, perimetro, parque, incendios, municipios] = await Promise.all(
-  ['montes', 'perimetro', 'parque_natural', 'incendios_previos', 'municipios'].map((f) => fetch(`data/${f}.geojson`).then((r) => r.json())),
+const [montes, perimetro, parque, incendios, municipios, ceamZonas] = await Promise.all(
+  ['montes', 'perimetro', 'parque_natural', 'incendios_previos', 'municipios', 'ceam_zonas'].map((f) => fetch(`data/${f}.geojson`).then((r) => r.json())),
 );
 const PIX_HA = meta.pixel_ha;
 const leg = meta.legends;
@@ -34,6 +34,7 @@ const C = {
   act: { 1: '#1a9850', 2: '#fee08b', 3: '#d73027', 4: '#bf812d', 5: '#d9d9d9' },
   feas: { 1: '#d73027', 2: '#fee08b', 3: '#1a9850' },
   recur: { 1: '#fcbba1', 2: '#fb6a4a', 3: '#a50f15' },
+  ceam: { 1: '#d73027', 2: '#fee08b', 3: '#1a9850' },
 };
 
 const POT_INFO = {
@@ -164,7 +165,13 @@ const THEMES = {
   recur: { name: 'Incendios anteriores (1993–2024)', desc: 'Nº de veces que ya ardió', inside: false,
     color: (i) => (val('recur', i) ? C.recur[Math.min(3, val('recur', i))] : null),
     legend: () => cats(C.recur, { 1: '1 incendio previo', 2: '2 incendios', 3: '3 o más' }) },
+  dry: { name: 'Sequedad antes del incendio', desc: 'Pérdida de humedad (NDMI) de abril a julio, como el análisis del CEAM', inside: false,
+    color: (i) => (G.dndmi[i] ? ramp(((G.dndmi[i] - 100) / 100 + 0.2) / 0.25, DRY) : null),
+    legend: () => rampLegend(DRY, 'Se secó mucho', 'Sin cambio') },
+  ceam: { name: 'Criterio CEAM: ¿hay que plantar?', desc: 'Recuperación de la cubierta vegetal (umbrales del CEAM: 30 % y 60 %)', inside: true,
+    color: (i) => C.ceam[G.ceam[i]], legend: () => cats(C.ceam, leg.ceam, [1, 2, 3]) },
 };
+const DRY = ['#8c510a', '#d8b365', '#f6e8c3', '#c7eae5', '#35978f'];
 const NO_THEME = { name: 'Ninguna (solo imagen)', desc: 'Para comparar libremente las imágenes' };
 
 function used(k) {
@@ -203,6 +210,7 @@ L.tileLayer('https://www.ign.es/wmts/ign-base?layer=IGNBaseTodo&style=default&ti
 }).addTo(map);
 
 const IMAGES = {
+  abril: { label: 'Primavera · 4 abr 2026', src: 'data/s2_abril.jpg' },
   antes: { label: 'Antes · 3 jul 2026', src: 'data/s2_antes.jpg' },
   despues: { label: 'Después · 19 ago 2026', src: 'data/s2_despues.jpg' },
   ahora: { label: 'Ahora · 8 sep 2026', src: 'data/s2_ahora.jpg' },
@@ -335,7 +343,14 @@ const vec = {
       { permanent: true, direction: 'center', className: `mun-label${f.properties.ha_quemadas ? ' hit' : ''}` }),
   }),
 };
-const vecOn = { perimetro: true, montes: true, parque: true, incendios: false, municipios: true };
+const CEAM_TAG = { mayor: ['#a50026', 'mayor severidad'], menor: ['#1a9850', 'menor severidad'], pendiente: ['#6b6b6b', 'pendiente de evaluar'] };
+vec.ceam = L.geoJSON(ceamZonas, {
+  pane: 'vec',
+  pointToLayer: (f, ll) => L.circleMarker(ll, { radius: 7, color: '#fff', weight: 2, fillColor: CEAM_TAG[f.properties.ceam][0], fillOpacity: 1 })
+    .bindTooltip(`${f.properties.nombre}<br><small>CEAM: ${CEAM_TAG[f.properties.ceam][1]}</small>`,
+      { permanent: true, direction: 'right', offset: [8, 0], className: 'ceam-label' }),
+});
+const vecOn = { perimetro: true, montes: true, parque: true, incendios: false, municipios: true, ceam: true };
 function syncVec() { for (const k in vec) vecOn[k] ? vec[k].addTo(map) : map.removeLayer(vec[k]); }
 syncVec();
 
@@ -393,6 +408,8 @@ function showInfo(i, ll) {
     ['Sustrato', leg.sub[G.sub[i]] || 's/d'],
     ['Altitud · pendiente', `${fmt(G.elev[i] * 5)} m · ${fmt(G.slope[i])} %`],
     ['Incendios previos', fuegos.length ? fuegos.join(', ') : 'Ninguno desde 1993'],
+    ['Sequedad abr → jul', G.dndmi[i] ? `NDMI ${fmt((G.dndmi[i] - 100) / 100, 2)}` : 's/d'],
+    ...(G.ceam[i] ? [['Criterio CEAM', `${pill(C.ceam[G.ceam[i]], leg.ceam[G.ceam[i]])}<br><small>Recuperación de la cubierta: ${fmt(G.recov[i])} % (${S.scenes.ahora})</small>`]] : []),
   ];
   let html = `<button class="close" aria-label="Cerrar">×</button><h3>${inside ? 'Punto afectado' : 'Punto consultado'}</h3><small>${ll.lat.toFixed(5)}, ${ll.lng.toFixed(5)}</small>`;
   html += `<dl>${rows.map(([k, x]) => `<dt>${k}</dt><dd>${x}</dd>`).join('')}</dl>`;
@@ -428,6 +445,38 @@ function bars(obj, colors, total) {
 const byLabel = (legend, colors) => (lbl) => colors[Object.keys(legend).find((k) => legend[k] === lbl)] || '#999';
 
 // --- Resumen
+// Cifras publicadas por la Fundación CEAM (agosto 2026, provisionales)
+const CEAM_REF = { ha: 9600, pn: 43, parque: 12, muyAlta: 16, pinar: 40, matorral: 30, alcornocal: 10, ndmi: -51, ndvi: -38 };
+function ceamTable() {
+  const g = S.grid_ha, v = S.veg_before, q = S.sequedad;
+  const pct = (x) => `${fmt((x / g) * 100)} %`;
+  const rel = (a, b) => `${fmt(((b - a) / Math.abs(a)) * 100)} %`;
+  const rows = [
+    ['Superficie quemada', `${fmt(CEAM_REF.ha)} ha`, `${fmt(g)} ha`, 'Nosotros usamos lo que se ve quemado desde satélite (Copernicus); el CEAM, el perímetro.'],
+    ['Dentro del Parque Natural', `${CEAM_REF.pn} %`, pct(S.pn_ha), ''],
+    ['Parte del parque quemada', `${CEAM_REF.parque} %`, `${fmt((S.pn_ha / S.pn_total_ha) * 100)} %`, ''],
+    ['Severidad más alta', `${CEAM_REF.muyAlta} % "muy alta"`, `${pct(S.severity.Alta || 0)} "alta"`, 'Umbrales distintos: nuestra clase "alta" (dNBR > 0,66) es más amplia.'],
+    ['Pinar', `${CEAM_REF.pinar} %`, pct((v['Pinar de pino carrasco'] || 0) + (v['Pinar de rodeno (P. pinaster)'] || 0)), `Más ${pct(v['Bosque mixto pino + frondosas'] || 0)} de bosque mixto.`],
+    ['Matorral', `${CEAM_REF.matorral} %`, pct((v.Matorral || 0) + (v['Pastizal-matorral'] || 0)), 'Cartografías distintas: el Mapa Forestal clasifica como bosque mucho pinar ralo.'],
+    ['Alcornocal', `${CEAM_REF.alcornocal} %`, pct(v.Alcornocal || 0), ''],
+    ['Pérdida de humedad abr → jul', `${CEAM_REF.ndmi} %`, rel(q.ndmi_abril, q.ndmi_julio), `NDMI medio ${fmt(q.ndmi_abril, 2)} → ${fmt(q.ndmi_julio, 2)} (4 abr → 3 jul).`],
+    ['Pérdida de verdor abr → jul', `${CEAM_REF.ndvi} %`, rel(q.ndvi_abril, q.ndvi_julio), `NDVI medio ${fmt(q.ndvi_abril, 2)} → ${fmt(q.ndvi_julio, 2)}; depende mucho de las fechas exactas.`],
+  ];
+  const zonas = ceamZonas.features.map((f) => {
+    const p = f.properties;
+    const d = p.dnbr_500m;
+    const ok = p.ceam === 'mayor' ? d >= 0.44 : p.ceam === 'menor' ? d < 0.44 : null;
+    return `<tr><td>${p.nombre}</td><td>${CEAM_TAG[p.ceam][1]}</td><td>${d == null ? 's/d' : fmt(d, 2)}</td><td>${ok == null ? '—' : ok ? '✓ coincide' : '✗ no coincide'}</td></tr>`;
+  }).join('');
+  return `<table><thead><tr><th>Dato</th><th>CEAM</th><th>Esta app</th></tr></thead><tbody>
+      ${rows.map(([a, b, c, n]) => `<tr><td>${a}${n ? `<br><small class="muted">${n}</small>` : ''}</td><td>${b}</td><td>${c}</td></tr>`).join('')}
+    </tbody></table>
+    <h3>Zonas que cita el CEAM</h3>
+    <table><thead><tr><th>Paraje</th><th>CEAM</th><th>dNBR medio (500 m)</th><th></th></tr></thead><tbody>${zonas}</tbody></table>
+    <p class="muted">"Coincide" si nuestra severidad media alrededor del paraje es moderada-alta o alta (dNBR ≥ 0,44) donde el CEAM indica mayor severidad,
+    y menor donde indica menor severidad. Algunos parajes son zonas amplias y aquí se representan con un punto del Nomenclátor del IGN.
+    Las cifras del CEAM son provisionales y proceden de su nota de agosto de 2026.</p>`;
+}
 {
   const sev = S.severity;
   const sevHigh = (sev['Moderada-alta'] || 0) + (sev.Alta || 0);
@@ -474,6 +523,8 @@ const byLabel = (legend, colors) => (lbl) => colors[Object.keys(legend).find((k)
     (IFN3, medidas en 2006) que caen dentro del área quemada. De ellos, unos ${mill(T.muertos_coniferas)} pinos habrían muerto (no rebrotan)
     y unas ${fmt(T.muertos_frondosas / 1e3)} mil frondosas; el resto de frondosas (${mill(T.frondosas - T.muertos_frondosas)}) debería rebrotar.
     No incluye árboles jóvenes ni dispersos en el matorral. Ver método en Fuentes.</p>` : ''}
+    <h2>Comparación con el CEAM</h2>
+    ${ceamTable()}
     <h2>¿De quién es?</h2>
     ${bars(S.owner, byLabel(leg.owner, C.owner))}
     <h2>¿Es posible recuperarlo?</h2>
@@ -506,6 +557,7 @@ const byLabel = (legend, colors) => (lbl) => colors[Object.keys(legend).find((k)
       <label><input type="checkbox" data-v="perimetro" checked> Área quemada (Copernicus EMS)</label>
       <label><input type="checkbox" data-v="montes" checked> Montes de utilidad pública <span class="sw" style="background:#08519c"></span></label>
       <label><input type="checkbox" data-v="parque" checked> Parque Natural Serra d'Espadà <span class="sw" style="background:#1b7837"></span></label>
+      <label><input type="checkbox" data-v="ceam" checked> Parajes citados por el CEAM <span class="sw" style="background:#a50026"></span></label>
       <label><input type="checkbox" data-v="municipios" checked> Términos municipales <span class="sw" style="background:#5b5b5b"></span></label>
       <label><input type="checkbox" data-v="incendios"> Incendios 1993–2024 <span class="sw" style="background:#ef6548"></span></label>
     </div>
@@ -659,6 +711,15 @@ function renderPlan() {
 {
   const act = (a) => `<details><summary><span class="sw" style="display:inline-block;background:${a === EMERG ? C.eros[4] : C.act[Object.keys(ACT_INFO).find((k) => ACT_INFO[k] === a)]}"></span> ${a.corto}</summary><p>${a.que}</p><ul>${a.como.map((x) => `<li>${x}</li>`).join('')}</ul></details>`;
   $('#tab-como').innerHTML = `
+    <div class="callout"><b>Protocolo de la Fundación CEAM.</b> En las primeras semanas o meses, solo proteger el suelo antes de las lluvias de otoño.
+    Entre 1 y 2 años después del incendio, decidir dónde plantar según cuánto se haya recuperado la vegetación:
+    <ul>
+      <li><b>Más del 60 %</b>: no plantar, la regeneración natural basta.</li>
+      <li><b>Entre el 30 y el 60 %</b>: plantación selectiva.</li>
+      <li><b>Menos del 30 %</b>: reforestación dirigida, con 1.000–3.000 árboles por hectárea.</li>
+    </ul>
+    Con la imagen del ${S.scenes.ahora}, la capa <i>Criterio CEAM</i> da ${Object.entries(S.ceam).map(([k, x]) => `${ha(x.total)} en ${k.split(':')[0]}`).join(', ')}.
+    Es normal que casi todo salga por debajo del 30 %: solo han pasado unas semanas. La decisión real debe tomarse con las imágenes de la primavera de 2027 o más tarde.</div>
     <h2>Calendario</h2>
     <div class="timeline">
       <div><b>Ahora – marzo 2027 · Emergencia</b>Estabilizar laderas antes y durante las lluvias de otoño (fajinas, albarradas, acolchado), retirar árboles peligrosos junto a caminos y casas. No plantar todavía.</div>
@@ -712,8 +773,18 @@ $('#tab-fuentes').innerHTML = `
     × hectáreas quemadas de ese tipo; clases con menos de 3 parcelas se completan con las más cercanas, y en matorral y pastizal se cuentan 0.
     Mortalidad supuesta según la severidad: pinos 10 % (baja), 50 % (moderada-baja), 90 % (moderada-alta), 100 % (alta);
     frondosas 0–25 %, porque rebrotan. Intervalo del 90 % por remuestreo de parcelas. Los datos de campo son de 2006.</li>
+    <li><b>Sequedad previa:</b> NDMI = (B8 − B11)/(B8 + B11), imágenes Sentinel-2 del 4 de abril y del 3 de julio, como el análisis de la Fundación CEAM. Se compara la media dentro del área quemada.</li>
+    <li><b>Criterio CEAM:</b> recuperación de la cubierta = (NDVI ahora − NDVI de suelo quemado) / (NDVI antes − NDVI de suelo quemado), con NDVI de suelo quemado = ${fmt(S.soil_ndvi, 2)} (mediana tras el fuego en severidad alta). Umbrales del CEAM: 30 % y 60 %. El CEAM mide la recuperación en campo; esto es una aproximación por satélite.</li>
     <li><b>Erosión:</b> (clase de severidad − 1) × pendiente/25 %.</li>
     <li><b>Viabilidad:</b> base según la cercanía entre lo que había y lo que debería haber; ajustes por severidad, recurrencia (−12 por incendio previo), pendiente &gt;50 %, solanas secas sobre rodeno y rebrote observado (+10).</li>
+  </ul>
+  <h2>Fundación CEAM</h2>
+  <ul>
+    <li>Cifras y conclusiones: <a href="https://comunica.gva.es/es/detalle?id=413511022&site=373428693" target="_blank" rel="noopener">nota de la Generalitat sobre el análisis del CEAM</a>,
+    <a href="https://www.elperiodic.com/pcastellon/fuego-quema-parque-natural-serra-despada-pero-todo-ardido-igual-zonas-arrasadas-menos_1087008" target="_blank" rel="noopener">zonas por severidad</a> y
+    <a href="https://www.elperiodic.com/pcastellon/cuando-podra-reforestar-serra-despada-esto-debe-ocurrir-primero_1086815" target="_blank" rel="noopener">protocolo de restauración</a> (El Periòdic).</li>
+    <li>El CEAM no ha publicado sus mapas: las capas de sequedad y de criterio CEAM de esta app reproducen sus análisis con datos abiertos y pueden no coincidir exactamente con los suyos.</li>
+    <li>Coordenadas de los parajes: Nomenclátor Geográfico Básico de España (IGN), vía CartoCiudad. El Puntal de Nules es el Pic de la Font de Cabres (639 m).</li>
   </ul>
   <h2>Licencias y atribución</h2>
   <ul>
