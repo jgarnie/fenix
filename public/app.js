@@ -782,9 +782,10 @@ $('#tab-fuentes').innerHTML = `
   <ul>
     <li>Cifras y conclusiones: <a href="https://comunica.gva.es/es/detalle?id=413511022&site=373428693" target="_blank" rel="noopener">nota de la Generalitat sobre el análisis del CEAM</a>,
     <a href="https://www.elperiodic.com/pcastellon/fuego-quema-parque-natural-serra-despada-pero-todo-ardido-igual-zonas-arrasadas-menos_1087008" target="_blank" rel="noopener">zonas por severidad</a> y
-    <a href="https://www.elperiodic.com/pcastellon/cuando-podra-reforestar-serra-despada-esto-debe-ocurrir-primero_1086815" target="_blank" rel="noopener">protocolo de restauración</a> (El Periòdic).</li>
+    <a href="https://www.elperiodic.com/pcastellon/cuando-podra-reforestar-serra-despada-esto-debe-ocurrir-primero_1086815" target="_blank" rel="noopener">protocolo de restauración</a> (El Periòdic) y
+    <a href="https://castellonplaza.com/castellonplaza/comarcas/informe-del-ceam-sobre-el-incendio-de-la-vall-duixo-la-vegetacion-perdio-el-51-de-humedad-en-los-meses-previos" target="_blank" rel="noopener">pérdida de humedad previa</a> (Castellón Plaza).</li>
     <li>El CEAM no ha publicado sus mapas: las capas de sequedad y de criterio CEAM de esta app reproducen sus análisis con datos abiertos y pueden no coincidir exactamente con los suyos.</li>
-    <li>Coordenadas de los parajes: Nomenclátor Geográfico Básico de España (IGN), vía CartoCiudad. El Puntal de Nules es el Pic de la Font de Cabres (639 m).</li>
+    <li>Coordenadas de los parajes: Nomenclátor Geográfico Básico de España (IGN), vía CartoCiudad. El Puntal de Nules es el Pic de la Font de Cabres (639 m), según <a href="https://de.wikiloc.com/routen-wandern/ume1963-el-puntal-de-nules-pic-de-la-font-de-cabres-639-m-80185664" target="_blank" rel="noopener">esta ruta de Wikiloc</a>.</li>
   </ul>
   <h2>Licencias y atribución</h2>
   <ul>
