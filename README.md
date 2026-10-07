@@ -7,7 +7,7 @@ Mapa interactivo del incendio de la Vall d'Uixó / Serra d'Espadà (Castellón, 
   vegetación potencial (modelo a partir de geología, altitud y orientación), riesgo de erosión, rebrote observado e incendios anteriores.
 - **Árboles quemados:** estimación a partir de las parcelas del Inventario Forestal Nacional dentro del área quemada.
 - **Términos municipales** y hectáreas quemadas en cada uno.
-- **Análisis de la Fundación CEAM** reproducidos con datos abiertos: sequedad de la vegetación antes del incendio, su criterio para decidir dónde plantar (umbrales del 30 % y 60 % de recuperación), los parajes que cita y una comparación de cifras.
+- **Análisis de la Fundación CEAM** reproducidos con datos abiertos: sequedad de la vegetación antes del incendio, su criterio para decidir dónde reforzar la regeneración (30 % y 60 % de cobertura de leñosas rebrotadoras, evaluado a 1–2 años del incendio), los parajes que cita y una comparación de cifras.
 - **Ficha de cada punto:** al pulsar el mapa, qué había, qué debería haber, de quién es, la viabilidad de recuperarlo y cómo actuar.
 - **Plan:** superficie y coste por actuación según el alcance. Los costes salen de tarifas forestales oficiales y se pueden editar.
 

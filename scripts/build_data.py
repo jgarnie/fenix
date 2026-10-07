@@ -357,13 +357,18 @@ recent_fire = last_fire >= 2011  # pinar inmaduro: <15 años, sin piñas seróti
 cloud_now = np.isin(scenes["ahora"]["scl"], [3, 8, 9, 10])
 regrowth = ((ndvi_n - ndvi_a) > 0.05) & ~cloud_now
 
-# Criterio de la Fundación CEAM para decidir dónde plantar: recuperación de la cubierta
-# vegetal respecto a la previa (>60 % no plantar, 30-60 % plantación selectiva,
-# <30 % reforestar). Aproximación con NDVI: (NDVI ahora - suelo quemado) / (NDVI antes -
-# suelo quemado), donde el suelo quemado es la mediana del NDVI tras el fuego en severidad alta.
+# Criterio de la Fundación CEAM (manual Postfire-DSS) para reforzar la regeneración, que se
+# evalúa entre 1 y 2 años después del incendio: si las especies leñosas rebrotadoras cubren
+# más del 60 % del terreno la regeneración es favorable; por debajo del 30 % puede estudiarse
+# una plantación o siembra selectiva; entre ambos, se analiza caso a caso.
+# Aproximación por satélite de la cobertura vegetal absoluta (no relativa a la previa):
+# (NDVI ahora - suelo quemado) / (NDVI de vegetación densa - suelo quemado). El NDVI no
+# distingue leñosas de herbáceas, así que es una cota superior de la cobertura leñosa.
 soil_ndvi = float(np.median(ndvi_a[inside & (sev >= 4)]))
-recov = np.clip((ndvi_n - soil_ndvi) / np.maximum(ndvi_b - soil_ndvi, 0.05), 0, 1.5) * 100
-CEAM = {0: "—", 1: "<30 %: reforestar", 2: "30–60 %: plantación selectiva", 3: ">60 %: no plantar"}
+full_ndvi = float(np.percentile(ndvi_b[~inside & np.isin(veg, [1, 2, 3, 4, 5]) & ~cloud], 95))
+recov = np.clip((ndvi_n - soil_ndvi) / max(full_ndvi - soil_ndvi, 0.1), 0, 1) * 100
+CEAM = {0: "—", 1: "<30 %: estudiar plantación o siembra selectiva", 2: "30–60 %: analizar caso a caso",
+        3: ">60 %: regeneración favorable"}
 ceam = np.zeros((H, W), "uint8")
 ceam_ok = inside & forest & (sev >= 2) & ~cloud_now
 ceam[ceam_ok] = 1
@@ -455,6 +460,7 @@ stats = {
     "feasibility": crosstab(feas_cls, FEAS, valid),
     "regrowth_ha": ha(inside & forest & regrowth),
     "soil_ndvi": round(soil_ndvi, 3),
+    "full_ndvi": round(full_ndvi, 3),
     "ceam": {CEAM[k]: {"total": ha(ceam == k), "publico": ha((ceam == k) & np.isin(owner, [1, 2, 3]))} for k in (1, 2, 3)},
     "sequedad": {
         # cambio relativo de la media dentro del área quemada, abril -> julio (como el CEAM)
@@ -490,7 +496,7 @@ layers = {
     "ndvi_a": np.clip(ndvi_a * 100 + 100, 0, 255).astype("uint8"),
     "ndvi_n": np.clip(ndvi_n * 100 + 100, 0, 255).astype("uint8"),
     "dndmi": np.where(cloud_pre, 0, np.clip((ndmi_jul - ndmi_abr) * 100 + 100, 1, 255)).astype("uint8"),
-    "recov": np.where(cloud_now, 255, np.clip(recov, 0, 150)).astype("uint8"),
+    "recov": np.where(cloud_now, 255, recov).astype("uint8"),
     "ceam": ceam,
     "pn": in_pn.astype("uint8"),
     "mun": mun,

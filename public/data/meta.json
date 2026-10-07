@@ -90,9 +90,9 @@
  "legends": {
   "ceam": {
    "0": "—",
-   "1": "<30 %: reforestar",
-   "2": "30–60 %: plantación selectiva",
-   "3": ">60 %: no plantar"
+   "1": "<30 %: estudiar plantación o siembra selectiva",
+   "2": "30–60 %: analizar caso a caso",
+   "3": ">60 %: regeneración favorable"
   },
   "owner": {
    "0": "Sin catalogar (mayoritariamente privado)",
@@ -295,18 +295,19 @@
   },
   "regrowth_ha": 700.4,
   "soil_ndvi": 0.137,
+  "full_ndvi": 0.759,
   "ceam": {
-   "<30 %: reforestar": {
-    "total": 6009.1,
-    "publico": 256.9
+   "<30 %: estudiar plantación o siembra selectiva": {
+    "total": 6423.6,
+    "publico": 269.6
    },
-   "30–60 %: plantación selectiva": {
-    "total": 725.8,
-    "publico": 23.0
+   "30–60 %: analizar caso a caso": {
+    "total": 376.0,
+    "publico": 12.1
    },
-   ">60 %: no plantar": {
-    "total": 79.6,
-    "publico": 2.2
+   ">60 %: regeneración favorable": {
+    "total": 14.9,
+    "publico": 0.3
    }
   },
   "sequedad": {

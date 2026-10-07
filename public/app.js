@@ -168,8 +168,9 @@ const THEMES = {
   dry: { name: 'Sequedad antes del incendio', desc: 'Pérdida de humedad (NDMI) de abril a julio, como el análisis del CEAM', inside: false,
     color: (i) => (G.dndmi[i] ? ramp(((G.dndmi[i] - 100) / 100 + 0.2) / 0.25, DRY) : null),
     legend: () => rampLegend(DRY, 'Se secó mucho', 'Sin cambio') },
-  ceam: { name: 'Criterio CEAM: ¿hay que plantar?', desc: 'Recuperación de la cubierta vegetal (umbrales del CEAM: 30 % y 60 %)', inside: true,
-    color: (i) => C.ceam[G.ceam[i]], legend: () => cats(C.ceam, leg.ceam, [1, 2, 3]) },
+  ceam: { name: 'Criterio CEAM: ¿reforzar la regeneración?', desc: `Cobertura vegetal estimada el ${S.scenes.ahora}; el CEAM lo evalúa a 1–2 años del incendio`, inside: true,
+    color: (i) => C.ceam[G.ceam[i]],
+    legend: () => `${cats(C.ceam, leg.ceam, [1, 2, 3])}<small class="muted">Medido ${S.scenes.ahora}: aún es pronto. El CEAM evalúa entre 1 y 2 años después del incendio.</small>` },
 };
 const DRY = ['#8c510a', '#d8b365', '#f6e8c3', '#c7eae5', '#35978f'];
 const NO_THEME = { name: 'Ninguna (solo imagen)', desc: 'Para comparar libremente las imágenes' };
@@ -409,7 +410,7 @@ function showInfo(i, ll) {
     ['Altitud · pendiente', `${fmt(G.elev[i] * 5)} m · ${fmt(G.slope[i])} %`],
     ['Incendios previos', fuegos.length ? fuegos.join(', ') : 'Ninguno desde 1993'],
     ['Sequedad abr → jul', G.dndmi[i] ? `NDMI ${fmt((G.dndmi[i] - 100) / 100, 2)}` : 's/d'],
-    ...(G.ceam[i] ? [['Criterio CEAM', `${pill(C.ceam[G.ceam[i]], leg.ceam[G.ceam[i]])}<br><small>Recuperación de la cubierta: ${fmt(G.recov[i])} % (${S.scenes.ahora})</small>`]] : []),
+    ...(G.ceam[i] ? [['Criterio CEAM', `${pill(C.ceam[G.ceam[i]], leg.ceam[G.ceam[i]])}<br><small>Cobertura vegetal estimada: ${fmt(G.recov[i])} % (${S.scenes.ahora}). El CEAM lo evalúa a 1–2 años del incendio.</small>`]] : []),
   ];
   let html = `<button class="close" aria-label="Cerrar">×</button><h3>${inside ? 'Punto afectado' : 'Punto consultado'}</h3><small>${ll.lat.toFixed(5)}, ${ll.lng.toFixed(5)}</small>`;
   html += `<dl>${rows.map(([k, x]) => `<dt>${k}</dt><dd>${x}</dd>`).join('')}</dl>`;
@@ -711,15 +712,18 @@ function renderPlan() {
 {
   const act = (a) => `<details><summary><span class="sw" style="display:inline-block;background:${a === EMERG ? C.eros[4] : C.act[Object.keys(ACT_INFO).find((k) => ACT_INFO[k] === a)]}"></span> ${a.corto}</summary><p>${a.que}</p><ul>${a.como.map((x) => `<li>${x}</li>`).join('')}</ul></details>`;
   $('#tab-como').innerHTML = `
-    <div class="callout"><b>Protocolo de la Fundación CEAM.</b> En las primeras semanas o meses, solo proteger el suelo antes de las lluvias de otoño.
-    Entre 1 y 2 años después del incendio, decidir dónde plantar según cuánto se haya recuperado la vegetación:
+    <div class="callout"><b>Protocolo de la Fundación CEAM</b> (manual Postfire-DSS). Las actuaciones de emergencia para conservar el suelo
+    y regular el agua se hacen en las primeras semanas o meses, antes de las lluvias fuertes de otoño. El refuerzo de la regeneración se plantea
+    generalmente <b>entre uno y dos años después del incendio</b>, cuando se puede comprobar qué rebrota:
     <ul>
-      <li><b>Más del 60 %</b>: no plantar, la regeneración natural basta.</li>
-      <li><b>Entre el 30 y el 60 %</b>: plantación selectiva.</li>
-      <li><b>Menos del 30 %</b>: reforestación dirigida, con 1.000–3.000 árboles por hectárea.</li>
+      <li>Si las especies leñosas rebrotadoras cubren <b>más del 60 %</b> del terreno, la regeneración es favorable y normalmente no hace falta reforzarla.</li>
+      <li><b>Entre el 30 y el 60 %</b>, cada decisión se toma después de analizar la zona.</li>
+      <li><b>Por debajo del 30 %</b>, puede estudiarse una plantación o siembra selectiva.</li>
+      <li>Una regeneración natural de <b>1.000–3.000 pies por hectárea</b> puede considerarse suficiente.</li>
     </ul>
-    Con la imagen del ${S.scenes.ahora}, la capa <i>Criterio CEAM</i> da ${Object.entries(S.ceam).map(([k, x]) => `${ha(x.total)} en ${k.split(':')[0]}`).join(', ')}.
-    Es normal que casi todo salga por debajo del 30 %: solo han pasado unas semanas. La decisión real debe tomarse con las imágenes de la primavera de 2027 o más tarde.</div>
+    La capa <i>Criterio CEAM</i> aproxima esa cobertura por satélite. Con la imagen del ${S.scenes.ahora} da
+    ${Object.entries(S.ceam).map(([k, x]) => `${ha(x.total)} en ${k.split(':')[0]}`).join(', ')}.
+    Es normal que casi todo salga por debajo del 30 %: solo han pasado unas semanas. La evaluación que propone el CEAM corresponde a 2027–2028.</div>
     <h2>Calendario</h2>
     <div class="timeline">
       <div><b>Ahora – marzo 2027 · Emergencia</b>Estabilizar laderas antes y durante las lluvias de otoño (fajinas, albarradas, acolchado), retirar árboles peligrosos junto a caminos y casas. No plantar todavía.</div>
@@ -774,7 +778,10 @@ $('#tab-fuentes').innerHTML = `
     Mortalidad supuesta según la severidad: pinos 10 % (baja), 50 % (moderada-baja), 90 % (moderada-alta), 100 % (alta);
     frondosas 0–25 %, porque rebrotan. Intervalo del 90 % por remuestreo de parcelas. Los datos de campo son de 2006.</li>
     <li><b>Sequedad previa:</b> NDMI = (B8 − B11)/(B8 + B11), imágenes Sentinel-2 del 4 de abril y del 3 de julio, como el análisis de la Fundación CEAM. Se compara la media dentro del área quemada.</li>
-    <li><b>Criterio CEAM:</b> recuperación de la cubierta = (NDVI ahora − NDVI de suelo quemado) / (NDVI antes − NDVI de suelo quemado), con NDVI de suelo quemado = ${fmt(S.soil_ndvi, 2)} (mediana tras el fuego en severidad alta). Umbrales del CEAM: 30 % y 60 %. El CEAM mide la recuperación en campo; esto es una aproximación por satélite.</li>
+    <li><b>Criterio CEAM:</b> cobertura vegetal estimada = (NDVI ahora − NDVI de suelo quemado) / (NDVI de vegetación densa − NDVI de suelo quemado),
+    con suelo quemado = ${fmt(S.soil_ndvi, 2)} (mediana tras el fuego en severidad alta) y vegetación densa = ${fmt(S.full_ndvi, 2)} (percentil 95 del bosque no quemado).
+    Umbrales del CEAM: 30 % y 60 % de cobertura de especies leñosas rebrotadoras. El NDVI no distingue leñosas de hierbas, así que es una aproximación;
+    el CEAM lo evalúa en campo.</li>
     <li><b>Erosión:</b> (clase de severidad − 1) × pendiente/25 %.</li>
     <li><b>Viabilidad:</b> base según la cercanía entre lo que había y lo que debería haber; ajustes por severidad, recurrencia (−12 por incendio previo), pendiente &gt;50 %, solanas secas sobre rodeno y rebrote observado (+10).</li>
   </ul>
@@ -784,6 +791,7 @@ $('#tab-fuentes').innerHTML = `
     <a href="https://www.elperiodic.com/pcastellon/fuego-quema-parque-natural-serra-despada-pero-todo-ardido-igual-zonas-arrasadas-menos_1087008" target="_blank" rel="noopener">zonas por severidad</a> y
     <a href="https://www.elperiodic.com/pcastellon/cuando-podra-reforestar-serra-despada-esto-debe-ocurrir-primero_1086815" target="_blank" rel="noopener">protocolo de restauración</a> (El Periòdic) y
     <a href="https://castellonplaza.com/castellonplaza/comarcas/informe-del-ceam-sobre-el-incendio-de-la-vall-duixo-la-vegetacion-perdio-el-51-de-humedad-en-los-meses-previos" target="_blank" rel="noopener">pérdida de humedad previa</a> (Castellón Plaza).</li>
+    <li>Protocolo y umbrales: manual <i>Postfire-DSS</i> de la Fundación CEAM, según El Periòdic.</li>
     <li>El CEAM no ha publicado sus mapas: las capas de sequedad y de criterio CEAM de esta app reproducen sus análisis con datos abiertos y pueden no coincidir exactamente con los suyos.</li>
     <li>Coordenadas de los parajes: Nomenclátor Geográfico Básico de España (IGN), vía CartoCiudad. El Puntal de Nules es el Pic de la Font de Cabres (639 m), según <a href="https://de.wikiloc.com/routen-wandern/ume1963-el-puntal-de-nules-pic-de-la-font-de-cabres-639-m-80185664" target="_blank" rel="noopener">esta ruta de Wikiloc</a>.</li>
   </ul>
