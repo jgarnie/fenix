@@ -339,9 +339,10 @@ const vec = {
   municipios: L.geoJSON(municipios, {
     pane: 'vec',
     style: { color: '#5b5b5b', weight: 1.4, dashArray: '4 3', fill: false },
-    onEachFeature: (f, l) => l.bindTooltip(
-      `${f.properties.nom_mun}${f.properties.ha_quemadas ? `<br><small>${fmt(f.properties.ha_quemadas)} ha quemadas</small>` : ''}`,
-      { permanent: true, direction: 'center', className: `mun-label${f.properties.ha_quemadas ? ' hit' : ''}` }),
+    // solo se etiquetan los municipios afectados; el mapa base ya nombra el resto
+    onEachFeature: (f, l) => f.properties.ha_quemadas && l.bindTooltip(
+      `${f.properties.nom_mun}<br><small>${fmt(f.properties.ha_quemadas)} ha quemadas</small>`,
+      { permanent: true, direction: 'center', className: 'mun-label hit' }),
   }),
 };
 const CEAM_TAG = { mayor: ['#a50026', 'mayor severidad'], menor: ['#1a9850', 'menor severidad'], pendiente: ['#6b6b6b', 'pendiente de evaluar'] };
@@ -351,7 +352,7 @@ vec.ceam = L.geoJSON(ceamZonas, {
     .bindTooltip(`${f.properties.nombre}<br><small>CEAM: ${CEAM_TAG[f.properties.ceam][1]}</small>`,
       { permanent: true, direction: 'right', offset: [8, 0], className: 'ceam-label' }),
 });
-const vecOn = { perimetro: true, montes: true, parque: true, incendios: false, municipios: true, ceam: false };
+const vecOn = { perimetro: true, montes: true, parque: true, incendios: false, municipios: false, ceam: false };
 function syncVec() { for (const k in vec) vecOn[k] ? vec[k].addTo(map) : map.removeLayer(vec[k]); }
 syncVec();
 
@@ -559,7 +560,7 @@ function ceamTable() {
       <label><input type="checkbox" data-v="montes" checked> Montes de utilidad pública <span class="sw" style="background:#08519c"></span></label>
       <label><input type="checkbox" data-v="parque" checked> Parque Natural Serra d'Espadà <span class="sw" style="background:#1b7837"></span></label>
       <label><input type="checkbox" data-v="ceam"> Parajes citados por el CEAM <span class="sw" style="background:#a50026"></span></label>
-      <label><input type="checkbox" data-v="municipios" checked> Términos municipales <span class="sw" style="background:#5b5b5b"></span></label>
+      <label><input type="checkbox" data-v="municipios"> Términos municipales <span class="sw" style="background:#5b5b5b"></span></label>
       <label><input type="checkbox" data-v="incendios"> Incendios 1993–2024 <span class="sw" style="background:#ef6548"></span></label>
     </div>
     <h2>Imágenes</h2>
