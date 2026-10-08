@@ -351,7 +351,7 @@ vec.ceam = L.geoJSON(ceamZonas, {
     .bindTooltip(`${f.properties.nombre}<br><small>CEAM: ${CEAM_TAG[f.properties.ceam][1]}</small>`,
       { permanent: true, direction: 'right', offset: [8, 0], className: 'ceam-label' }),
 });
-const vecOn = { perimetro: true, montes: true, parque: true, incendios: false, municipios: true, ceam: true };
+const vecOn = { perimetro: true, montes: true, parque: true, incendios: false, municipios: true, ceam: false };
 function syncVec() { for (const k in vec) vecOn[k] ? vec[k].addTo(map) : map.removeLayer(vec[k]); }
 syncVec();
 
@@ -558,7 +558,7 @@ function ceamTable() {
       <label><input type="checkbox" data-v="perimetro" checked> Área quemada (Copernicus EMS)</label>
       <label><input type="checkbox" data-v="montes" checked> Montes de utilidad pública <span class="sw" style="background:#08519c"></span></label>
       <label><input type="checkbox" data-v="parque" checked> Parque Natural Serra d'Espadà <span class="sw" style="background:#1b7837"></span></label>
-      <label><input type="checkbox" data-v="ceam" checked> Parajes citados por el CEAM <span class="sw" style="background:#a50026"></span></label>
+      <label><input type="checkbox" data-v="ceam"> Parajes citados por el CEAM <span class="sw" style="background:#a50026"></span></label>
       <label><input type="checkbox" data-v="municipios" checked> Términos municipales <span class="sw" style="background:#5b5b5b"></span></label>
       <label><input type="checkbox" data-v="incendios"> Incendios 1993–2024 <span class="sw" style="background:#ef6548"></span></label>
     </div>
