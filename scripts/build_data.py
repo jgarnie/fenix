@@ -476,6 +476,11 @@ nat = burned & forest & (RESPROUTER | (PINE & (sev <= 3) & ~recent_fire))
 act[nat] = 1
 assist = burned & forest & PINE & ~nat
 act[assist] = 2
+# Si ya hay imagen de evaluación (1 año o más después del incendio), manda lo observado: donde la
+# cobertura sigue por debajo del 30 % (criterio CEAM) la regeneración natural no está bastando.
+ceam_eval = int(scenes[FIRE["ceam"]]["date"][:4]) - FIRE["year"] >= 1
+if ceam_eval:
+    act[(act == 1) & (ceam == 1)] = 2
 # pinar con daño alto donde la potencial es el alcornocal, matorral muy recurrente o
 # afección alta repetida: hay que reintroducir las especies de la vegetación potencial
 active = burned & forest & (

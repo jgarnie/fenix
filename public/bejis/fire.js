@@ -15,7 +15,7 @@ export const ACT_INFO = {
   },
   2: {
     corto: 'Regeneración asistida',
-    que: 'Pinar quemado con daño alto o pinar joven, nacido tras un incendio reciente: probablemente no tenía piñas suficientes para regenerar. Se refuerza con siembras y núcleos de plantación.',
+    que: 'Pinar quemado con daño alto o pinar joven, nacido tras un incendio reciente, que probablemente no tenía piñas suficientes para regenerar; o carrascal y matorral donde, dos años después, la cobertura vegetal sigue por debajo del 30 % (criterio CEAM). Se refuerza con siembras y núcleos de plantación.',
     como: [
       'Comprobar en campo dónde no ha nacido pino ni rebrotado nada (capa Criterio CEAM, por debajo del 30 %).',
       'Siembra de bellotas de carrasca o quejigo por puntos, protegidas.',
@@ -77,7 +77,7 @@ export const FIRE = {
     Allí el pinar tenía unos diez años y apenas había dado piñas, por eso buena parte necesita ayuda para regenerar.`,
   munNota: 'Superficie vista quemada por satélite (Copernicus); el reparto oficial por municipio puede ser distinto.',
   arbolesNota: 'sobre todo pinos; carrascas y quejigos rebrotan',
-  metodoActuacion: 'rebrotadoras → regeneración natural; pinar maduro poco dañado y sin incendios desde 2007 → natural; resto de pinar → asistida; matorral que ha ardido dos o más veces, o severidad alta en zonas que ya habían ardido dos o más veces → restauración activa. La regla de Espadà para el pinar quemado donde la serie potencial es el alcornocal no se aplica: en Bejís el mapa oficial no tiene alcornocal.',
+  metodoActuacion: 'rebrotadoras → regeneración natural, salvo donde dos años después (julio de 2024) la cobertura sigue por debajo del 30 % (criterio CEAM) → asistida; pinar maduro poco dañado y sin incendios desde 2007 → natural; resto de pinar → asistida; matorral que ha ardido dos o más veces, o severidad alta en zonas que ya habían ardido dos o más veces → restauración activa. La regla de Espadà para el pinar quemado donde la serie potencial es el alcornocal no se aplica: en Bejís el mapa oficial no tiene alcornocal.',
   plan: {
     budget: 1835439,
     when: { emerg: 'revisión 2026–2027', 1: '2026 – 2034', 2: '2026 – 2029', 3: '2026 – 2030', 4: '2026 –' },

@@ -65,7 +65,7 @@ const THEMES = {
     color: (i) => (val('owner', i) ? C.owner[val('owner', i)] : null), legend: () => cats(C.owner, leg.owner, [1, 2, 3, 4]) },
   veg: { name: 'Vegetación antes del incendio', desc: 'Mapa Forestal de España 1:50.000', inside: false,
     color: (i) => C.veg[val('veg', i)], legend: () => cats(C.veg, leg.veg, used('veg')) },
-  pot: { name: 'Vegetación que debería haber', desc: 'Vegetación potencial (modelo: geología + altitud + orientación)', inside: false,
+  pot: { name: 'Vegetación que debería haber', desc: 'Mapa de Series de Vegetación de España (MITECO)', inside: false,
     color: (i) => C.pot[val('pot', i)], legend: () => cats(C.pot, Object.fromEntries(Object.entries(POT_INFO).map(([k, v]) => [k, v.corto])), used('pot')) },
   eros: { name: 'Riesgo de erosión', desc: 'Severidad × pendiente', inside: true,
     color: (i) => C.eros[val('eros', i)], legend: () => cats(C.eros, leg.eros) },
