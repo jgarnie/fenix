@@ -589,6 +589,17 @@ layers = {
     "pn": in_pn.astype("uint8"),
     "mun": mun,
 }
+# redondeo de las capas continuas: solo se muestran en la ficha o colorean rampas, y así gzip comprime
+# mucho mejor (Bejís 4,5 → 2,8 MB). Paso en unidades codificadas: pendiente 5 %, altitud 10 m,
+# dNBR y NDVI previo 0,05, NDVI después/ahora y NDMI 0,02 (colorean capas del mapa), cobertura 5 %.
+QUANT = {"slope": (5, 0), "elev": (2, 0), "dnbr": (5, 100), "ndvi_b": (5, 100), "ndvi_a": (2, 100),
+         "ndvi_n": (2, 100), "dndmi": (2, 100), "recov": (5, 0)}
+for k, (step, off) in QUANT.items():
+    a = layers[k]
+    keep = (a == 255) if k == "recov" else (a == 0) if k == "dndmi" else np.zeros(a.shape, bool)  # sin dato
+    r = np.round((a.astype(int) - off) / step) * step + off
+    r = np.clip(r, 1 if k == "dndmi" else 0, 254 if k == "recov" else 255).astype("uint8")
+    layers[k] = np.where(keep, a, r)
 order = list(layers)
 # comprimida con gzip: GitHub Pages no comprime los .bin al servirlos (18 MB → ~4,5 MB en Bejís)
 with gzip.GzipFile(os.path.join(OUT, "grid.bin.gz"), "wb", compresslevel=9, mtime=0) as f:
