@@ -116,13 +116,18 @@ const MOBILE = matchMedia('(max-width: 860px)');
 // en móvil el panel tapa la parte inferior: centrar el incendio en la zona visible
 map.fitBounds(bounds.pad(-0.05), MOBILE.matches ? { paddingTopLeft: [0, 60], paddingBottomRight: [0, innerHeight * 0.42] } : {});
 
-for (const [name, z] of [['imgL', 300], ['imgR', 301], ['theme', 420], ['vec', 450]]) {
+for (const [name, z] of [['imgL', 300], ['imgR', 301], ['theme', 420], ['labels', 440], ['vec', 450]]) {
   map.createPane(name).style.zIndex = z;
 }
 map.getPane('vec').style.pointerEvents = 'none';
+map.getPane('labels').style.pointerEvents = 'none';
 
 L.tileLayer('https://www.ign.es/wmts/ign-base?layer=IGNBaseTodo&style=default&tilematrixset=GoogleMapsCompatible&Service=WMTS&Request=GetTile&Version=1.0.0&Format=image/png&TileMatrix={z}&TileCol={x}&TileRow={y}', {
   attribution: 'Base: <a href="https://www.scne.es">CC BY 4.0 scne.es</a>', maxZoom: 18,
+}).addTo(map);
+// nombres de pueblos, carreteras y ríos (capa transparente del IGN) por encima de las imágenes y capas temáticas
+L.tileLayer('https://www.ign.es/wmts/ign-base?layer=IGNBaseOrto&style=default&tilematrixset=GoogleMapsCompatible&Service=WMTS&Request=GetTile&Version=1.0.0&Format=image/png&TileMatrix={z}&TileCol={x}&TileRow={y}', {
+  pane: 'labels', maxZoom: 18, bounds, // solo sobre la zona del incendio: fuera, el mapa base ya tiene los nombres
 }).addTo(map);
 
 const IMAGES = {
