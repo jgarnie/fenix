@@ -115,7 +115,9 @@
    "10": "Agrícola",
    "11": "Artificial / minería",
    "12": "Agua / humedal",
-   "13": "Otros arbolados"
+   "13": "Otros arbolados",
+   "14": "Pinar de montaña (P. nigra, P. sylvestris)",
+   "15": "Sabinar / enebral"
   },
   "sub": {
    "0": "Sin datos",
@@ -127,13 +129,14 @@
   },
   "pot": {
    "0": "—",
-   "1": "Alcornocal (Asplenio onopteridis–Querco suberis S.)",
-   "2": "Carrascal silicícola de montaña",
-   "3": "Carrascal con quejigo (Rubio longifoliae–Querco rotundifoliae S.)",
-   "4": "Lentiscar-coscojar con carrasca, algarrobo y acebuche (termomediterráneo)",
-   "5": "Carrascal-coscojar sobre arcillas y yesos",
-   "6": "Vegetación de ribera (sauceda, chopera, adelfar)",
-   "7": "Uso no forestal (agrícola, urbano, agua)"
+   "1": "Alcornocal (23b, Asplenio onopteridis–Querceto suberis S.)",
+   "2": "Carrascal termomediterráneo (27c, Rubio longifoliae–Querceto rotundifoliae S.)",
+   "3": "Carrascal mesomediterráneo (22b, Bupleuro rigidi–Querceto rotundifoliae S.)",
+   "4": "Carrascal supramediterráneo con sabina albar (22a, Junipero thuriferae–Querceto rotundifoliae S.)",
+   "5": "Sabinar albar (15b, Junipereto hemisphaerico-thuriferae S.)",
+   "6": "Vegetación de ribera (geomegaseries riparias)",
+   "7": "Uso no forestal (agrícola, urbano, agua)",
+   "8": "Coscojar semiárido (29b, Rhamno lycioidis–Querceto cocciferae S.)"
   },
   "act": {
    "0": "—",
@@ -243,11 +246,9 @@
    "Agua / humedal": 12.3
   },
   "potential": {
-   "Alcornocal (Asplenio onopteridis–Querco suberis S.)": 2616.0,
-   "Carrascal con quejigo (Rubio longifoliae–Querco rotundifoliae S.)": 2870.4,
-   "Lentiscar-coscojar con carrasca, algarrobo y acebuche (termomediterráneo)": 1098.1,
-   "Carrascal-coscojar sobre arcillas y yesos": 131.6,
-   "Vegetación de ribera (sauceda, chopera, adelfar)": 121.5,
+   "Alcornocal (23b, Asplenio onopteridis–Querceto suberis S.)": 2737.5,
+   "Carrascal termomediterráneo (27c, Rubio longifoliae–Querceto rotundifoliae S.)": 2321.7,
+   "Carrascal mesomediterráneo (22b, Bupleuro rigidi–Querceto rotundifoliae S.)": 1778.4,
    "Uso no forestal (agrícola, urbano, agua)": 515.2
   },
   "erosion": {
@@ -264,16 +265,16 @@
     "erosion_alta": 627.7
    },
    "Regeneración asistida: siembra y plantación en núcleos": {
-    "total": 2683.1,
-    "publico": 70.6,
-    "privado": 2612.5,
-    "erosion_alta": 848.4
+    "total": 2764.1,
+    "publico": 85.0,
+    "privado": 2679.1,
+    "erosion_alta": 934.0
    },
    "Restauración activa hacia la vegetación potencial": {
-    "total": 1347.9,
-    "publico": 122.2,
-    "privado": 1225.6,
-    "erosion_alta": 863.1
+    "total": 1266.8,
+    "publico": 107.8,
+    "privado": 1159.0,
+    "erosion_alta": 777.5
    },
    "Recuperar cultivo / mosaico agrícola cortafuegos": {
     "total": 442.1,
@@ -289,9 +290,9 @@
    }
   },
   "feasibility": {
-   "Baja (<45)": 4166.6,
-   "Media (45–70)": 2287.3,
-   "Alta (≥70)": 383.7
+   "Baja (<45)": 4205.1,
+   "Media (45–70)": 2204.6,
+   "Alta (≥70)": 427.9
   },
   "regrowth_ha": 700.4,
   "soil_ndvi": 0.137,
@@ -322,79 +323,76 @@
    "despues": "2026-08-19",
    "ahora": "2026-09-08"
   },
+  "ceam_scene": "ahora",
+  "fire_year": 2026,
+  "ndvi_serie": {
+   "2026-07-03": 0.604,
+   "2026-08-19": 0.148,
+   "2026-09-08": 0.175
+  },
+  "ndvi_serie_ref": {
+   "2026-07-03": 0.572,
+   "2026-08-19": 0.534,
+   "2026-09-08": 0.542
+  },
   "erosion_public": {
    "Alto": 99.8,
    "Muy alto": 53.5
   },
   "veg_vs_pot": {
    "Alcornocal": {
-    "Alcornocal (Asplenio onopteridis–Querco suberis S.)": 380.1,
-    "Carrascal con quejigo (Rubio longifoliae–Querco rotundifoliae S.)": 67.3,
-    "Lentiscar-coscojar con carrasca, algarrobo y acebuche (termomediterráneo)": 3.2,
-    "Carrascal-coscojar sobre arcillas y yesos": 0.3,
-    "Vegetación de ribera (sauceda, chopera, adelfar)": 0.5
+    "Alcornocal (23b, Asplenio onopteridis–Querceto suberis S.)": 404.9,
+    "Carrascal termomediterráneo (27c, Rubio longifoliae–Querceto rotundifoliae S.)": 39.3,
+    "Carrascal mesomediterráneo (22b, Bupleuro rigidi–Querceto rotundifoliae S.)": 7.2
    },
    "Pinar de rodeno (P. pinaster)": {
-    "Alcornocal (Asplenio onopteridis–Querco suberis S.)": 83.2,
-    "Carrascal con quejigo (Rubio longifoliae–Querco rotundifoliae S.)": 70.2,
-    "Lentiscar-coscojar con carrasca, algarrobo y acebuche (termomediterráneo)": 1.9,
-    "Carrascal-coscojar sobre arcillas y yesos": 1.2,
-    "Vegetación de ribera (sauceda, chopera, adelfar)": 0.1
+    "Alcornocal (23b, Asplenio onopteridis–Querceto suberis S.)": 138.9,
+    "Carrascal termomediterráneo (27c, Rubio longifoliae–Querceto rotundifoliae S.)": 14.1,
+    "Carrascal mesomediterráneo (22b, Bupleuro rigidi–Querceto rotundifoliae S.)": 3.7
    },
    "Pinar de pino carrasco": {
-    "Alcornocal (Asplenio onopteridis–Querco suberis S.)": 795.7,
-    "Carrascal con quejigo (Rubio longifoliae–Querco rotundifoliae S.)": 2010.5,
-    "Lentiscar-coscojar con carrasca, algarrobo y acebuche (termomediterráneo)": 693.2,
-    "Carrascal-coscojar sobre arcillas y yesos": 94.8,
-    "Vegetación de ribera (sauceda, chopera, adelfar)": 73.2
+    "Alcornocal (23b, Asplenio onopteridis–Querceto suberis S.)": 704.7,
+    "Carrascal termomediterráneo (27c, Rubio longifoliae–Querceto rotundifoliae S.)": 1444.4,
+    "Carrascal mesomediterráneo (22b, Bupleuro rigidi–Querceto rotundifoliae S.)": 1518.4
    },
    "Bosque mixto pino + frondosas": {
-    "Alcornocal (Asplenio onopteridis–Querco suberis S.)": 706.8,
-    "Carrascal con quejigo (Rubio longifoliae–Querco rotundifoliae S.)": 253.6,
-    "Lentiscar-coscojar con carrasca, algarrobo y acebuche (termomediterráneo)": 109.2,
-    "Carrascal-coscojar sobre arcillas y yesos": 14.0,
-    "Vegetación de ribera (sauceda, chopera, adelfar)": 16.1
+    "Alcornocal (23b, Asplenio onopteridis–Querceto suberis S.)": 628.1,
+    "Carrascal termomediterráneo (27c, Rubio longifoliae–Querceto rotundifoliae S.)": 350.6,
+    "Carrascal mesomediterráneo (22b, Bupleuro rigidi–Querceto rotundifoliae S.)": 121.0
    },
    "Encinar, quejigar y frondosas": {
-    "Alcornocal (Asplenio onopteridis–Querco suberis S.)": 274.3,
-    "Carrascal con quejigo (Rubio longifoliae–Querco rotundifoliae S.)": 85.4,
-    "Lentiscar-coscojar con carrasca, algarrobo y acebuche (termomediterráneo)": 77.7,
-    "Carrascal-coscojar sobre arcillas y yesos": 7.6,
-    "Vegetación de ribera (sauceda, chopera, adelfar)": 4.2
+    "Alcornocal (23b, Asplenio onopteridis–Querceto suberis S.)": 388.9,
+    "Carrascal termomediterráneo (27c, Rubio longifoliae–Querceto rotundifoliae S.)": 51.2,
+    "Carrascal mesomediterráneo (22b, Bupleuro rigidi–Querceto rotundifoliae S.)": 9.2
    },
    "Algarrobal / acebuchal": {
-    "Alcornocal (Asplenio onopteridis–Querco suberis S.)": 206.7,
-    "Carrascal con quejigo (Rubio longifoliae–Querco rotundifoliae S.)": 58.6,
-    "Lentiscar-coscojar con carrasca, algarrobo y acebuche (termomediterráneo)": 71.7,
-    "Carrascal-coscojar sobre arcillas y yesos": 1.2,
-    "Vegetación de ribera (sauceda, chopera, adelfar)": 22.5
+    "Alcornocal (23b, Asplenio onopteridis–Querceto suberis S.)": 160.1,
+    "Carrascal termomediterráneo (27c, Rubio longifoliae–Querceto rotundifoliae S.)": 181.2,
+    "Carrascal mesomediterráneo (22b, Bupleuro rigidi–Querceto rotundifoliae S.)": 19.4
    },
    "Matorral": {
-    "Alcornocal (Asplenio onopteridis–Querco suberis S.)": 135.5,
-    "Carrascal con quejigo (Rubio longifoliae–Querco rotundifoliae S.)": 275.3,
-    "Lentiscar-coscojar con carrasca, algarrobo y acebuche (termomediterráneo)": 87.4,
-    "Vegetación de ribera (sauceda, chopera, adelfar)": 0.4
+    "Alcornocal (23b, Asplenio onopteridis–Querceto suberis S.)": 257.2,
+    "Carrascal termomediterráneo (27c, Rubio longifoliae–Querceto rotundifoliae S.)": 144.4,
+    "Carrascal mesomediterráneo (22b, Bupleuro rigidi–Querceto rotundifoliae S.)": 97.1
    },
    "Pastizal-matorral": {
-    "Alcornocal (Asplenio onopteridis–Querco suberis S.)": 33.8,
-    "Carrascal con quejigo (Rubio longifoliae–Querco rotundifoliae S.)": 49.3,
-    "Lentiscar-coscojar con carrasca, algarrobo y acebuche (termomediterráneo)": 53.8,
-    "Carrascal-coscojar sobre arcillas y yesos": 12.4,
-    "Vegetación de ribera (sauceda, chopera, adelfar)": 4.4
+    "Alcornocal (23b, Asplenio onopteridis–Querceto suberis S.)": 54.7,
+    "Carrascal termomediterráneo (27c, Rubio longifoliae–Querceto rotundifoliae S.)": 96.4,
+    "Carrascal mesomediterráneo (22b, Bupleuro rigidi–Querceto rotundifoliae S.)": 2.5
    }
   },
   "arboles": {
    "total": 2180000,
    "total_ci90": [
-    1679000,
-    2684000
+    1707000,
+    2674000
    ],
    "coniferas": 1660000,
    "frondosas": 520000,
    "muertos": 1475000,
    "muertos_ci90": [
-    1094000,
-    1890000
+    1112000,
+    1852000
    ],
    "muertos_coniferas": 1389000,
    "muertos_frondosas": 87000,
@@ -451,7 +449,8 @@
      "arboles": 0
     }
    },
-   "fuente": "IFN3 Castellón (MITECO, campo 2006), pies mayores con diámetro ≥ 7,5 cm"
+   "ha_ardidas_tras_ifn": 0,
+   "fuente": "IFN3 Castellón (MITECO), pies mayores con diámetro ≥ 7,5 cm"
   }
  }
 }

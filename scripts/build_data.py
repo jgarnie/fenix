@@ -1,18 +1,18 @@
 """
-Pipeline de datos: Incendio de la Vall d'Uixó / Serra d'Espadà (25 jul 2026).
+Pipeline de datos de cada incendio (ver FIRES): Vall d'Uixó / Serra d'Espadà (jul 2026) y Bejís (ago 2022).
 
 Descarga datos oficiales y abiertos, los cruza en una rejilla común (EPSG:3857, ~25 m)
 y genera los ficheros que consume la app web en public/data/.
 
 Fuentes:
-  - Copernicus EMS Rapid Mapping EMSR905 (perímetro del área quemada, producto GRA v2)
+  - Copernicus EMS Rapid Mapping (perímetro del área quemada): EMSR905 (Espadà), EMSR625 (Bejís)
   - Sentinel-2 L2A (Element84 Earth Search, COGs públicos en AWS)
   - Copernicus DEM GLO-30
   - Generalitat Valenciana / ICV: montes gestionados (utilidad pública), Mapa Forestal
     de España 1:50.000, Parque Natural, incendios históricos 1993-2024
   - IGME: mapa geológico continuo GEODE 1:50.000
 
-Uso:  python3 scripts/build_data.py
+Uso:  python3 scripts/build_data.py [espada|bejis]
 """
 import io
 import json
@@ -22,6 +22,7 @@ import sys
 import urllib.parse
 import urllib.request
 import zipfile
+from concurrent.futures import ThreadPoolExecutor
 
 import geopandas as gpd
 import numpy as np
@@ -33,28 +34,69 @@ from rasterio.transform import from_origin
 from rasterio.vrt import WarpedVRT
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-RAW = os.path.join(ROOT, "data-raw")
-OUT = os.path.join(ROOT, "public", "data")
+
+# Cada incendio: perímetro de Copernicus, escenas Sentinel-2 y parámetros del modelo.
+# "ceam" es la escena con la que se evalúa el criterio del CEAM (lo ideal, 1-2 años después).
+FIRES = {
+    "espada": {
+        "year": 2026,
+        "raw": "",                  # data-raw/ (subcarpeta)
+        "out": "data",              # public/data
+        "bbox": "-0.42,39.76,-0.10,40.02",
+        "ems": ("https://rapidmapping.emergency.copernicus.eu/backend/EMSR905/AOI01/GRA_PRODUCT/EMSR905_AOI01_GRA_PRODUCT_v2.zip",
+                "EMSR905_AOI01_GRA_PRODUCT_observedEventA_v2.json"),
+        "scenes": {
+            "abril": "S2B_30TYK_20260404_0_L2A",   # primavera, misma órbita que "antes" (sequedad previa, como el CEAM)
+            "antes": "S2B_30TYK_20260703_0_L2A",   # 3 semanas antes, sin nubes ni calima
+            "despues": "S2A_30TYK_20260819_1_L2A",  # 18 días tras la estabilización, sin nubes
+            "ahora": "S2A_30TYK_20260908_1_L2A",    # última escena con 0 % de nubes sobre el perímetro
+        },
+        "ceam": "ahora",
+    },
+    "bejis": {
+        "year": 2022,
+        "raw": "bejis",
+        "out": "bejis/data",
+        "bbox": "-0.86,39.74,-0.55,40.02",
+        "ems": ("https://cems-mapping-website.s3.eu-west-1.amazonaws.com/static/activations/EMSR625/EMSR625_AOI01_GRA_PRODUCT_r1_RTP01_v1_vector.zip",
+                "EMSR625_AOI01_GRA_PRODUCT_observedEventA_r1_v1.json"),
+        # todas de la tesela 30TXK (la 30TYK solo cubre una cuarta parte del perímetro), 0 % de nubes sobre él
+        "scenes": {
+            "abril": "S2A_30TXK_20220510_0_L2A",   # primavera (la de abril tiene un 33 % de nubes sobre el perímetro)
+            "antes": "S2B_30TXK_20220724_0_L2A",   # 3 semanas antes
+            "despues": "S2B_30TXK_20220823_0_L2A",  # 8 días después del inicio, perímetro ya cerrado
+            "y2023": "S2B_30TXK_20230729_0_L2A",
+            "y2024": "S2B_30TXK_20240723_0_L2A",    # 2 años: cuando el CEAM evalúa la regeneración
+            "y2025": "S2B_30TXK_20250718_0_L2A",
+            "ahora": "S2A_30TXK_20260730_0_L2A",    # misma época del año que "antes"
+        },
+        "ceam": "y2024",
+    },
+}
+FIRE_KEY = sys.argv[1] if len(sys.argv) > 1 else "espada"
+FIRE = FIRES[FIRE_KEY]
+RAW = os.path.join(ROOT, "data-raw", FIRE["raw"])
+OUT = os.path.join(ROOT, "public", FIRE["out"])
 os.makedirs(RAW, exist_ok=True)
 os.makedirs(OUT, exist_ok=True)
 
 os.environ.setdefault("GDAL_DISABLE_READDIR_ON_OPEN", "EMPTY_DIR")
 os.environ.setdefault("AWS_NO_SIGN_REQUEST", "YES")
+os.environ.setdefault("GDAL_HTTP_MULTIRANGE", "YES")
+os.environ.setdefault("GDAL_HTTP_MERGE_CONSECUTIVE_RANGES", "YES")
+os.environ.setdefault("VSI_CACHE", "TRUE")
 
-FETCH_BBOX = "-0.42,39.76,-0.10,40.02"  # lon/lat, generoso alrededor del incendio
-EMS_GRA = "https://rapidmapping.emergency.copernicus.eu/backend/EMSR905/AOI01/GRA_PRODUCT/EMSR905_AOI01_GRA_PRODUCT_v2.zip"
+FETCH_BBOX = FIRE["bbox"]  # lon/lat, generoso alrededor del incendio
+EMS_GRA, EMS_FILE = FIRE["ems"]
 GVA = "https://carto.icv.gva.es/arcgis/rest/services/tm_medio_ambiente/"
+# Mapa de Series de Vegetación de España (Rivas-Martínez 1987), Banco de Datos de la Naturaleza (MITECO)
+SERIES_ZIP = "https://www.miteco.gob.es/content/dam/miteco/es/biodiversidad/servicios/banco-datos-naturaleza/series_p_tcm30-199924.zip"
 IGME = "https://mapas.igme.es/gis/rest/services/Cartografia_Geologica/IGME_Geode_50/MapServer/8/query"
 STAC = "https://earth-search.aws.element84.com/v1/collections/sentinel-2-l2a/items/"
 MUNI = "https://carto.icv.gva.es/arcgis/rest/services/0105_delimitaciones/0105_Delimitaciones/MapServer/0/query"
 DEM = "https://copernicus-dem-30m.s3.amazonaws.com/Copernicus_DSM_COG_10_N39_00_W001_00_DEM/Copernicus_DSM_COG_10_N39_00_W001_00_DEM.tif"
 
-SCENES = {
-    "abril": "S2B_30TYK_20260404_0_L2A",   # primavera, misma órbita que "antes" (sequedad previa, como el CEAM)
-    "antes": "S2B_30TYK_20260703_0_L2A",   # 3 semanas antes, sin nubes ni calima
-    "despues": "S2A_30TYK_20260819_1_L2A",  # 18 días tras la estabilización, sin nubes
-    "ahora": "S2A_30TYK_20260908_1_L2A",    # última escena con 0 % de nubes sobre el perímetro
-}
+SCENES = FIRE["scenes"]
 
 
 # ----------------------------------------------------------------------------- descargas
@@ -100,7 +142,7 @@ def download_ems(path):
     with urllib.request.urlopen(EMS_GRA, timeout=300) as r:
         z = zipfile.ZipFile(io.BytesIO(r.read()))
     with open(path, "wb") as f:
-        f.write(z.read("EMSR905_AOI01_GRA_PRODUCT_observedEventA_v2.json"))
+        f.write(z.read(EMS_FILE))
 
 
 def read_gdf(name, producer):
@@ -111,7 +153,7 @@ def read_gdf(name, producer):
 
 
 # ----------------------------------------------------------------------------- rejilla
-log("1/7 Perímetro Copernicus EMSR905")
+log(f"1/7 Perímetro Copernicus ({FIRE_KEY})")
 burnt = read_gdf("ems_burnt.geojson", download_ems).to_crs(4326)
 burnt_m = burnt.to_crs(3857)
 lat0 = burnt.geometry.union_all().centroid.y
@@ -148,7 +190,7 @@ def burn(gdf, values, dtype="uint8", fill=0, all_touched=False):
 inside = burn(burnt, [1] * len(burnt)).astype(bool)
 
 # ----------------------------------------------------------------------------- Sentinel-2
-log("2/7 Sentinel-2 (antes / después / ahora)")
+log("2/7 Sentinel-2 (" + " / ".join(SCENES) + ")")
 
 
 def read_band(href, transform, width, height, resampling=Resampling.bilinear):
@@ -158,8 +200,13 @@ def read_band(href, transform, width, height, resampling=Resampling.bilinear):
             return vrt.read(1).astype("float32")
 
 
-scenes = {}
-for key, sid in SCENES.items():
+def load_scene(key, sid):
+    # las bandas a 25 m se guardan en data-raw/ para no volver a leerlas de AWS en cada ejecución
+    cache = os.path.join(RAW, f"{sid}.npz")
+    imgs = [os.path.join(OUT, f"s2_{key}.jpg"), os.path.join(OUT, f"s2_{key}_swir.jpg")]
+    if os.path.exists(cache) and all(map(os.path.exists, imgs)):
+        z = np.load(cache)
+        return {k: (str(z[k]) if k == "date" else z[k]) for k in z.files}
     item = http_json(STAC + sid)
     a = item["assets"]
     # Desde la baseline 04.00 los DN llevan +1000. Earth Search ya lo corrige cuando
@@ -177,15 +224,24 @@ for key, sid in SCENES.items():
         "scl": read_band(a["scl"]["href"], T, W, H, Resampling.nearest),
     }
     # imagen en color natural a 10 m
-    rgb = np.dstack([refl(b, IT, IW, IH) for b in ("red", "green", "blue")])
+    red10 = refl("red", IT, IW, IH)
+    rgb = np.dstack([red10] + [refl(b, IT, IW, IH) for b in ("green", "blue")])
     rgb8 = np.clip((np.clip(rgb, 0, None) / 0.22) ** (1 / 1.6) * 255, 0, 255).astype("uint8")
-    Image.fromarray(rgb8).save(os.path.join(OUT, f"s2_{key}.jpg"), quality=86)
+    Image.fromarray(rgb8).save(imgs[0], quality=86)
     # falso color SWIR (B12-B8-B4): la cicatriz del fuego se ve en rojo/marrón
-    fc = np.dstack([refl("swir22", IT, IW, IH), refl("nir", IT, IW, IH), refl("red", IT, IW, IH)])
+    fc = np.dstack([refl("swir22", IT, IW, IH), refl("nir", IT, IW, IH), red10])
     fc8 = np.clip((np.clip(fc, 0, None) / np.array([0.45, 0.45, 0.25])) ** (1 / 1.4) * 255, 0, 255).astype("uint8")
-    Image.fromarray(fc8).save(os.path.join(OUT, f"s2_{key}_swir.jpg"), quality=86)
-    scenes[key] = s
-    log(f"   {key}: {sid} ({s['date']})")
+    Image.fromarray(fc8).save(imgs[1], quality=86)
+    np.savez(cache, **s)
+    return s
+
+
+# las lecturas son de red: varias escenas a la vez
+with ThreadPoolExecutor(max_workers=4) as pool:
+    futures = {key: pool.submit(load_scene, key, sid) for key, sid in SCENES.items()}
+scenes = {key: f.result() for key, f in futures.items()}
+for key, sid in SCENES.items():
+    log(f"   {key}: {sid} ({scenes[key]['date']})")
 
 
 def nbr(s):
@@ -237,7 +293,7 @@ fire_layers.update({2021: 101, 2022: 102, 2023: 120, 2024: 121})
 fires = []
 for y, lid in fire_layers.items():
     g = read_gdf(f"gva_incendios_{y}.geojson", arcgis_query(GVA + f"prevencion_de_incendios/MapServer/{lid}/query"))
-    if len(g):
+    if len(g) and y < FIRE["year"]:  # solo incendios anteriores (la capa de 2022 ya incluye Bejís)
         g = g[["geometry"]].copy()
         g["anyo"] = y
         fires.append(g)
@@ -265,7 +321,8 @@ owner = burn(mo, mo["owner"])
 VEG = {0: "Sin datos", 1: "Alcornocal", 2: "Pinar de rodeno (P. pinaster)", 3: "Pinar de pino carrasco",
        4: "Bosque mixto pino + frondosas", 5: "Encinar, quejigar y frondosas", 6: "Algarrobal / acebuchal",
        7: "Bosque de ribera", 8: "Matorral", 9: "Pastizal-matorral", 10: "Agrícola",
-       11: "Artificial / minería", 12: "Agua / humedal", 13: "Otros arbolados"}
+       11: "Artificial / minería", 12: "Agua / humedal", 13: "Otros arbolados",
+       14: "Pinar de montaña (P. nigra, P. sylvestris)", 15: "Sabinar / enebral"}
 
 
 def veg_code(r):
@@ -286,6 +343,8 @@ def veg_code(r):
     if "coníferas y frondosas" in e: return 4
     if "Encinar" in e or "Quejigar" in e or "frondosas autóctonas" in e or "disperso de frondosas" in e: return 5
     if "Algarrob" in e or "Acebuch" in e: return 6
+    if "nigra" in e or "sylvestris" in e: return 14
+    if "Sabinar" in e or "Enebral" in e: return 15
     if "ribere" in e.lower() or "Riberas" in t: return 7
     return 13
 
@@ -333,29 +392,50 @@ amb = np.isin(sub, [0, 5])
 eff_sub[amb & silicicola_ind] = 1
 eff_sub[amb & ~silicicola_ind] = 2
 
-POT = {0: "—", 1: "Alcornocal (Asplenio onopteridis–Querco suberis S.)",
-       2: "Carrascal silicícola de montaña",
-       3: "Carrascal con quejigo (Rubio longifoliae–Querco rotundifoliae S.)",
-       4: "Lentiscar-coscojar con carrasca, algarrobo y acebuche (termomediterráneo)",
-       5: "Carrascal-coscojar sobre arcillas y yesos",
-       6: "Vegetación de ribera (sauceda, chopera, adelfar)",
-       7: "Uso no forestal (agrícola, urbano, agua)"}
-pot = np.zeros((H, W), "uint8")
-pot[(eff_sub == 1) & (elev < 950)] = 1
-pot[(eff_sub == 1) & (elev >= 950)] = 2
-pot[(eff_sub == 2) & ((elev >= 350) | north)] = 3
-pot[(eff_sub == 2) & (elev < 350) & ~north] = 4
-pot[eff_sub == 3] = 5
-pot[(eff_sub == 4) | (veg == 7)] = 6
+# Vegetación potencial: serie del Mapa de Series de Vegetación de España (Rivas-Martínez 1987, MITECO)
+# en cada píxel. Las riberas y los usos no forestales salen del Mapa Forestal. Clases comunes a todos los
+# incendios; los nombres, especies y la revisión de 2011 están en public/series.js.
+POT = {0: "—",
+       1: "Alcornocal (23b, Asplenio onopteridis–Querceto suberis S.)",
+       2: "Carrascal termomediterráneo (27c, Rubio longifoliae–Querceto rotundifoliae S.)",
+       3: "Carrascal mesomediterráneo (22b, Bupleuro rigidi–Querceto rotundifoliae S.)",
+       4: "Carrascal supramediterráneo con sabina albar (22a, Junipero thuriferae–Querceto rotundifoliae S.)",
+       5: "Sabinar albar (15b, Junipereto hemisphaerico-thuriferae S.)",
+       6: "Vegetación de ribera (geomegaseries riparias)",
+       7: "Uso no forestal (agrícola, urbano, agua)",
+       8: "Coscojar semiárido (29b, Rhamno lycioidis–Querceto cocciferae S.)"}
+SERIES_CLASS = {"23b": 1, "27c": 2, "22b": 3, "22ba": 3, "22a": 4, "15b": 5, "I": 6, "29b": 8}
+
+
+def download_series(path):
+    req = urllib.request.Request(SERIES_ZIP, headers={"User-Agent": "Mozilla/5.0"})
+    with urllib.request.urlopen(req, timeout=300) as r:
+        z = zipfile.ZipFile(io.BytesIO(r.read()))
+    d = os.path.dirname(path)
+    z.extractall(d)
+    series = gpd.read_file(os.path.join(d, "Series_p.shp"))
+    to4326 = gpd.GeoSeries.from_xy([minx, maxx], [miny, maxy], crs=3857).to_crs(series.crs)
+    series = series.cx[to4326.x[0]:to4326.x[1], to4326.y[0]:to4326.y[1]]
+    series[["SERIES", "PISO", "geometry"]].to_crs(4326).to_file(path, driver="GeoJSON")
+
+
+series = read_gdf("mitecoseries.geojson", download_series)
+unknown = set(series.SERIES) - set(SERIES_CLASS)
+if unknown:
+    raise SystemExit(f"Series sin clase asignada en SERIES_CLASS: {unknown}")
+pot = burn(series, series.SERIES.map(SERIES_CLASS))
+pot[veg == 7] = 6
 pot[np.isin(veg, [10, 11, 12])] = 7
 
 RESPROUTER = np.isin(veg, [1, 5, 6, 7, 8, 9])  # rebrotan de cepa/raíz/yemas tras el fuego
-PINE = np.isin(veg, [2, 3, 4, 13])
+PINE = np.isin(veg, [2, 3, 4, 13, 14, 15])  # no rebrotan: regeneran por semilla (sabinas y enebros, mal)
 forest = ~np.isin(veg, [0, 10, 11, 12])
 burned = inside & (sev >= 2)
-recent_fire = last_fire >= 2011  # pinar inmaduro: <15 años, sin piñas serótinas suficientes
+recent_fire = last_fire >= FIRE["year"] - 15  # pinar inmaduro: <15 años, sin piñas serótinas suficientes
 cloud_now = np.isin(scenes["ahora"]["scl"], [3, 8, 9, 10])
 regrowth = ((ndvi_n - ndvi_a) > 0.05) & ~cloud_now
+ndvi_c = ndvi(scenes[FIRE["ceam"]])
+cloud_c = np.isin(scenes[FIRE["ceam"]]["scl"], [3, 8, 9, 10])
 
 # Criterio de la Fundación CEAM (manual Postfire-DSS) para reforzar la regeneración, que se
 # evalúa entre 1 y 2 años después del incendio: si las especies leñosas rebrotadoras cubren
@@ -366,11 +446,11 @@ regrowth = ((ndvi_n - ndvi_a) > 0.05) & ~cloud_now
 # distingue leñosas de herbáceas, así que es una cota superior de la cobertura leñosa.
 soil_ndvi = float(np.median(ndvi_a[inside & (sev >= 4)]))
 full_ndvi = float(np.percentile(ndvi_b[~inside & np.isin(veg, [1, 2, 3, 4, 5]) & ~cloud], 95))
-recov = np.clip((ndvi_n - soil_ndvi) / max(full_ndvi - soil_ndvi, 0.1), 0, 1) * 100
+recov = np.clip((ndvi_c - soil_ndvi) / max(full_ndvi - soil_ndvi, 0.1), 0, 1) * 100
 CEAM = {0: "—", 1: "<30 %: estudiar plantación o siembra selectiva", 2: "30–60 %: analizar caso a caso",
         3: ">60 %: regeneración favorable"}
 ceam = np.zeros((H, W), "uint8")
-ceam_ok = inside & forest & (sev >= 2) & ~cloud_now
+ceam_ok = inside & forest & (sev >= 2) & ~cloud_c
 ceam[ceam_ok] = 1
 ceam[ceam_ok & (recov >= 30)] = 2
 ceam[ceam_ok & (recov >= 60)] = 3
@@ -395,10 +475,10 @@ nat = burned & forest & (RESPROUTER | (PINE & (sev <= 3) & ~recent_fire))
 act[nat] = 1
 assist = burned & forest & PINE & ~nat
 act[assist] = 2
-# pinar sobre rodeno donde la potencial es el alcornocal, matorral muy recurrente o
+# pinar con daño alto donde la potencial es el alcornocal, matorral muy recurrente o
 # afección alta repetida: hay que reintroducir las especies de la vegetación potencial
 active = burned & forest & (
-    (PINE & np.isin(pot, [1, 2]) & (sev >= 4)) |
+    (PINE & (pot == 1) & (sev >= 4)) |
     (np.isin(veg, [8, 9]) & (recur >= 2)) |
     ((sev >= 5) & (recur >= 2))
 )
@@ -406,8 +486,8 @@ act[active] = 3
 act[inside & np.isin(veg, [10]) & (sev >= 2)] = 4
 
 # Viabilidad de alcanzar la vegetación potencial (0-100) en un horizonte de ~30 años
-same = (((veg == 1) & np.isin(pot, [1, 2])) | ((veg == 5) & np.isin(pot, [2, 3, 4, 5])) |
-        ((veg == 7) & (pot == 6)) | ((veg == 6) & (pot == 4)))
+same = (((veg == 1) & (pot == 1)) | ((veg == 5) & np.isin(pot, [2, 3, 4])) |
+        ((veg == 7) & (pot == 6)) | ((veg == 6) & (pot == 2)) | ((veg == 15) & np.isin(pot, [4, 5])))
 score = np.full((H, W), 50.0)
 score[same] = 85
 score[np.isin(veg, [8, 9])] = 60
@@ -470,6 +550,13 @@ stats = {
         "ndvi_julio": round(float(ndvi_b[inside & ~cloud_pre].mean()), 3),
     },
     "scenes": {k: v["date"] for k, v in scenes.items()},
+    "ceam_scene": FIRE["ceam"],
+    "fire_year": FIRE["year"],
+    # evolución del verdor (NDVI medio) en lo quemado con severidad moderada-alta o alta
+    "ndvi_serie": {v["date"]: round(float(ndvi(v)[inside & (sev >= 4) & ~np.isin(v["scl"], [3, 8, 9, 10])].mean()), 3)
+                   for k, v in sorted(scenes.items(), key=lambda kv: kv[1]["date"]) if k != "abril"},
+    "ndvi_serie_ref": {v["date"]: round(float(ndvi(v)[~inside & forest & ~np.isin(v["scl"], [3, 8, 9, 10])].mean()), 3)
+                       for k, v in sorted(scenes.items(), key=lambda kv: kv[1]["date"]) if k != "abril"},
 }
 for k, lab in ACT.items():
     if not k:
@@ -479,9 +566,9 @@ for k, lab in ACT.items():
                              "erosion_alta": ha(m & (eros >= 3))}
 stats["erosion_public"] = {EROS[k]: ha(inside & public & (eros == k)) for k in (3, 4)}
 # vegetación antes vs potencial (matriz) dentro del área forestal quemada
-stats["veg_vs_pot"] = {VEG[v]: {POT[p]: ha(valid & (veg == v) & (pot == p)) for p in range(1, 7)
+stats["veg_vs_pot"] = {VEG[v]: {POT[p]: ha(valid & (veg == v) & (pot == p)) for p in range(1, 9)
                                 if ha(valid & (veg == v) & (pot == p)) > 0}
-                       for v in range(1, 14) if ha(valid & (veg == v)) > 0}
+                       for v in range(1, 16) if ha(valid & (veg == v)) > 0}
 
 # ----------------------------------------------------------------------------- exportación
 log("7/7 Exportando")
@@ -496,7 +583,7 @@ layers = {
     "ndvi_a": np.clip(ndvi_a * 100 + 100, 0, 255).astype("uint8"),
     "ndvi_n": np.clip(ndvi_n * 100 + 100, 0, 255).astype("uint8"),
     "dndmi": np.where(cloud_pre, 0, np.clip((ndmi_jul - ndmi_abr) * 100 + 100, 1, 255)).astype("uint8"),
-    "recov": np.where(cloud_now, 255, recov).astype("uint8"),
+    "recov": np.where(cloud_c, 255, recov).astype("uint8"),
     "ceam": ceam,
     "pn": in_pn.astype("uint8"),
     "mun": mun,
@@ -530,6 +617,12 @@ save_geojson(montes, "montes.geojson", ["denominacion", "num_up", "municipio", "
 save_geojson(pn, "parque_natural.geojson", ["nombre", "hect_ofi", "legislacio"], tol=0.0002)
 muni["ha_quemadas"] = [ha(inside & (mun == k)) for k in range(1, len(muni) + 1)]
 save_geojson(muni, "municipios.geojson", ["nom_mun", "comarca", "area_ha", "ha_quemadas"], tol=0.0001)
+if FIRE_KEY != "espada":
+    fd = fires.dissolve("anyo").reset_index()
+    save_geojson(fd, "incendios_previos.geojson", ["anyo"], tol=0.0001)
+    gpd.GeoDataFrame({"nombre": []}, geometry=[], crs=4326).to_file(os.path.join(OUT, "ceam_zonas.geojson"), driver="GeoJSON")
+    log("Listo:", json.dumps({k: stats[k] for k in ("ems_ha", "grid_ha", "forest_ha", "public_ha", "pn_ha")}))
+    sys.exit()
 # Parajes citados por la Fundación CEAM (coordenadas del Nomenclátor Geográfico del IGN vía
 # CartoCiudad). El Puntal de Nules es el Pic de la Font de Cabres (639 m).
 from shapely.geometry import Point

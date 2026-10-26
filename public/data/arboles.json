@@ -1,15 +1,15 @@
 {
  "total": 2180000,
  "total_ci90": [
-  1679000,
-  2684000
+  1707000,
+  2674000
  ],
  "coniferas": 1660000,
  "frondosas": 520000,
  "muertos": 1475000,
  "muertos_ci90": [
-  1094000,
-  1890000
+  1112000,
+  1852000
  ],
  "muertos_coniferas": 1389000,
  "muertos_frondosas": 87000,
@@ -66,5 +66,6 @@
    "arboles": 0
   }
  },
- "fuente": "IFN3 Castellón (MITECO, campo 2006), pies mayores con diámetro ≥ 7,5 cm"
+ "ha_ardidas_tras_ifn": 0,
+ "fuente": "IFN3 Castellón (MITECO), pies mayores con diámetro ≥ 7,5 cm"
 }

@@ -1,0 +1,83 @@
+{
+ "total": 2454000,
+ "total_ci90": [
+  1828000,
+  3251000
+ ],
+ "coniferas": 2072000,
+ "frondosas": 382000,
+ "muertos": 1714000,
+ "muertos_ci90": [
+  1223000,
+  2332000
+ ],
+ "muertos_coniferas": 1660000,
+ "muertos_frondosas": 55000,
+ "parcelas_dentro": 49,
+ "parcelas_usadas": 60,
+ "densidad_media_ha": 401.0,
+ "por_clase": {
+  "Pinar de rodeno (P. pinaster)": {
+   "ha": 286.0,
+   "parcelas": 4,
+   "pies_ha": 199.0,
+   "arboles": 57000
+  },
+  "Pinar de pino carrasco": {
+   "ha": 2054.0,
+   "parcelas": 16,
+   "pies_ha": 752.0,
+   "arboles": 1545000
+  },
+  "Bosque mixto pino + frondosas": {
+   "ha": 778.0,
+   "parcelas": 7,
+   "pies_ha": 261.0,
+   "arboles": 203000
+  },
+  "Encinar, quejigar y frondosas": {
+   "ha": 2128.0,
+   "parcelas": 15,
+   "pies_ha": 87.0,
+   "arboles": 185000
+  },
+  "Bosque de ribera": {
+   "ha": 36.0,
+   "parcelas": 2,
+   "pies_ha": 0.0,
+   "arboles": 0
+  },
+  "Matorral": {
+   "ha": 2157.0,
+   "parcelas": 0,
+   "pies_ha": 0,
+   "arboles": 0
+  },
+  "Pastizal-matorral": {
+   "ha": 1182.0,
+   "parcelas": 0,
+   "pies_ha": 0,
+   "arboles": 0
+  },
+  "Otros arbolados": {
+   "ha": 432.0,
+   "parcelas": 4,
+   "pies_ha": 115.0,
+   "arboles": 50000
+  },
+  "Pinar de montaña (P. nigra, P. sylvestris)": {
+   "ha": 509.0,
+   "parcelas": 4,
+   "pies_ha": 781.0,
+   "arboles": 398000
+  },
+  "Sabinar / enebral": {
+   "ha": 244.0,
+   "parcelas": 8,
+   "pies_ha": 66.0,
+   "arboles": 16000
+  }
+ },
+ "ha_ardidas_tras_ifn": 6928,
+ "fuente": "IFN3 Castellón y Valencia (MITECO), pies mayores con diámetro ≥ 7,5 cm"
+}

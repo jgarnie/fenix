@@ -7,7 +7,8 @@
   <meta name="description" content="Mapa del incendio de la Vall d'Uixó / Serra d'Espadà (julio 2026): antes y después, monte público, vegetación previa y potencial, y plan de restauración.">
   <link rel="icon" href="data:,">
   <link rel="stylesheet" href="vendor/leaflet/leaflet.css">
-  <link rel="stylesheet" href="style.css">
+  <!-- código y estilos siempre en su última versión (los datos sí se cachean) -->
+  <script>document.write('<link rel="stylesheet" href="style.css?v=' + Date.now() + '">');</script>
 </head>
 <body>
   <aside id="panel">
@@ -53,6 +54,6 @@
   </main>
 
   <script src="vendor/leaflet/leaflet.js"></script>
-  <script src="app.js" type="module"></script>
+  <script type="module">import(`./app.js?v=${Date.now()}`);</script>
 </body>
 </html>
