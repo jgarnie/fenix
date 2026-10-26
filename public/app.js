@@ -134,21 +134,35 @@ const IMAGES = {
   ...Object.fromEntries(F.images.map(([k, l]) => [k, { label: `${l} · ${day(SC[k])}`, src: `${DATA}s2_${k}.jpg` }])),
   ...Object.fromEntries(F.swir.map((k) => [`${k}_swir`, { label: `${F.images.find(([x]) => x === k)[1]} · falso color`, src: `${DATA}s2_${k}_swir.jpg` }])),
   pnoa: { label: F.pnoa, tiles: 'https://www.ign.es/wmts/pnoa-ma?layer=OI.OrthoimageCoverage&style=default&tilematrixset=GoogleMapsCompatible&Service=WMTS&Request=GetTile&Version=1.0.0&Format=image/jpeg&TileMatrix={z}&TileCol={x}&TileRow={y}' },
+  // ortofotos históricas del PNOA (25 cm): mucho más detalle que Sentinel-2 (10 m), pero una sola fecha por vuelo
+  ...Object.fromEntries((F.ortos || []).map((o) => [`orto${o.year}`, { label: `Ortofoto ${o.year} · ${o.label}`, wms: `PNOA${o.year}`, pre: o.pre }])),
   none: { label: 'Mapa base' },
 };
 const S2_ATTR = `Contiene datos modificados de <a href="https://www.copernicus.eu">Copernicus Sentinel</a> (${S2_YEARS})`;
 function makeImage(key, pane) {
   const d = IMAGES[key];
   if (d.tiles) return L.tileLayer(d.tiles, { pane, maxZoom: 19, attribution: 'PNOA: <a href="https://www.scne.es">CC BY 4.0 scne.es</a>' });
+  if (d.wms) return L.tileLayer.wms('https://www.ign.es/wms/pnoa-historico', { layers: d.wms, format: 'image/jpeg', pane, maxZoom: 19, attribution: 'PNOA: <a href="https://www.scne.es">CC BY 4.0 scne.es</a>' });
   if (d.src) return L.imageOverlay(d.src, bounds, { pane, attribution: S2_ATTR });
   return null;
 }
 
-const cmp = { on: true, left: 'antes', right: 'despues', x: 0.5, layers: {} };
+const cmp = { on: true, left: 'antes', right: 'despues', x: 0.5, layers: {}, shown: {} };
+// Con mucho zoom, Sentinel-2 se ve borroso: si hay ortofoto de la misma época (antes o después del
+// incendio), se muestra en su lugar; al alejarse vuelve la imagen elegida.
+const ORTO_ZOOM = 14;
+function shownKey(side) {
+  const k = cmp[side];
+  const d = IMAGES[k];
+  if (!d.src || map.getZoom() < ORTO_ZOOM) return k;
+  const pre = SC[k.replace('_swir', '')] < SC.despues;
+  return Object.keys(IMAGES).find((o) => IMAGES[o].wms && IMAGES[o].pre === pre) || k;
+}
 function setImage(side) {
   const pane = side === 'left' ? 'imgL' : 'imgR';
   if (cmp.layers[side]) map.removeLayer(cmp.layers[side]);
-  cmp.layers[side] = makeImage(cmp[side], pane);
+  cmp.shown[side] = shownKey(side);
+  cmp.layers[side] = makeImage(cmp.shown[side], pane);
   if (cmp.layers[side] && (side === 'right' || cmp.on)) cmp.layers[side].addTo(map);
   updateLabels();
 }
@@ -156,8 +170,9 @@ const lblL = Object.assign(document.createElement('div'), { className: 'cmp-labe
 const lblR = Object.assign(document.createElement('div'), { className: 'cmp-label' });
 $('#mapwrap').append(lblL, lblR);
 function updateLabels() {
-  lblL.textContent = IMAGES[cmp.left].label;
-  lblR.textContent = IMAGES[cmp.right].label;
+  const lbl = (side) => { const k = cmp.shown[side] || cmp[side]; return IMAGES[k].label + (k !== cmp[side] ? ' (zoom)' : ''); };
+  lblL.textContent = lbl('left');
+  lblR.textContent = lbl('right');
   lblL.style.display = cmp.on ? '' : 'none';
 }
 function clip() {
@@ -175,6 +190,10 @@ function clip() {
   lblL.style.maxWidth = lblR.style.maxWidth = `${Math.max(80, size.x * 0.45)}px`;
 }
 map.on('move zoom resize viewreset', clip);
+map.on('zoomend', () => {
+  for (const side of ['left', 'right']) if (shownKey(side) !== cmp.shown[side]) setImage(side);
+  clip();
+});
 
 for (const side of ['left', 'right']) {
   const sel = $(`#cmp-${side}`);

@@ -71,6 +71,8 @@ export const FIRE = {
   images: [['abril', 'Primavera'], ['antes', 'Antes'], ['despues', 'Después'], ['ahora', 'Ahora']],
   swir: ['antes', 'despues', 'ahora'],
   pnoa: 'Ortofoto PNOA (pre-incendio)',
+  // vuelos PNOA históricos que cubren la zona (al acercar mucho sustituyen a Sentinel-2); aún no hay vuelo posterior al incendio
+  ortos: [{ year: 2024, label: 'antes del incendio', pre: true }],
   presets: [['antes|despues', 'Antes vs después'], ['antes|ahora', 'Antes vs ahora'], ['despues_swir|ahora_swir', 'Rebrote (falso color)'], ['pnoa|despues', 'Ortofoto vs después']],
   official: { value: '9.568 ha', label: 'superficie oficial (CCE Generalitat)' },
   // Cifras publicadas por la Fundación CEAM (agosto 2026, provisionales)

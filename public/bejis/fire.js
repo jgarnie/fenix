@@ -69,7 +69,9 @@ export const FIRE = {
   images: [['abril', 'Primavera'], ['antes', 'Antes'], ['despues', 'Después'], ['y2023', '1 año'], ['y2024', '2 años'], ['y2025', '3 años'], ['ahora', 'Ahora']],
   swir: ['antes', 'despues', 'y2024', 'ahora'],
   pnoa: 'Ortofoto PNOA (vuelo más reciente)',
-  presets: [['antes|despues', 'Antes vs después'], ['despues|ahora', 'Después vs ahora'], ['antes|ahora', 'Antes vs ahora'], ['despues_swir|ahora_swir', 'Rebrote (falso color)']],
+  // vuelos PNOA históricos que cubren la zona (al acercar mucho sustituyen a Sentinel-2)
+  ortos: [{ year: 2021, label: 'antes del incendio', pre: true }, { year: 2024, label: 'dos años después', pre: false }],
+  presets: [['antes|despues', 'Antes vs después'], ['despues|ahora', 'Después vs ahora'], ['antes|ahora', 'Antes vs ahora'], ['despues_swir|ahora_swir', 'Rebrote (falso color)'], ['orto2021|orto2024', 'Ortofotos 2021 vs 2024']],
   official: { value: '16.824 ha', label: 'superficie oficial (estadística de incendios de la Generalitat), de ellas 11.644 no arboladas' },
   ceamRef: null,
   potential: '<b>carrascal</b>: mesomediterráneo en las zonas bajas y, en las altas, supramediterráneo con sabina albar',
