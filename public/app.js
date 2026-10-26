@@ -147,14 +147,15 @@ function makeImage(key, pane) {
   return null;
 }
 
-const cmp = { on: true, left: 'antes', right: 'despues', x: 0.5, layers: {}, shown: {} };
+const cmp = { on: true, left: 'antes', right: 'despues', x: 0.5, layers: {}, shown: {}, manual: {} };
 // Con mucho zoom, Sentinel-2 se ve borroso: si hay ortofoto de la misma época (antes o después del
-// incendio), se muestra en su lugar; al alejarse vuelve la imagen elegida.
+// incendio), se muestra en su lugar; al alejarse vuelve la imagen elegida. Si con zoom alto se elige
+// a mano una imagen en el selector, se respeta hasta que se vuelva a alejar.
 const ORTO_ZOOM = 14;
 function shownKey(side) {
   const k = cmp[side];
   const d = IMAGES[k];
-  if (!d.src || map.getZoom() < ORTO_ZOOM) return k;
+  if (!d.src || cmp.manual[side] || map.getZoom() < ORTO_ZOOM) return k;
   const pre = SC[k.replace('_swir', '')] < SC.despues;
   return Object.keys(IMAGES).find((o) => IMAGES[o].wms && IMAGES[o].pre === pre) || k;
 }
@@ -162,6 +163,7 @@ function setImage(side) {
   const pane = side === 'left' ? 'imgL' : 'imgR';
   if (cmp.layers[side]) map.removeLayer(cmp.layers[side]);
   cmp.shown[side] = shownKey(side);
+  $(`#cmp-${side}`).value = cmp.shown[side]; // el selector muestra siempre la imagen que se ve
   cmp.layers[side] = makeImage(cmp.shown[side], pane);
   if (cmp.layers[side] && (side === 'right' || cmp.on)) cmp.layers[side].addTo(map);
   updateLabels();
@@ -191,6 +193,7 @@ function clip() {
 }
 map.on('move zoom resize viewreset', clip);
 map.on('zoomend', () => {
+  if (map.getZoom() < ORTO_ZOOM) cmp.manual = {};
   for (const side of ['left', 'right']) if (shownKey(side) !== cmp.shown[side]) setImage(side);
   clip();
 });
@@ -199,7 +202,7 @@ for (const side of ['left', 'right']) {
   const sel = $(`#cmp-${side}`);
   sel.innerHTML = Object.entries(IMAGES).map(([k, v]) => `<option value="${k}">${v.label}</option>`).join('');
   sel.value = cmp[side];
-  sel.onchange = () => { cmp[side] = sel.value; setImage(side); clip(); };
+  sel.onchange = () => { cmp[side] = sel.value; cmp.manual[side] = map.getZoom() >= ORTO_ZOOM; setImage(side); clip(); };
 }
 $('#cmp-toggle').onclick = (e) => {
   cmp.on = !cmp.on;
@@ -543,7 +546,7 @@ function recoveryTable() {
   document.querySelectorAll('[data-v]').forEach((c) => (c.onchange = () => { vecOn[c.dataset.v] = c.checked; syncVec(); }));
   document.querySelectorAll('[data-p]').forEach((b) => (b.onclick = () => {
     const [l, r] = b.dataset.p.split('|');
-    Object.assign(cmp, { left: l, right: r });
+    Object.assign(cmp, { left: l, right: r, manual: map.getZoom() >= ORTO_ZOOM ? { left: true, right: true } : {} });
     $('#cmp-left').value = l; $('#cmp-right').value = r;
     if (!cmp.on) $('#cmp-toggle').click();
     setImage('left'); setImage('right'); clip();
