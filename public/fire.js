@@ -60,6 +60,7 @@ export const EMERG = {
 };
 
 export const FIRE = {
+  dataDir: 'vallduixo', // carpeta en el repo fenix-data
   ems: 'EMSR905',
   emsUrl: 'https://rapidmapping.emergency.copernicus.eu/EMSR905',
   park: "Serra d'Espadà",

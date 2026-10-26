@@ -33,6 +33,14 @@ python3 scripts/build_data.py bejis     # Bejís: data-raw/bejis/ → public/bej
 python3 scripts/trees.py bejis
 ```
 
+Los datos generados (`public/data/` y `public/bejis/data/`) no se versionan en este repo: la web publicada los lee del repo
+[fenix-data](https://github.com/jgarnie/fenix-data) (`vallduixo/data/` y `bejis/data/`), que solo guarda la última versión.
+En local se usan las carpetas de `public/`. Tras regenerarlos, publícalos con:
+
+```bash
+scripts/publish_data.sh
+```
+
 ## Datos y licencias
 
 | Datos | Fuente | Licencia / condiciones |

@@ -2,7 +2,7 @@
 Estimación del número de árboles quemados a partir del Tercer Inventario Forestal
 Nacional (IFN3, Castellón, trabajo de campo 2006).
 
-Requiere haber ejecutado antes scripts/build_data.py (usa public/data/grid.bin y meta.json).
+Requiere haber ejecutado antes scripts/build_data.py (usa public/data/grid.bin.gz y meta.json).
 Escribe public/data/arboles.json y añade el resumen a meta.json.
 
 Método:
@@ -19,6 +19,7 @@ Método:
 
 Uso:  python3 scripts/trees.py [espada|bejis]
 """
+import gzip
 import io
 import json
 import os
@@ -70,7 +71,8 @@ plots = pd.concat([load_prov(p) for p in PROVS], ignore_index=True)
 # --- rejilla del análisis
 meta = json.load(open(os.path.join(OUT, "meta.json")))
 W, H = meta["width"], meta["height"]
-raw = np.fromfile(os.path.join(OUT, "grid.bin"), dtype="uint8")
+with gzip.open(os.path.join(OUT, "grid.bin.gz")) as f:
+    raw = np.frombuffer(f.read(), dtype="uint8")
 G = {k: raw[i * W * H:(i + 1) * W * H].reshape(H, W) for i, k in enumerate(meta["layers"])}
 (s, w), (n, e) = meta["bounds"]
 to_m = Transformer.from_crs(4326, 3857, always_xy=True)

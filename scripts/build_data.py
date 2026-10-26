@@ -14,6 +14,7 @@ Fuentes:
 
 Uso:  python3 scripts/build_data.py [espada|bejis]
 """
+import gzip
 import io
 import json
 import math
@@ -589,7 +590,8 @@ layers = {
     "mun": mun,
 }
 order = list(layers)
-with open(os.path.join(OUT, "grid.bin"), "wb") as f:
+# comprimida con gzip: GitHub Pages no comprime los .bin al servirlos (18 MB → ~4,5 MB en Bejís)
+with gzip.GzipFile(os.path.join(OUT, "grid.bin.gz"), "wb", compresslevel=9, mtime=0) as f:
     for k in order:
         f.write(np.ascontiguousarray(layers[k]).tobytes())
 

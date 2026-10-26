@@ -59,6 +59,7 @@ export const EMERG = {
 };
 
 export const FIRE = {
+  dataDir: 'bejis', // carpeta en el repo fenix-data
   ems: 'EMSR625',
   emsUrl: 'https://mapping.emergency.copernicus.eu/activations/EMSR625',
   park: null,

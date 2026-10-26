@@ -1,5 +1,5 @@
 // Visor y planificador de restauración tras un incendio (común a todos los incendios)
-// Los textos propios de cada incendio están en su fire.js (junto a su index.html). Todos los cálculos por píxel se hacen sobre public/data/grid.bin (rejilla de 25 m generada
+// Los textos propios de cada incendio están en su fire.js (junto a su index.html). Todos los cálculos por píxel se hacen sobre data/grid.bin.gz (rejilla de 25 m generada
 // por scripts/build_data.py). Ver la pestaña "Fuentes" para el método.
 
 const $ = (s, el = document) => el.querySelector(s);
@@ -9,16 +9,20 @@ const eur = (n) => n >= 1e6 ? `${fmt(n / 1e6, 2)} M€` : `${fmt(n / 1e3, 0)} k�
 const hex = (h) => [parseInt(h.slice(1, 3), 16), parseInt(h.slice(3, 5), 16), parseInt(h.slice(5, 7), 16)];
 
 // ------------------------------------------------------------------ datos
-const meta = await (await fetch('data/meta.json')).json();
-const buf = new Uint8Array(await (await fetch('data/grid.bin')).arrayBuffer());
+const { ACT_INFO, EMERG, FIRE: F } = await import(new URL(`fire.js?v=${Date.now()}`, location.href));
+const { POT_INFO } = await import(new URL(`series.js?v=${Date.now()}`, import.meta.url));
+// publicada, los datos se sirven desde el repo fenix-data (sin historial); en local, desde la carpeta data/ de cada incendio
+const DATA = location.hostname.endsWith('github.io') ? `${location.origin}/fenix-data/${F.dataDir}/data/` : 'data/';
+const meta = await (await fetch(`${DATA}meta.json`)).json();
+// grid.bin.gz: si el servidor ya lo descomprime (Content-Encoding), llega sin la cabecera gzip 1f 8b
+let buf = new Uint8Array(await (await fetch(`${DATA}grid.bin.gz`)).arrayBuffer());
+if (buf[0] === 0x1f && buf[1] === 0x8b) buf = new Uint8Array(await new Response(new Blob([buf]).stream().pipeThrough(new DecompressionStream('gzip'))).arrayBuffer());
 const { width: W, height: H, stats: S } = meta;
 const N = W * H;
 const G = Object.fromEntries(meta.layers.map((k, i) => [k, buf.subarray(i * N, (i + 1) * N)]));
 const [montes, perimetro, parque, incendios, municipios, ceamZonas] = await Promise.all(
-  ['montes', 'perimetro', 'parque_natural', 'incendios_previos', 'municipios', 'ceam_zonas'].map((f) => fetch(`data/${f}.geojson`).then((r) => r.json())),
+  ['montes', 'perimetro', 'parque_natural', 'incendios_previos', 'municipios', 'ceam_zonas'].map((f) => fetch(`${DATA}${f}.geojson`).then((r) => r.json())),
 );
-const { ACT_INFO, EMERG, FIRE: F } = await import(new URL(`fire.js?v=${Date.now()}`, location.href));
-const { POT_INFO } = await import(new URL(`series.js?v=${Date.now()}`, import.meta.url));
 const PIX_HA = meta.pixel_ha;
 const leg = meta.legends;
 const PUBLIC = (o) => o >= 1 && o <= 3;
@@ -122,8 +126,8 @@ L.tileLayer('https://www.ign.es/wmts/ign-base?layer=IGNBaseTodo&style=default&ti
 }).addTo(map);
 
 const IMAGES = {
-  ...Object.fromEntries(F.images.map(([k, l]) => [k, { label: `${l} · ${day(SC[k])}`, src: `data/s2_${k}.jpg` }])),
-  ...Object.fromEntries(F.swir.map((k) => [`${k}_swir`, { label: `${F.images.find(([x]) => x === k)[1]} · falso color`, src: `data/s2_${k}_swir.jpg` }])),
+  ...Object.fromEntries(F.images.map(([k, l]) => [k, { label: `${l} · ${day(SC[k])}`, src: `${DATA}s2_${k}.jpg` }])),
+  ...Object.fromEntries(F.swir.map((k) => [`${k}_swir`, { label: `${F.images.find(([x]) => x === k)[1]} · falso color`, src: `${DATA}s2_${k}_swir.jpg` }])),
   pnoa: { label: F.pnoa, tiles: 'https://www.ign.es/wmts/pnoa-ma?layer=OI.OrthoimageCoverage&style=default&tilematrixset=GoogleMapsCompatible&Service=WMTS&Request=GetTile&Version=1.0.0&Format=image/jpeg&TileMatrix={z}&TileCol={x}&TileRow={y}' },
   none: { label: 'Mapa base' },
 };
