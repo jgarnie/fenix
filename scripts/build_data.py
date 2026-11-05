@@ -12,7 +12,7 @@ Fuentes:
     de España 1:50.000, Parque Natural, incendios históricos 1993-2024
   - IGME: mapa geológico continuo GEODE 1:50.000
 
-Uso:  python3 scripts/build_data.py [espada|bejis]
+Uso:  python3 scripts/build_data.py [espada|bejis|tietar]
 """
 import gzip
 import io
@@ -26,6 +26,8 @@ import zipfile
 from concurrent.futures import ThreadPoolExecutor
 
 import geopandas as gpd
+import shapely.ops
+from shapely.geometry import MultiPolygon, Polygon
 import numpy as np
 import rasterio
 from PIL import Image
@@ -73,6 +75,43 @@ FIRES = {
         },
         "ceam": "y2024",
     },
+    # Burgohondo – Valle del Tiétar (Ávila y oeste de Madrid, julio 2026). Fuera de la Comunitat Valenciana:
+    # todas las capas vectoriales salen de fuentes nacionales o de cada comunidad ("src": "nacional").
+    "tietar": {
+        "year": 2026,
+        "raw": "tietar",
+        "out": "tietar/data",
+        "bbox": "-4.95,40.12,-4.02,40.62",
+        "src": "nacional",
+        # EMSR900 (Central Spain): AOI03 es la delimitación final del incendio (28 jul); las AOI04-07 son
+        # evaluaciones de daños posteriores de partes del mismo incendio. La AOI02 es el incendio de Almorox –
+        # Villa del Prado, que toca el perímetro: se incluye para cartografiar todo lo que ardió junto.
+        "ems": [
+            ("https://rapidmapping.emergency.copernicus.eu/backend/EMSR900/AOI02/GRA_PRODUCT/EMSR900_AOI02_GRA_PRODUCT_v1.zip",
+             "EMSR900_AOI02_GRA_PRODUCT_observedEventA_v1.json"),
+            ("https://rapidmapping.emergency.copernicus.eu/backend/EMSR900/AOI03/DEL_MONIT04/EMSR900_AOI03_DEL_MONIT04_v1.zip",
+             "EMSR900_AOI03_DEL_MONIT04_observedEventA_v1.json"),
+            ("https://rapidmapping.emergency.copernicus.eu/backend/EMSR900/AOI04/GRA_MONIT01/EMSR900_AOI04_GRA_MONIT01_v1.zip",
+             "EMSR900_AOI04_GRA_MONIT01_observedEventA_v1.json"),
+            ("https://rapidmapping.emergency.copernicus.eu/backend/EMSR900/AOI05/GRA_MONIT01/EMSR900_AOI05_GRA_MONIT01_v1.zip",
+             "EMSR900_AOI05_GRA_MONIT01_observedEventA_v1.json"),
+            ("https://rapidmapping.emergency.copernicus.eu/backend/EMSR900/AOI06/GRA_PRODUCT/EMSR900_AOI06_GRA_PRODUCT_v1.zip",
+             "EMSR900_AOI06_GRA_PRODUCT_observedEventA_v1.json"),
+            ("https://rapidmapping.emergency.copernicus.eu/backend/EMSR900/AOI07/GRA_PRODUCT/EMSR900_AOI07_GRA_PRODUCT_v1.zip",
+             "EMSR900_AOI07_GRA_PRODUCT_observedEventA_v1.json"),
+        ],
+        "dem": "Copernicus_DSM_COG_10_N40_00_W005_00_DEM",
+        "mfe_provs": {"05": "MFE50_05_tcm30-200064.zip", "28": "MFE50_28_tcm30-200078.zip", "45": "MFE50_45_tcm30-200089.zip"},
+        "scenes": {  # tesela 30TUK
+            "abril": "S2C_30TUK_20260415_0_L2A",
+            "antes": "S2A_30TUK_20260716_1_L2A",   # 5 días antes del inicio (21 jul)
+            "despues": "S2B_30TUK_20260808_0_L2A",  # una semana después de darlo por estabilizado
+            "ahora": "S2C_30TUK_20261101_0_L2A",    # última sin nubes
+        },
+        "ceam": "ahora",
+        "perim_min_ha": 1.0, "perim_tol": 0.0001,
+        "img_m": 20.0,  # incendio muy grande: imágenes del comparador a 20 m (JPEG ~4× más ligeros)
+    },
 }
 FIRE_KEY = sys.argv[1] if len(sys.argv) > 1 else "espada"
 FIRE = FIRES[FIRE_KEY]
@@ -86,16 +125,26 @@ os.environ.setdefault("AWS_NO_SIGN_REQUEST", "YES")
 os.environ.setdefault("GDAL_HTTP_MULTIRANGE", "YES")
 os.environ.setdefault("GDAL_HTTP_MERGE_CONSECUTIVE_RANGES", "YES")
 os.environ.setdefault("VSI_CACHE", "TRUE")
+os.environ.setdefault("OGR_GEOJSON_MAX_OBJ_SIZE", "0")  # perímetros de Copernicus muy grandes
 
 FETCH_BBOX = FIRE["bbox"]  # lon/lat, generoso alrededor del incendio
-EMS_GRA, EMS_FILE = FIRE["ems"]
+SRC = FIRE.get("src", "gva")
+EMS = FIRE["ems"] if isinstance(FIRE["ems"], list) else [FIRE["ems"]]
 GVA = "https://carto.icv.gva.es/arcgis/rest/services/tm_medio_ambiente/"
 # Mapa de Series de Vegetación de España (Rivas-Martínez 1987), Banco de Datos de la Naturaleza (MITECO)
 SERIES_ZIP = "https://www.miteco.gob.es/content/dam/miteco/es/biodiversidad/servicios/banco-datos-naturaleza/series_p_tcm30-199924.zip"
 IGME = "https://mapas.igme.es/gis/rest/services/Cartografia_Geologica/IGME_Geode_50/MapServer/8/query"
 STAC = "https://earth-search.aws.element84.com/v1/collections/sentinel-2-l2a/items/"
 MUNI = "https://carto.icv.gva.es/arcgis/rest/services/0105_delimitaciones/0105_Delimitaciones/MapServer/0/query"
-DEM = "https://copernicus-dem-30m.s3.amazonaws.com/Copernicus_DSM_COG_10_N39_00_W001_00_DEM/Copernicus_DSM_COG_10_N39_00_W001_00_DEM.tif"
+_dem = FIRE.get("dem", "Copernicus_DSM_COG_10_N39_00_W001_00_DEM")
+DEM = f"https://copernicus-dem-30m.s3.amazonaws.com/{_dem}/{_dem}.tif"
+BDN = "https://www.miteco.gob.es/content/dam/miteco/es/biodiversidad/servicios/banco-datos-naturaleza/"
+ENP_ZIP = BDN + "enp/Enp2025_geojson.zip"  # Espacios Naturales Protegidos (MITECO)
+MUP_CYL = "https://idecyl.jcyl.es/geoserver/montes/ows"  # montes:montes_cyl_mup_vw
+MUP_MAD = "https://idem.comunidad.madrid/geoidem/ows"    # Zonas:IDEM_MA_MONTES_UP
+IGN_AU = "https://www.ign.es/wfs-inspire/unidades-administrativas"
+EFFIS = "https://maps.effis.emergency.copernicus.eu/effis"
+EFFIS_FROM = 2016  # el WFS de EFFIS solo sirve perímetros desde 2016
 
 SCENES = FIRE["scenes"]
 
@@ -140,10 +189,52 @@ def arcgis_query(base, fields="*", page=1000, paginate=True):
 
 
 def download_ems(path):
-    with urllib.request.urlopen(EMS_GRA, timeout=300) as r:
-        z = zipfile.ZipFile(io.BytesIO(r.read()))
-    with open(path, "wb") as f:
-        f.write(z.read(EMS_FILE))
+    # varias AOI del mismo incendio se unen en una sola capa
+    feats = []
+    for url, name in EMS:
+        with urllib.request.urlopen(url, timeout=600) as r:
+            z = zipfile.ZipFile(io.BytesIO(r.read()))
+        d = json.loads(z.read(name))
+        if len(EMS) == 1:
+            with open(path, "wb") as f:
+                f.write(z.read(name))
+            return
+        feats += d["features"]
+    with open(path, "w") as f:
+        json.dump({"type": "FeatureCollection", "features": feats}, f)
+
+
+def wfs_geojson(base, typename, version="2.0.0"):
+    """GetFeature en GeoJSON dentro de FETCH_BBOX (WFS 2.0 con eje lat/lon)."""
+    def produce(path):
+        w, s, e, n = FETCH_BBOX.split(",")
+        q = dict(service="WFS", version=version, request="GetFeature", typenames=typename, outputFormat="application/json",
+                 srsName="EPSG:4326", bbox=f"{s},{w},{n},{e},urn:ogc:def:crs:EPSG::4326")
+        with urllib.request.urlopen(base + "?" + urllib.parse.urlencode(q), timeout=300) as r, open(path, "wb") as f:
+            f.write(r.read())
+    return produce
+
+
+def wfs_gml(base, typename, version="2.0.0", bbox_lonlat=False):
+    def produce(path):
+        w, s, e, n = FETCH_BBOX.split(",")
+        q = dict(service="WFS", version=version, request="GetFeature", typename=typename, typenames=typename, count=5000,
+                 bbox=f"{s},{w},{n},{e}," + ("EPSG:4326" if version.startswith("1") else "urn:ogc:def:crs:EPSG::4326"))
+        with urllib.request.urlopen(base + "?" + urllib.parse.urlencode(q), timeout=600) as r, open(path, "wb") as f:
+            f.write(r.read())
+    return produce
+
+
+def bdn_zip(zname, members):
+    """Descarga un zip del Banco de Datos de la Naturaleza (MITECO) y extrae los ficheros indicados."""
+    def produce(path):
+        req = urllib.request.Request(BDN + zname if not zname.startswith("http") else zname, headers={"User-Agent": "Mozilla/5.0"})
+        with urllib.request.urlopen(req, timeout=900) as r:
+            z = zipfile.ZipFile(io.BytesIO(r.read()))
+        for m in z.namelist():
+            if any(m.endswith(x) for x in members):
+                z.extract(m, os.path.dirname(path))
+    return produce
 
 
 def read_gdf(name, producer):
@@ -171,7 +262,7 @@ H = int(math.ceil((maxy - miny) / RES))
 T = from_origin(minx, maxy, RES, RES)
 PIX_HA = GROUND * GROUND / 1e4
 
-IMG_GROUND = 10.0
+IMG_GROUND = FIRE.get("img_m", 10.0)  # resolución de las imágenes del comparador
 IMG_RES = IMG_GROUND * K
 IW, IH = int(round(W * RES / IMG_RES)), int(round(H * RES / IMG_RES))
 IT = from_origin(minx, maxy, (W * RES) / IW, (H * RES) / IH)
@@ -194,11 +285,18 @@ inside = burn(burnt, [1] * len(burnt)).astype(bool)
 log("2/7 Sentinel-2 (" + " / ".join(SCENES) + ")")
 
 
-def read_band(href, transform, width, height, resampling=Resampling.bilinear):
-    with rasterio.open(href) as src:
-        with WarpedVRT(src, crs="EPSG:3857", transform=transform, width=width, height=height,
-                       resampling=resampling) as vrt:
-            return vrt.read(1).astype("float32")
+def read_band(href, transform, width, height, resampling=Resampling.bilinear, tries=4):
+    # lecturas largas por HTTP: si se corta la conexión, se reintenta la banda entera
+    for i in range(tries):
+        try:
+            with rasterio.open(href) as src:
+                with WarpedVRT(src, crs="EPSG:3857", transform=transform, width=width, height=height,
+                               resampling=resampling) as vrt:
+                    return vrt.read(1).astype("float32")
+        except rasterio.errors.RasterioIOError as e:
+            if i == tries - 1:
+                raise
+            log(f"   reintento {i + 1} ({os.path.basename(href)}): {str(e)[:80]}")
 
 
 def load_scene(key, sid):
@@ -238,7 +336,7 @@ def load_scene(key, sid):
 
 
 # las lecturas son de red: varias escenas a la vez
-with ThreadPoolExecutor(max_workers=4) as pool:
+with ThreadPoolExecutor(max_workers=2) as pool:  # más hilos saturan la conexión y provocan cortes
     futures = {key: pool.submit(load_scene, key, sid) for key, sid in SCENES.items()}
 scenes = {key: f.result() for key, f in futures.items()}
 for key, sid in SCENES.items():
@@ -283,50 +381,161 @@ north = (aspect > 292.5) | (aspect < 67.5)
 south = (aspect > 112.5) & (aspect < 247.5)
 
 # ----------------------------------------------------------------------------- capas vectoriales
-log("4/7 Capas GVA / IGME")
-montes = read_gdf("gva_montes.geojson", arcgis_query(GVA + "forestal/MapServer/25/query"))
-mfe = read_gdf("gva_mfe50.geojson", arcgis_query(GVA + "forestal/MapServer/41/query"))
-pn = read_gdf("gva_parque_natural.geojson", arcgis_query(GVA + "espacios_protegidos/MapServer/10/query"))
-muni = read_gdf("icv_municipios.geojson", arcgis_query(MUNI, "cod_ine_mun,nom_mun,comarca,area_ha", paginate=False)).reset_index(drop=True)
-geo = read_gdf("igme_geode50.geojson", arcgis_query(IGME, "CODE_UNIO,DESC_UNIT,NAME_EDA1,NAME_EDA2"))
-fire_layers = {1993 + i: 1 + i for i in range(28)}
-fire_layers.update({2021: 101, 2022: 102, 2023: 120, 2024: 121})
-fires = []
-for y, lid in fire_layers.items():
-    g = read_gdf(f"gva_incendios_{y}.geojson", arcgis_query(GVA + f"prevencion_de_incendios/MapServer/{lid}/query"))
-    if len(g) and y < FIRE["year"]:  # solo incendios anteriores (la capa de 2022 ya incluye Bejís)
-        g = g[["geometry"]].copy()
-        g["anyo"] = y
-        fires.append(g)
-fires = gpd.GeoDataFrame(gpd.pd.concat(fires, ignore_index=True), crs=4326)
-
-# --- propiedad (montes gestionados por la Generalitat)
-OWNER = {0: "Sin catalogar (mayoritariamente privado)", 1: "Utilidad pública · Ayuntamiento",
-         2: "Utilidad pública · Generalitat", 3: "Utilidad pública · Conf. Hidrográfica del Júcar",
-         4: "Enclavado privado en monte público"}
-
-
-def owner_code(r):
-    if r["cup"] == "ENC":
-        return 4
-    p = r["pertenencia"].upper() if isinstance(r["pertenencia"], str) else ""
-    return 2 if "GENERALITAT" in p else 3 if "CONFEDERACION" in p else 1
-
-
-montes["owner"] = montes.apply(owner_code, axis=1)
-# primero los públicos, luego los enclavados encima
-mo = montes.sort_values("owner", key=lambda s: s == 4)
-owner = burn(mo, mo["owner"])
-
-# --- vegetación antes del incendio (MFE50)
+log(f"4/7 Capas vectoriales ({SRC})")
+# Vegetación (MFE50): códigos comunes a todos los incendios; cada incendio solo usa algunos.
 VEG = {0: "Sin datos", 1: "Alcornocal", 2: "Pinar de rodeno (P. pinaster)", 3: "Pinar de pino carrasco",
        4: "Bosque mixto pino + frondosas", 5: "Encinar, quejigar y frondosas", 6: "Algarrobal / acebuchal",
        7: "Bosque de ribera", 8: "Matorral", 9: "Pastizal-matorral", 10: "Agrícola",
        11: "Artificial / minería", 12: "Agua / humedal", 13: "Otros arbolados",
-       14: "Pinar de montaña (P. nigra, P. sylvestris)", 15: "Sabinar / enebral"}
+       14: "Pinar de montaña (P. nigra, P. sylvestris)", 15: "Sabinar / enebral",
+       16: "Pinar de pino piñonero (P. pinea)", 17: "Melojar (Quercus pyrenaica)", 18: "Mezcla de pinos (resinero y piñonero)"}
+GEO = {0: "Sin datos", 1: "Silíceo (areniscas del rodeno)", 2: "Calizo / dolomítico",
+       3: "Arcillas y yesos (Keuper)", 4: "Fondo de valle / rambla", 5: "Depósitos cuaternarios de ladera"}
+geo = read_gdf("igme_geode50.geojson", arcgis_query(IGME, "CODE_UNIO,DESC_UNIT,NAME_EDA1,NAME_EDA2"))
+
+if SRC == "gva":
+    montes = read_gdf("gva_montes.geojson", arcgis_query(GVA + "forestal/MapServer/25/query"))
+    mfe = read_gdf("gva_mfe50.geojson", arcgis_query(GVA + "forestal/MapServer/41/query"))
+    pn = read_gdf("gva_parque_natural.geojson", arcgis_query(GVA + "espacios_protegidos/MapServer/10/query"))
+    muni = read_gdf("icv_municipios.geojson", arcgis_query(MUNI, "cod_ine_mun,nom_mun,comarca,area_ha", paginate=False)).reset_index(drop=True)
+    fire_layers = {1993 + i: 1 + i for i in range(28)}
+    fire_layers.update({2021: 101, 2022: 102, 2023: 120, 2024: 121})
+    fires = []
+    for y, lid in fire_layers.items():
+        g = read_gdf(f"gva_incendios_{y}.geojson", arcgis_query(GVA + f"prevencion_de_incendios/MapServer/{lid}/query"))
+        if len(g) and y < FIRE["year"]:  # solo incendios anteriores (la capa de 2022 ya incluye Bejís)
+            g = g[["geometry"]].copy()
+            g["anyo"] = y
+            fires.append(g)
+    fires = gpd.GeoDataFrame(gpd.pd.concat(fires, ignore_index=True), crs=4326)
+
+    # --- propiedad (montes gestionados por la Generalitat)
+    OWNER = {0: "Sin catalogar (mayoritariamente privado)", 1: "Utilidad pública · Ayuntamiento",
+             2: "Utilidad pública · Generalitat", 3: "Utilidad pública · Conf. Hidrográfica del Júcar",
+             4: "Enclavado privado en monte público"}
+
+    def owner_code(r):
+        if r["cup"] == "ENC":
+            return 4
+        p = r["pertenencia"].upper() if isinstance(r["pertenencia"], str) else ""
+        return 2 if "GENERALITAT" in p else 3 if "CONFEDERACION" in p else 1
+
+    montes["owner"] = montes.apply(owner_code, axis=1)
+else:
+    # --- fuentes nacionales y autonómicas (incendios fuera de la Comunitat Valenciana)
+    VEG.update({2: "Pinar de pino resinero (P. pinaster)", 5: "Encinar y otras frondosas", 15: "Enebral"})
+    GEO[1] = "Silíceo (granitos, gneises, pizarras)"
+    # Montes de utilidad pública: Junta de Castilla y León (IDECyL) y Comunidad de Madrid (IDEM)
+    OWNER = {0: "Sin catalogar (mayoritariamente privado)", 1: "Utilidad pública · Ayuntamiento",
+             2: "Utilidad pública · Comunidad autónoma", 3: "Utilidad pública · Otras entidades (asocios, Estado)",
+             4: "Enclavado privado en monte público"}
+    cyl = read_gdf("mup_cyl.geojson", wfs_geojson(MUP_CYL, "montes:montes_cyl_mup_vw"))
+    mad = read_gdf("mup_madrid.geojson", wfs_geojson(MUP_MAD, "Zonas:IDEM_MA_MONTES_UP"))
+
+    def own_cyl(r):
+        p = str(r.get("n_tipprop") or "") + " " + str(r.get("n_pertenen") or "")
+        return 1 if "Ayto" in p or "Ayuntamiento" in p else 2 if "Comunidad" in p or "Junta" in p else 3
+
+    def own_mad(r):
+        p = str(r.get("DS_PROPIETARIO") or "")
+        return 1 if "Ayuntamiento" in p else 2 if "Comunidad" in p else 3
+
+    montes = gpd.GeoDataFrame(gpd.pd.concat([
+        gpd.GeoDataFrame({"denominacion": cyl.n_monte, "num_up": cyl.v_mup, "municipio": cyl.n_mun,
+                          "pertenencia": cyl.n_pertenen, "hectareas": cyl.m_sup_ha,
+                          "owner": cyl.apply(own_cyl, axis=1)}, geometry=cyl.geometry, crs=4326),
+        gpd.GeoDataFrame({"denominacion": mad.DS_NOMBRE, "num_up": mad.CD_UP.astype(str), "municipio": mad.DS_MUNICIPIO,
+                          "pertenencia": mad.DS_NOM_PROPIETARIO, "hectareas": mad.NM_SUPERF_CATALOGO,
+                          "owner": mad.apply(own_mad, axis=1)}, geometry=mad.geometry.to_crs(4326), crs=4326),
+    ], ignore_index=True), crs=4326)
+
+    # Mapa Forestal de España 1:50.000 por provincias (MITECO, Banco de Datos de la Naturaleza)
+    def load_mfe(path):
+        parts = []
+        for prov, zname in FIRE["mfe_provs"].items():
+            shp = os.path.join(RAW, f"mfe50_{prov}.shp")
+            if not os.path.exists(shp):
+                bdn_zip(zname, (".shp", ".shx", ".dbf", ".prj"))(shp)
+            crs = gpd.read_file(shp, rows=1).crs
+            w, s, e, n = map(float, FETCH_BBOX.split(","))
+            bb = gpd.GeoSeries.from_xy([w, e], [s, n], crs=4326).to_crs(crs).total_bounds
+            parts.append(gpd.read_file(shp, bbox=tuple(bb)).to_crs(4326))
+        gpd.GeoDataFrame(gpd.pd.concat(parts, ignore_index=True), crs=4326)[
+            ["DEFINICION", "NOM_FORARB", "USOS_SUELO", "geometry"]].to_file(path, driver="GPKG")
+    mfe = read_gdf("mfe50.gpkg", load_mfe)
+
+    # Espacios Naturales Protegidos (MITECO): los que toca el incendio
+    def load_enp(path):
+        src = os.path.join(RAW, "Enp2025_p.json")
+        if not os.path.exists(src):
+            bdn_zip(ENP_ZIP, ("Enp2025_p.json",))(src)
+        os.environ["OGR_GEOJSON_MAX_OBJ_SIZE"] = "0"
+        # solo la zona del incendio: el fichero nacional entero no cabe cómodamente en memoria
+        w, s_, e_, n = map(float, FETCH_BBOX.split(","))
+        bb = gpd.GeoSeries.from_xy([w, e_], [s_, n], crs=4326).to_crs(25830).total_bounds
+        e = gpd.read_file(src, bbox=tuple(bb)).to_crs(25830)
+        b = burnt.to_crs(25830).simplify(25).union_all().buffer(200)
+        e = e[e.intersects(b)]
+        gpd.GeoDataFrame({"nombre": e.SITE_NAME, "hect_ofi": e.Sup_ha, "legislacio": e.ODESIGNATE},
+                         geometry=e.geometry, crs=25830).to_crs(4326).to_file(path, driver="GeoJSON")
+    pn = read_gdf("enp.geojson", load_enp)
+
+    # Términos municipales: IGN (unidades administrativas INSPIRE)
+    PROV = {"05": "Ávila", "28": "Madrid", "45": "Toledo", "10": "Cáceres", "40": "Segovia"}
+    au = read_gdf("ign_unidades.gml", wfs_gml(IGN_AU, "au:AdministrativeUnit"))
+    au = au[au.LocalisedCharacterString == "Municipio"].to_crs(4326)
+    au["nationalCode"] = au.nationalCode.astype("int64").astype(str)  # GDAL lo lee como número
+    muni = gpd.GeoDataFrame({"cod_ine_mun": au.nationalCode.str[-5:], "nom_mun": au.text,
+                             "comarca": au.nationalCode.str[6:8].map(PROV).fillna(""),
+                             "area_ha": au.to_crs(25830).area / 1e4},
+                            geometry=au.geometry, crs=4326).reset_index(drop=True)
+
+    # Incendios anteriores: EFFIS (Copernicus), perímetros desde 2016
+    fires = []
+    for y in range(EFFIS_FROM, FIRE["year"]):
+        g = read_gdf(f"effis_{y}.gml", wfs_gml(EFFIS, f"ms:modis.ba.poly.{y}", version="1.1.0"))
+        if len(g):
+            g = g.set_crs(4326, allow_override=True)[["geometry"]].copy()
+            # el GML de EFFIS (WFS 1.1, EPSG:4326) viene en orden lat/lon: se intercambian los ejes
+            g["geometry"] = g.geometry.map(lambda geom: shapely.ops.transform(lambda x, y: (y, x), geom))
+            g["anyo"] = y
+            fires.append(g)
+    fires = gpd.GeoDataFrame(gpd.pd.concat(fires, ignore_index=True), crs=4326)
+
+# primero los públicos, luego los enclavados encima
+mo = montes.sort_values("owner", key=lambda s: s == 4)
+owner = burn(mo, mo["owner"])
+
+
+def veg_code_bdn(r):
+    """Mapa Forestal de España tal como lo distribuye el MITECO (campos DEFINICION y NOM_FORARB)."""
+    t, e = [x if isinstance(x, str) else "" for x in (r["DEFINICION"], r["NOM_FORARB"])]
+    if "cultivo" in t.lower() or t.startswith("Agrícola"):
+        return 10
+    if t in ("Artificial", "Minería, escombreras y vertederos", "Autopistas y autovías", "Infraestructuras de conducción"):
+        return 11
+    if t in ("Agua", "Humedal"):
+        return 12
+    if t in ("Matorral", "Monte sin vegetación superior", "T. D. (Incendio)"):
+        return 8
+    if t in ("Herbazal", "Pastizal-Matorral", "Prado", "Prado con sebes"):
+        return 9
+    if "Riberas" in t or "ribereñ" in e or "Fresneda" in e: return 7
+    if "pinaster" in e: return 2
+    if "piñonero" in e: return 16
+    if "Mezclas de coníferas autóctonas" in e: return 18
+    if "coníferas y frondosas" in e: return 4
+    if "Melojar" in e: return 17
+    if "albar" in e or "salgareño" in e: return 14
+    if "Enebral" in e or "Sabinar" in e: return 15
+    if any(k in e for k in ("Encinar", "Dehesa", "Quejigar", "Castañar", "frondosas")): return 5
+    if "Alcornoc" in e: return 1
+    return 13
 
 
 def veg_code(r):
+    if "DEFINICION" in r:
+        return veg_code_bdn(r)
     t, e = [x if isinstance(x, str) else "" for x in (r["tipestr_definicion"], r["especie"])]
     if t in ("Agrícola",) or "cultivo" in t.lower():
         return 10
@@ -354,8 +563,10 @@ mfe["veg"] = mfe.apply(veg_code, axis=1)
 veg = burn(mfe, mfe["veg"])
 
 # --- sustrato (IGME)
-GEO = {0: "Sin datos", 1: "Silíceo (areniscas del rodeno)", 2: "Calizo / dolomítico",
-       3: "Arcillas y yesos (Keuper)", 4: "Fondo de valle / rambla", 5: "Depósitos cuaternarios de ladera"}
+SILICEO = ("arenisc", "argilit", "pizarra", "cuarc", "arenas y cantos")
+if SRC != "gva":  # macizo hercínico: granitos y metamórficas
+    SILICEO += ("granit", "granodiorit", "gneis", "neis", "migmat", "esquist", "pórfid", "porfid", "aplit", "pegmat",
+                "leucogran", "monzogran", "tonalit", "diorit", "filit", "metasediment", "arcosa", "arcós")
 
 
 def geo_code(d):
@@ -364,7 +575,7 @@ def geo_code(d):
     if "fondos de valle" in d or "rambla" in d or "aluvial" in d: return 4
     if "yeso" in d: return 3
     if any(k in d for k in ("coluvi", "glacis", "abanico", "terraza", "conos", "playa", "albufera", "cordón")): return 5
-    if any(k in d for k in ("arenisc", "argilit", "pizarra", "cuarc", "arenas y cantos")) and "calizas" not in d: return 1
+    if any(k in d for k in SILICEO) and "calizas" not in d: return 1
     return 2
 
 
@@ -404,8 +615,16 @@ POT = {0: "—",
        5: "Sabinar albar (15b, Junipereto hemisphaerico-thuriferae S.)",
        6: "Vegetación de ribera (geomegaseries riparias)",
        7: "Uso no forestal (agrícola, urbano, agua)",
-       8: "Coscojar semiárido (29b, Rhamno lycioidis–Querceto cocciferae S.)"}
-SERIES_CLASS = {"23b": 1, "27c": 2, "22b": 3, "22ba": 3, "22a": 4, "15b": 5, "I": 6, "29b": 8}
+       8: "Coscojar semiárido (29b, Rhamno lycioidis–Querceto cocciferae S.)",
+       9: "Encinar silicícola guadarrámico (24a, Junipero oxycedri–Querceto rotundifoliae S.)",
+       10: "Encinar silicícola luso-extremadurense (24c, Pyro bourgaeanae–Querceto rotundifoliae S.)",
+       11: "Melojar supramediterráneo (18a, Luzulo forsteri–Querceto pyrenaicae S.)",
+       12: "Piornal oromediterráneo gredense (13b, Cytiso purgantis–Echinosparteto barnadesii S.)",
+       13: "Melojar mesomediterráneo húmedo (18h, Arbuto–Querceto pyrenaicae S.)",
+       14: "Enebral rastrero y piornal guadarrámico (13a, Junipero nanae–Cytiseto purgantis S.)"}
+# 24ab y 24cc son faciaciones de 24a y 24c (en el mapa, el color de la serie con una trama encima)
+SERIES_CLASS = {"23b": 1, "27c": 2, "22b": 3, "22ba": 3, "22a": 4, "15b": 5, "I": 6, "29b": 8,
+                "24a": 9, "24ab": 9, "24c": 10, "24cc": 10, "18a": 11, "13b": 12, "18h": 13, "13a": 14}
 
 
 def download_series(path):
@@ -428,8 +647,8 @@ pot = burn(series, series.SERIES.map(SERIES_CLASS))
 pot[veg == 7] = 6
 pot[np.isin(veg, [10, 11, 12])] = 7
 
-RESPROUTER = np.isin(veg, [1, 5, 6, 7, 8, 9])  # rebrotan de cepa/raíz/yemas tras el fuego
-PINE = np.isin(veg, [2, 3, 4, 13, 14, 15])  # no rebrotan: regeneran por semilla (sabinas y enebros, mal)
+RESPROUTER = np.isin(veg, [1, 5, 6, 7, 8, 9, 17])  # rebrotan de cepa/raíz/yemas tras el fuego (melojo, de raíz)
+PINE = np.isin(veg, [2, 3, 4, 13, 14, 15, 16, 18])  # no rebrotan: regeneran por semilla (sabinas, enebros y pino piñonero, mal)
 forest = ~np.isin(veg, [0, 10, 11, 12])
 burned = inside & (sev >= 2)
 recent_fire = last_fire >= FIRE["year"] - 15  # pinar inmaduro: <15 años, sin piñas serótinas suficientes
@@ -492,8 +711,9 @@ act[active] = 3
 act[inside & np.isin(veg, [10]) & (sev >= 2)] = 4
 
 # Viabilidad de alcanzar la vegetación potencial (0-100) en un horizonte de ~30 años
-same = (((veg == 1) & (pot == 1)) | ((veg == 5) & np.isin(pot, [2, 3, 4])) |
-        ((veg == 7) & (pot == 6)) | ((veg == 6) & (pot == 2)) | ((veg == 15) & np.isin(pot, [4, 5])))
+same = (((veg == 1) & (pot == 1)) | ((veg == 5) & np.isin(pot, [2, 3, 4, 9, 10])) |
+        ((veg == 7) & (pot == 6)) | ((veg == 6) & (pot == 2)) | ((veg == 15) & np.isin(pot, [4, 5])) |
+        ((veg == 17) & np.isin(pot, [11, 13])) | (np.isin(veg, [8, 9]) & np.isin(pot, [12, 14])))
 score = np.full((H, W), 50.0)
 score[same] = 85
 score[np.isin(veg, [8, 9])] = 60
@@ -527,7 +747,8 @@ def crosstab(a, labels, mask):
 
 public = np.isin(owner, [1, 2, 3])
 stats = {
-    "ems_ha": round(float(burnt.to_crs(25830).area.sum() / 1e4), 1),
+    # unión: en Tiétar las AOI de Copernicus se solapan
+    "ems_ha": round(float(burnt.to_crs(25830).union_all().area / 1e4), 1),
     "grid_ha": ha(inside),
     "forest_ha": ha(inside & forest),
     "public_ha": ha(inside & public),
@@ -572,9 +793,11 @@ for k, lab in ACT.items():
                              "erosion_alta": ha(m & (eros >= 3))}
 stats["erosion_public"] = {EROS[k]: ha(inside & public & (eros == k)) for k in (3, 4)}
 # vegetación antes vs potencial (matriz) dentro del área forestal quemada
-stats["veg_vs_pot"] = {VEG[v]: {POT[p]: ha(valid & (veg == v) & (pot == p)) for p in range(1, 9)
+stats["veg_vs_pot"] = {VEG[v]: {POT[p]: ha(valid & (veg == v) & (pot == p)) for p in POT if p
                                 if ha(valid & (veg == v) & (pot == p)) > 0}
-                       for v in range(1, 16) if ha(valid & (veg == v)) > 0}
+                       for v in VEG if v and ha(valid & (veg == v)) > 0}
+# superficie de pinar (incluye mixto) para el resumen
+stats["pine_ha"] = ha(inside & np.isin(veg, [2, 3, 4, 14, 16, 18]))
 
 # ----------------------------------------------------------------------------- exportación
 log("7/7 Exportando")
@@ -622,14 +845,26 @@ with open(os.path.join(OUT, "meta.json"), "w") as f:
     json.dump(meta, f, ensure_ascii=False, indent=1)
 
 
+def drop_small(geom, min_ha):
+    """Quita partes y huecos de menos de min_ha (área medida en EPSG:25830)."""
+    to_m = gpd.GeoSeries([geom], crs=4326).to_crs(25830).iloc[0]
+    polys = getattr(to_m, "geoms", [to_m])
+    keep = [Polygon(p.exterior, [h for h in p.interiors if Polygon(h).area >= min_ha * 1e4])
+            for p in polys if p.area >= min_ha * 1e4]
+    return gpd.GeoSeries([MultiPolygon(keep)], crs=25830).to_crs(4326).iloc[0]
+
+
 def save_geojson(gdf, name, cols, tol=0.00005):
     g = gdf[cols + ["geometry"]].copy()
     g["geometry"] = g.geometry.simplify(tol, preserve_topology=True)
     g.to_crs(4326).to_file(os.path.join(OUT, name), driver="GeoJSON", COORDINATE_PRECISION=5)
 
 
-burnt_d = gpd.GeoDataFrame(geometry=[burnt.geometry.union_all()], crs=4326)
-save_geojson(burnt_d, "perimetro.geojson", [], tol=0.00002)
+burnt_u = burnt.geometry.union_all()
+if FIRE.get("perim_min_ha"):  # incendio muy grande: sin islas ni huecos diminutos, que solo pesan
+    burnt_u = drop_small(burnt_u, FIRE["perim_min_ha"])
+burnt_d = gpd.GeoDataFrame(geometry=[burnt_u], crs=4326)
+save_geojson(burnt_d, "perimetro.geojson", [], tol=FIRE.get("perim_tol", 0.00002))
 montes["owner_label"] = montes["owner"].map(OWNER)
 save_geojson(montes, "montes.geojson", ["denominacion", "num_up", "municipio", "owner", "owner_label", "hectareas"])
 save_geojson(pn, "parque_natural.geojson", ["nombre", "hect_ofi", "legislacio"], tol=0.0002)

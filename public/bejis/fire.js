@@ -114,5 +114,5 @@ export const FIRE = {
     <li>Umbrales y plazos del manual <i>Postfire-DSS</i> de la Fundación CEAM, según El Periòdic (los publicó a raíz del incendio de Espadà de 2026). El CEAM no ha publicado una evaluación del incendio de Bejís: la capa es una aproximación propia con datos abiertos.</li>
   </ul>`,
   officialLimit: 'la estadística oficial de la Generalitat da 16.824 ha (en prensa se llegó a hablar de casi 20.000). Las diferencias vienen de cómo se traza el perímetro y de qué se cuenta como quemado',
-  otherFire: { href: '../', label: "Incendio de Espadà (2026)" },
+  otherFire: [{ href: '../', label: "Incendio de Espadà (2026)" }, { href: '../tietar/', label: 'Incendio del valle del Tiétar (2026)' }],
 };

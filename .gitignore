@@ -13,3 +13,4 @@ __pycache__/
 # datos generados: se publican en el repo fenix-data (scripts/publish_data.sh)
 public/data/
 public/bejis/data/
+public/tietar/data/

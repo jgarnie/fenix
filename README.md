@@ -5,6 +5,8 @@ Mapas interactivos de dos grandes incendios forestales del interior de Castelló
 - **Espadà** (`public/`): incendio de la Vall d'Uixó / Serra d'Espadà (25 jul – 1 ago 2026).
 - **Bejís** (`public/bejis/`): incendio de Bejís, Alto Palancia (agosto 2022), con imágenes de cada verano hasta 2026
   para seguir la recuperación.
+- **Tiétar** (`public/tietar/`): incendio de Burgohondo, Alberche y valle del Tiétar (Ávila y oeste de Madrid, julio 2026).
+  Fuera de la Comunitat Valenciana: las capas salen de fuentes nacionales y autonómicas (ver tabla).
 
 Los dos usan el mismo visor (`public/app.js`); los textos propios de cada incendio están en su `fire.js`.
 
@@ -31,10 +33,12 @@ python3 scripts/build_data.py           # Espadà: descarga a data-raw/ (no vers
 python3 scripts/trees.py                # estimación de árboles quemados (Inventario Forestal Nacional)
 python3 scripts/build_data.py bejis     # Bejís: data-raw/bejis/ → public/bejis/data/
 python3 scripts/trees.py bejis
+python3 scripts/build_data.py tietar    # Tiétar: data-raw/tietar/ → public/tietar/data/
+python3 scripts/trees.py tietar
 ```
 
 Los datos generados (`public/data/` y `public/bejis/data/`) no se versionan en este repo: la web publicada los lee del repo
-[fenix-data](https://github.com/jgarnie/fenix-data) (`vallduixo/data/` y `bejis/data/`), que solo guarda la última versión.
+[fenix-data](https://github.com/jgarnie/fenix-data) (`vallduixo/data/`, `bejis/data/` y `tietar/data/`), que solo guarda la última versión.
 En local se usan las carpetas de `public/`. Tras regenerarlos, publícalos con:
 
 ```bash
@@ -45,12 +49,16 @@ scripts/publish_data.sh
 
 | Datos | Fuente | Licencia / condiciones |
 |---|---|---|
-| Área quemada | © Unión Europea, Copernicus Emergency Management Service (EMSR905 Espadà, EMSR625 Bejís) | [Condiciones de Copernicus EMS](https://mapping.emergency.copernicus.eu/terms-and-conditions/): reproducción autorizada citando la fuente |
+| Área quemada | © Unión Europea, Copernicus Emergency Management Service (EMSR905 Espadà, EMSR625 Bejís, EMSR900 Tiétar) | [Condiciones de Copernicus EMS](https://mapping.emergency.copernicus.eu/terms-and-conditions/): reproducción autorizada citando la fuente |
 | Imágenes | Contiene datos modificados de Copernicus Sentinel (2022–2026), vía Earth Search (Element 84) | Datos Copernicus de acceso libre y abierto |
 | Ortofotos | PNOA histórico (2021, 2024), © Instituto Geográfico Nacional | CC BY 4.0 scne.es |
 | Relieve | Copernicus DEM GLO-30: © DLR e.V. 2010-2014 y © Airbus Defence and Space GmbH 2014-2018, suministrado bajo COPERNICUS por la UE y la ESA | Licencia Copernicus DEM |
 | Montes, Mapa Forestal 1:50.000, Parque Natural, incendios 1993–2024 | Institut Cartogràfic Valencià / Generalitat Valenciana (el Mapa Forestal de España es obra del MITECO) | CC BY 4.0 |
 | Términos municipales | Institut Cartogràfic Valencià | CC BY 4.0 |
+| Tiétar: montes de utilidad pública | Junta de Castilla y León (IDECyL) y Comunidad de Madrid (IDEM) | Datos abiertos de cada comunidad |
+| Tiétar: Mapa Forestal 1:50.000 y Espacios Naturales Protegidos | MITECO, Banco de Datos de la Naturaleza | Datos públicos del Banco de Datos de la Naturaleza |
+| Tiétar: términos municipales | Instituto Geográfico Nacional | CC BY 4.0 scne.es |
+| Tiétar: incendios 2016–2025 | EFFIS, © Unión Europea, Copernicus | Condiciones de Copernicus |
 | Árboles por hectárea | Tercer Inventario Forestal Nacional (IFN3), Castellón y Valencia, MITECO | Datos públicos del Banco de Datos de la Naturaleza |
 | Geología | IGME-CSIC, GEODE 1:50.000 | CC BY 4.0 |
 | Vegetación potencial | Mapa de Series de Vegetación de España (S. Rivas-Martínez, 1987), Banco de Datos de la Naturaleza, MITECO. Especies: Rivas-Martínez y col. (2011), *Itinera Geobotanica* 18(1) | Datos públicos del Banco de Datos de la Naturaleza; la memoria solo se cita |

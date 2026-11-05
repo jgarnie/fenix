@@ -43,6 +43,7 @@ a { color: var(--accent); }
 .sub { color: var(--muted); margin: 2px 0 0; font-size: 13px; }
 .other-fire { display: inline-block; margin-top: 6px; font-size: 12.5px; color: var(--accent); text-decoration: none; }
 .other-fire:hover { text-decoration: underline; }
+.other-fire + .other-fire { margin-left: 14px; }
 .recov .track { height: 6px; min-width: 60px; background: var(--chip); border-radius: 3px; overflow: hidden; margin-top: 3px; }
 .recov .fill { height: 100%; border-radius: 3px; }
 .tabs { display: flex; gap: 2px; padding: 0 12px; border-bottom: 1px solid var(--line); }

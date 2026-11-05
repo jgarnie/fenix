@@ -38,6 +38,9 @@ const S2_YEARS = [...new Set(Object.values(SC).map((d) => d.slice(0, 4)))].join(
 const FIRES_TO = Math.max(...incendios.features.map((f) => f.properties.anyo));
 const FIRES_RANGE = `${F.firesFrom}–${FIRES_TO}`;
 const HAS_PN = S.pn_ha > 0;
+const PARK_SHORT = F.parkShort || 'Parque Natural';     // etiqueta corta del espacio protegido
+const PARK_IN = F.parkIn || `del Parque Natural de la ${F.park}`; // "dentro …" en el resumen
+const ADMIN = F.admin || 'la Generalitat';             // administración forestal que actúa
 
 // ------------------------------------------------------------------ paletas y textos
 const C = {
@@ -46,7 +49,7 @@ const C = {
   owner: { 0: '#bdbdbd', 1: '#2b83ba', 2: '#7b3294', 3: '#41b6c4', 4: '#fdae61' },
   veg: { 1: '#d95f02', 2: '#1b9e77', 3: '#66a61e', 4: '#a6d854', 5: '#00582a', 6: '#e6ab02', 7: '#1f78b4',
     8: '#b39ddb', 9: '#e1d5ee', 10: '#f5eeb0', 11: '#8c8c8c', 12: '#a6cee3', 13: '#8dd3c7',
-    14: '#3f6e3a', 15: '#9c8c4a' },
+    14: '#3f6e3a', 15: '#9c8c4a', 16: '#5aae61', 17: '#8c6d31', 18: '#2d9f8f' },
   pot: Object.fromEntries(Object.entries(POT_INFO).map(([k, v]) => [k, v.color])),
   eros: { 1: '#ffffcc', 2: '#fed976', 3: '#fd8d3c', 4: '#bd0026' },
   act: { 1: '#1a9850', 2: '#fee08b', 3: '#d73027', 4: '#bf812d', 5: '#d9d9d9' },
@@ -61,7 +64,7 @@ const ndviDiff = (i) => (G.ndvi_n[i] - G.ndvi_a[i]) / 100;
 const THEMES = {
   sev: { name: 'Severidad del fuego', desc: `dNBR Sentinel-2 (${span(SC.antes, SC.despues)})`, inside: true,
     color: (i) => C.sev[val('sev', i)], legend: () => cats(C.sev, C.sevLbl) },
-  owner: { name: '¿Es monte público?', desc: 'Catálogo de montes de utilidad pública (GVA)', inside: false,
+  owner: { name: '¿Es monte público?', desc: F.ownerDesc || 'Catálogo de montes de utilidad pública (GVA)', inside: false,
     color: (i) => (val('owner', i) ? C.owner[val('owner', i)] : null), legend: () => cats(C.owner, leg.owner, [1, 2, 3, 4]) },
   veg: { name: 'Vegetación antes del incendio', desc: 'Mapa Forestal de España 1:50.000', inside: false,
     color: (i) => C.veg[val('veg', i)], legend: () => cats(C.veg, leg.veg, used('veg')) },
@@ -87,6 +90,11 @@ const THEMES = {
     color: (i) => C.ceam[G.ceam[i]],
     legend: () => `${cats(C.ceam, leg.ceam, [1, 2, 3])}<small class="muted">${CEAM_YEARS >= 1 ? `Medido ${CEAM_DATE}, ${CEAM_YEARS} años después del incendio, dentro del plazo en que lo evalúa el CEAM (1–2 años).` : `Medido ${CEAM_DATE}: aún es pronto. El CEAM evalúa entre 1 y 2 años después del incendio.`}</small>` },
 };
+// sin capa ni protocolo del CEAM (incendios fuera de su ámbito): fire.js → hideCeam
+if (F.hideCeam) {
+  delete THEMES.ceam;
+  THEMES.dry.desc = 'Pérdida de humedad (NDMI) de primavera a julio';
+}
 const DRY = ['#8c510a', '#d8b365', '#f6e8c3', '#c7eae5', '#35978f'];
 const NO_THEME = { name: 'Ninguna (solo imagen)', desc: 'Para comparar libremente las imágenes' };
 
@@ -257,7 +265,7 @@ function renderTheme() {
   ctx.putImageData(img, 0, 0);
   themeLayer = L.imageOverlay(canvas.toDataURL(), bounds, {
     pane: 'theme', opacity: theme.opacity, className: 'pixelated',
-    attribution: '© Unión Europea, Copernicus EMS · ICV/GVA · IGME-CSIC · MITECO · Copernicus DEM',
+    attribution: F.attrib || '© Unión Europea, Copernicus EMS · ICV/GVA · IGME-CSIC · MITECO · Copernicus DEM',
   }).addTo(map);
 }
 function renderLegend() {
@@ -346,12 +354,12 @@ function showInfo(i, ll) {
     ['Vegetación antes', v ? pill(C.veg[v], leg.veg[v]) : 's/d'],
     ['Propiedad', o ? `${pill(C.owner[o], leg.owner[o])}${monte ? `<br><small>${monte.properties.denominacion || ''} ${monte.properties.num_up ? '· nº ' + monte.properties.num_up : ''} · ${monte.properties.municipio}</small>` : ''}` : 'No catalogado como monte público (probablemente privado)'],
     ['Municipio', G.mun[i] ? meta.municipios[G.mun[i] - 1] : 's/d'],
-    ...(HAS_PN ? [['Parque Natural', G.pn[i] ? `Sí · ${F.park}` : 'No']] : []),
+    ...(HAS_PN ? [[PARK_SHORT, G.pn[i] ? `Sí · ${F.park}` : 'No']] : []),
     ['Sustrato', leg.sub[G.sub[i]] || 's/d'],
     ['Altitud · pendiente', `${fmt(G.elev[i] * 5)} m · ${fmt(G.slope[i])} %`],
     ['Incendios previos', fuegos.length ? fuegos.join(', ') : `Ninguno desde ${F.firesFrom}`],
     [`Sequedad ${month(SC.abril)} → ${month(SC.antes)}`, G.dndmi[i] ? `NDMI ${fmt((G.dndmi[i] - 100) / 100, 2)}` : 's/d'],
-    ...(G.ceam[i] ? [['Criterio CEAM', `${pill(C.ceam[G.ceam[i]], leg.ceam[G.ceam[i]])}<br><small>Cobertura vegetal estimada: ${fmt(G.recov[i])} % (${CEAM_DATE}). El CEAM lo evalúa a 1–2 años del incendio.</small>`]] : []),
+    ...(G.ceam[i] && !F.hideCeam ? [['Criterio CEAM', `${pill(C.ceam[G.ceam[i]], leg.ceam[G.ceam[i]])}<br><small>Cobertura vegetal estimada: ${fmt(G.recov[i])} % (${CEAM_DATE}). El CEAM lo evalúa a 1–2 años del incendio.</small>`]] : []),
   ];
   let html = `<button class="close" aria-label="Cerrar">×</button><h3>${inside ? 'Punto afectado' : 'Punto consultado'}</h3><small>${ll.lat.toFixed(5)}, ${ll.lng.toFixed(5)}</small>`;
   html += `<dl>${rows.map(([k, x]) => `<dt>${k}</dt><dd>${x}</dd>`).join('')}</dl>`;
@@ -440,7 +448,7 @@ function recoveryTable() {
 {
   const sev = S.severity;
   const sevHigh = (sev['Moderada-alta'] || 0) + (sev.Alta || 0);
-  const pine = (S.veg_before['Pinar de pino carrasco'] || 0) + (S.veg_before['Pinar de rodeno (P. pinaster)'] || 0) + (S.veg_before['Bosque mixto pino + frondosas'] || 0)
+  const pine = S.pine_ha ?? (S.veg_before['Pinar de pino carrasco'] || 0) + (S.veg_before['Pinar de rodeno (P. pinaster)'] || 0) + (S.veg_before['Bosque mixto pino + frondosas'] || 0)
     + (S.veg_before['Pinar de montaña (P. nigra, P. sylvestris)'] || 0);
   const feas = S.feasibility;
   const feasOk = (feas['Alta (≥70)'] || 0) + (feas['Media (45–70)'] || 0);
@@ -454,7 +462,7 @@ function recoveryTable() {
       <div class="kpi accent"><b>${F.official.value}</b><span>${F.official.label}</span></div>
       <div class="kpi"><b>${ha(S.ems_ha)}</b><span>área quemada cartografiada por satélite (Copernicus ${F.ems})</span></div>
       <div class="kpi"><b>${ha(S.forest_ha)}</b><span>de esa área era forestal (${fmt((S.forest_ha / S.grid_ha) * 100)} %)</span></div>
-      ${HAS_PN ? `<div class="kpi"><b>${ha(S.pn_ha)}</b><span>dentro del Parque Natural de la ${F.park}</span></div>` : ''}
+      ${HAS_PN ? `<div class="kpi"><b>${ha(S.pn_ha)}</b><span>dentro ${PARK_IN}</span></div>` : ''}
       <div class="kpi accent"><b>${ha(S.public_ha)}</b><span>es monte público catalogado (${fmt((S.public_ha / S.grid_ha) * 100, 1)} %)</span></div>
       <div class="kpi"><b>${ha(S.recurrent_ha)}</b><span>ya había ardido al menos una vez desde ${F.firesFrom}</span></div>
       ${T ? `<div class="kpi accent"><b>≈ ${mill(T.total)} árboles</b><span>en la zona quemada (entre ${mill(T.total_ci90[0])} y ${mill(T.total_ci90[1])})</span></div>
@@ -466,7 +474,7 @@ function recoveryTable() {
       ${F.potential}. Es viable recuperar esa vegetación en
       <b>${ha(feasOk)}</b> (${fmt((feasOk / S.forest_ha) * 100)} % del área forestal), parte de forma natural y parte con ayuda.
       ${S.public_ha / S.grid_ha < 0.1 ? 'Casi todo es <b>propiedad privada</b>, así que el plan depende de acuerdos con propietarios.'
-        : `El ${fmt((S.public_ha / S.grid_ha) * 100)} % es <b>monte público</b>, donde la Generalitat puede actuar directamente; en el resto, sobre todo privado, hacen falta acuerdos con los propietarios.`}
+        : `El ${fmt((S.public_ha / S.grid_ha) * 100)} % es <b>monte público</b>, donde ${ADMIN} puede actuar directamente; en el resto, sobre todo privado, hacen falta acuerdos con los propietarios.`}
       ${F.calloutExtra ? F.calloutExtra(S, ha) : ''}
     </div>
     <h2>Severidad del fuego</h2>
@@ -486,7 +494,7 @@ function recoveryTable() {
     (IFN3, medidas en 2006) que caen dentro del área quemada. De ellos, unos ${mill(T.muertos_coniferas)} pinos habrían muerto (no rebrotan)
     y unas ${fmt(T.muertos_frondosas / 1e3)} mil frondosas; el resto de frondosas (${mill(T.frondosas - T.muertos_frondosas)}) debería rebrotar.
     No incluye árboles jóvenes ni dispersos en el matorral.${T.ha_ardidas_tras_ifn ? ` Tampoco cuenta ${ha(T.ha_ardidas_tras_ifn)} que volvieron
-    a arder después del inventario (sobre todo en el incendio de Andilla de 2012): allí solo había regenerado joven.` : ''} Ver método en Fuentes.</p>` : ''}
+    a arder después del inventario${F.reburnNota ?? ' (sobre todo en el incendio de Andilla de 2012)'}: allí solo había regenerado joven.` : ''} Ver método en Fuentes.</p>` : ''}
     ${recoveryTable()}
     ${CEAM_REF ? `<h2>Comparación con el CEAM</h2>${ceamTable()}` : ''}
     <h2>¿De quién es?</h2>
@@ -513,14 +521,14 @@ function recoveryTable() {
     <div class="seg" id="scope">
       <button class="chip on" data-s="all">Todo</button>
       <button class="chip" data-s="public">Monte público</button>
-      ${HAS_PN ? '<button class="chip" data-s="pn">Parque Natural</button>' : ''}
+      ${HAS_PN ? `<button class="chip" data-s="pn">${PARK_SHORT}</button>` : ''}
     </div>
     <div class="row"><label><input type="checkbox" id="insideOnly" checked> Solo dentro del área quemada</label></div>
     <h2>Límites</h2>
     <div class="row" style="flex-direction:column;align-items:flex-start;gap:6px">
       <label><input type="checkbox" data-v="perimetro" checked> Área quemada (Copernicus EMS)</label>
       <label><input type="checkbox" data-v="montes" checked> Montes de utilidad pública <span class="sw" style="background:#08519c"></span></label>
-      ${HAS_PN ? `<label><input type="checkbox" data-v="parque" checked> Parque Natural ${F.park} <span class="sw" style="background:#1b7837"></span></label>` : ''}
+      ${HAS_PN ? `<label><input type="checkbox" data-v="parque" checked> ${PARK_SHORT} ${F.park} <span class="sw" style="background:#1b7837"></span></label>` : ''}
       <label><input type="checkbox" data-v="municipios"> Términos municipales <span class="sw" style="background:#5b5b5b"></span></label>
       <label><input type="checkbox" data-v="incendios"> Incendios ${FIRES_RANGE} <span class="sw" style="background:#ef6548"></span></label>
     </div>
@@ -582,8 +590,9 @@ const plan = {
   scope: 'mixto',
   cost: { emerg: EMERG.coste, 1: ACT_INFO[1].coste, 2: ACT_INFO[2].coste, 3: ACT_INFO[3].coste, 4: ACT_INFO[4].coste },
   budget: F.plan.budget,
-  recargo: 'vaersa',
+  recargo: F.recargo || 'vaersa',
 };
+if (F.sinVaersa) delete RECARGO.vaersa;
 function planAreas() {
   const r = { emerg: 0, 1: 0, 2: 0, 3: 0, 4: 0 };
   for (let i = 0; i < N; i++) {
@@ -644,7 +653,7 @@ function renderPlan() {
     <p class="muted">Contraste con otras fuentes: el Colegio de Ingenieros de Montes da 1.500–4.000 €/ha para fajinas y albarradas y
     3.000–5.000 €/ha para reforestar; la Xunta de Galicia subvenciona 4.230 €/ha la plantación de frondosas a ≥1.000 pies/ha.
     No incluido: acolchado con paja, retirada de madera quemada (C.4/B.1.16: 1.987 €/ha), cerramientos frente al ganado ni clareos futuros del pinar (663–1.737 €/ha).
-    Los jornales de Extremadura (peón 11,08 €/h) pueden ser algo más bajos que en Castellón.</p>
+    ${F.jornalNota || 'Los jornales de Extremadura (peón 11,08 €/h) pueden ser algo más bajos que en Castellón.'}</p>
     <h2>Superficie por actuación y propiedad</h2>
     <table><thead><tr><th>Actuación</th><th>Público</th><th>Privado</th></tr></thead><tbody>
       ${[1, 2, 3, 4].map((n) => `<tr><td>${ACT_INFO[n].corto}</td><td>${fmt(k(n).publico)}</td><td>${fmt(k(n).privado)}</td></tr>`).join('')}
@@ -653,7 +662,7 @@ function renderPlan() {
     Para actuar en el resto hacen falta herramientas para propietarios privados:
     <ul>
       <li><b>Declaración de zona de actuación urgente</b> para trabajos de emergencia (erosión) en cualquier propiedad.</li>
-      <li><b>Convenios o consorcios</b> entre la Generalitat y los propietarios para ejecutar la restauración.</li>
+      <li><b>Convenios o consorcios</b> entre ${ADMIN} y los propietarios para ejecutar la restauración.</li>
       <li><b>Agrupaciones de propietarios</b> y <b>custodia del territorio</b> (asociaciones, fundaciones) para gestionar fincas pequeñas.</li>
       <li><b>Ayudas FEADER/PAC</b> a la reforestación y a la recuperación de cultivos de secano como mosaico cortafuegos.</li>
       <li><b>Mercado voluntario de carbono y patrocinio</b> (Registro de huella de carbono del MITECO) para financiar plantaciones.</li>
@@ -671,7 +680,10 @@ function renderPlan() {
 {
   const act = (a) => `<details><summary><span class="sw" style="display:inline-block;background:${a === EMERG ? C.eros[4] : C.act[Object.keys(ACT_INFO).find((k) => ACT_INFO[k] === a)]}"></span> ${a.corto}</summary><p>${a.que}</p><ul>${a.como.map((x) => `<li>${x}</li>`).join('')}</ul></details>`;
   $('#tab-como').innerHTML = `
-    <div class="callout"><b>Protocolo de la Fundación CEAM</b> (manual Postfire-DSS). Las actuaciones de emergencia para conservar el suelo
+    ${F.hideCeam ? `<div class="callout"><b>Primero el suelo, luego la vegetación.</b> Las actuaciones de emergencia para conservar el suelo
+    y regular el agua se hacen en las primeras semanas o meses, antes de las lluvias fuertes de otoño. Plantar o sembrar se decide
+    <b>uno o dos años después del incendio</b>, cuando se puede comprobar en campo qué ha rebrotado y cuánto pino ha nacido.
+    ${typeof F.ceamNow === 'function' ? F.ceamNow(S, ha) : F.ceamNow}</div>` : `<div class="callout"><b>Protocolo de la Fundación CEAM</b> (manual Postfire-DSS). Las actuaciones de emergencia para conservar el suelo
     y regular el agua se hacen en las primeras semanas o meses, antes de las lluvias fuertes de otoño. El refuerzo de la regeneración se plantea
     generalmente <b>entre uno y dos años después del incendio</b>, cuando se puede comprobar qué rebrota:
     <ul>
@@ -682,7 +694,7 @@ function renderPlan() {
     </ul>
     La capa <i>Criterio CEAM</i> aproxima esa cobertura por satélite. Con la imagen del ${CEAM_DATE} da
     ${Object.entries(S.ceam).map(([k, x]) => `${ha(x.total)} en ${k.split(':')[0]}`).join(', ')}.
-    ${typeof F.ceamNow === 'function' ? F.ceamNow(S, ha) : F.ceamNow}</div>
+    ${typeof F.ceamNow === 'function' ? F.ceamNow(S, ha) : F.ceamNow}</div>`}
     <h2>Calendario</h2>
     <div class="timeline">${F.timeline}
     </div>
@@ -701,7 +713,7 @@ function renderPlan() {
       <li>Sacar la madera con maquinaria pesada en pendientes fuertes: multiplica la erosión.</li>
       <li>Desbrozar o "limpiar" el monte quemado: elimina rebrotes y deja el suelo desnudo.</li>
       <li>Usar planta de origen desconocido: debe venir de la región de procedencia local.</li>
-      <li>Voluntariado sin coordinación: cualquier plantación o recogida de semillas, siempre con la Generalitat o el ayuntamiento.</li>
+      <li>Voluntariado sin coordinación: cualquier plantación o recogida de semillas, siempre con ${ADMIN} o el ayuntamiento.</li>
     </ul>
     <h2>Cómo puede ayudar la ciudadanía</h2>
     <ul>
@@ -718,13 +730,13 @@ $('#tab-fuentes').innerHTML = `
   <ul>
     ${F.fuentesDatos(S)}
     <li><b>Imágenes:</b> Sentinel-2 L2A (${Object.values(SC).filter((d) => d !== SC.abril).join(', ')}) vía <a href="https://earth-search.aws.element84.com/v1" target="_blank" rel="noopener">Earth Search</a>.</li>
-    <li><b>Monte público:</b> <a href="https://dadesobertes.gva.es/es/dataset/montes-gestionados-por-la-administracion-autonomica1" target="_blank" rel="noopener">Montes gestionados por la Generalitat (catálogo de utilidad pública)</a>, ICV/GVA.</li>
-    <li><b>Vegetación previa:</b> Mapa Forestal de España 1:50.000 (MITECO), servido por el ICV.</li>
+    ${F.fuentesMontes || `<li><b>Monte público:</b> <a href="https://dadesobertes.gva.es/es/dataset/montes-gestionados-por-la-administracion-autonomica1" target="_blank" rel="noopener">Montes gestionados por la Generalitat (catálogo de utilidad pública)</a>, ICV/GVA.</li>
+    <li><b>Vegetación previa:</b> Mapa Forestal de España 1:50.000 (MITECO), servido por el ICV.</li>`}
     <li><b>Vegetación potencial:</b> <a href="https://www.miteco.gob.es/es/biodiversidad/servicios/banco-datos-naturaleza/informacion-disponible/memoria_mapa_series_veg_descargas.html" target="_blank" rel="noopener">Mapa de Series de Vegetación de España</a> (S. Rivas-Martínez, 1987), Banco de Datos de la Naturaleza, MITECO.
     Especies y revisión: Rivas-Martínez, S. y col. (2007, 2011). <i>Mapa de series, geoseries y geopermaseries de vegetación de España.</i> Itinera Geobotanica 17: 5-436 y 18(1): 5-424.</li>
     <li><b>Geología:</b> <a href="https://mapas.igme.es/gis/rest/services/Cartografia_Geologica/IGME_Geode_50/MapServer" target="_blank" rel="noopener">IGME GEODE 1:50.000</a>.</li>
     <li><b>Relieve:</b> Copernicus DEM GLO-30.</li>
-    <li><b>Incendios ${FIRES_RANGE}</b>, <b>Parque Natural</b> y <b>términos municipales</b>: Generalitat Valenciana (ICV).</li>
+    ${F.fuentesOtras || `<li><b>Incendios ${FIRES_RANGE}</b>, <b>Parque Natural</b> y <b>términos municipales</b>: Generalitat Valenciana (ICV).</li>`}
     <li><b>Árboles:</b> <a href="https://www.miteco.gob.es/es/biodiversidad/servicios/banco-datos-naturaleza/informacion-disponible/ifn3_base_datos_1_25.html" target="_blank" rel="noopener">Tercer Inventario Forestal Nacional (IFN3), ${F.ifnProv}</a>, MITECO.</li>
     ${F.fuentesOficial}
   </ul>
@@ -739,11 +751,11 @@ $('#tab-fuentes').innerHTML = `
     × hectáreas quemadas de ese tipo; clases con menos de 3 parcelas se completan con las más cercanas, y en matorral y pastizal se cuentan 0.
     Mortalidad supuesta según la severidad: pinos 10 % (baja), 50 % (moderada-baja), 90 % (moderada-alta), 100 % (alta);
     frondosas 0–25 %, porque rebrotan. Intervalo del 90 % por remuestreo de parcelas. Los datos de campo son de 2006.</li>
-    <li><b>Sequedad previa:</b> NDMI = (B8 − B11)/(B8 + B11), imágenes Sentinel-2 del ${F.fechasSequedad || `${day(SC.abril)} y del ${day(SC.antes)}`}, como el análisis de la Fundación CEAM. Se compara la media dentro del área quemada.</li>
-    <li><b>Criterio CEAM:</b> cobertura vegetal estimada = (NDVI ahora − NDVI de suelo quemado) / (NDVI de vegetación densa − NDVI de suelo quemado),
+    <li><b>Sequedad previa:</b> NDMI = (B8 − B11)/(B8 + B11), imágenes Sentinel-2 del ${F.fechasSequedad || `${day(SC.abril)} y del ${day(SC.antes)}`}${F.hideCeam ? '' : ', como el análisis de la Fundación CEAM'}. Se compara la media dentro del área quemada.</li>
+    ${F.hideCeam ? '' : `<li><b>Criterio CEAM:</b> cobertura vegetal estimada = (NDVI ahora − NDVI de suelo quemado) / (NDVI de vegetación densa − NDVI de suelo quemado),
     con suelo quemado = ${fmt(S.soil_ndvi, 2)} (mediana tras el fuego en severidad alta) y vegetación densa = ${fmt(S.full_ndvi, 2)} (percentil 95 del bosque no quemado).
     Umbrales del CEAM: 30 % y 60 % de cobertura de especies leñosas rebrotadoras. El NDVI no distingue leñosas de hierbas, así que es una aproximación;
-    el CEAM lo evalúa en campo.</li>
+    el CEAM lo evalúa en campo.</li>`}
     <li><b>Erosión:</b> (clase de severidad − 1) × pendiente/25 %.</li>
     <li><b>Viabilidad:</b> base según la cercanía entre lo que había y lo que debería haber; ajustes por severidad, recurrencia (−12 por incendio previo), pendiente &gt;50 %, solanas secas sobre rodeno y rebrote observado (+10).</li>
   </ul>
@@ -753,7 +765,7 @@ ${F.fuentesCeam}
     <li>Copernicus EMS: © Unión Europea, Copernicus Emergency Management Service (${F.ems}). <a href="https://mapping.emergency.copernicus.eu/terms-and-conditions/" target="_blank" rel="noopener">Condiciones</a>.</li>
     <li>Contiene datos modificados de Copernicus Sentinel (${S2_YEARS}), procesados por el autor de este proyecto.</li>
     <li>Copernicus DEM GLO-30: © DLR e.V. 2010-2014 y © Airbus Defence and Space GmbH 2014-2018, suministrado bajo COPERNICUS por la Unión Europea y la ESA.</li>
-    <li>Montes, Mapa Forestal 1:50.000, Parque Natural e incendios históricos: Institut Cartogràfic Valencià / Generalitat Valenciana, CC BY 4.0. El Mapa Forestal de España es obra del MITECO.</li>
+    ${F.licencias || '<li>Montes, Mapa Forestal 1:50.000, Parque Natural e incendios históricos: Institut Cartogràfic Valencià / Generalitat Valenciana, CC BY 4.0. El Mapa Forestal de España es obra del MITECO.</li>'}
     <li>Geología: IGME-CSIC, GEODE 1:50.000, CC BY 4.0.</li>
     <li>Mapa de Series de Vegetación de España: MITECO, Banco de Datos de la Naturaleza.</li>
     <li>Mapa base y ortofoto PNOA: CC BY 4.0 scne.es (Instituto Geográfico Nacional).</li>
@@ -761,22 +773,22 @@ ${F.fuentesCeam}
   </ul>
   <p>Las capas derivadas (severidad, actuaciones, viabilidad, costes) son elaboración propia y ninguno de los organismos citados las ha revisado ni respaldado.</p>
   <h2>Aviso</h2>
-  <p>Proyecto independiente con fines informativos y divulgativos. <b>No es una fuente oficial</b> y no tiene relación con la Generalitat Valenciana, el Ministerio ni ningún otro organismo.
+  <p>Proyecto independiente con fines informativos y divulgativos. <b>No es una fuente oficial</b> y no tiene relación con ${F.organismos || 'la Generalitat Valenciana'}, el Ministerio ni ningún otro organismo.
   No debe usarse para tomar decisiones de emergencia, delimitar propiedades ni sustituir el criterio de técnicos forestales. Los datos se ofrecen tal cual, sin garantía.
   La propiedad indicada procede del catálogo público de montes y no identifica a propietarios particulares.</p>
   <p>La app no usa cookies ni analítica. Las teselas del mapa base se cargan desde los servidores del IGN.</p>
   <h2>Limitaciones</h2>
   <ul>
     <li>El área de Copernicus (${ha(S.ems_ha)}) es lo que se ve quemado desde satélite; ${F.officialLimit}.</li>
-    <li>La capa de montes públicos solo incluye montes gestionados por la Generalitat; puede haber otras fincas públicas no catalogadas.</li>
+    <li>${F.limitMontes || 'La capa de montes públicos solo incluye montes gestionados por la Generalitat; puede haber otras fincas públicas no catalogadas.'}</li>
     <li>Resolución de análisis: 25 m. Sirve para planificar, no para delimitar parcelas.</li>
     <li>La vegetación potencial procede de un mapa nacional muy general (1987). La revisión de 2011 cambia la serie asignada a algunas zonas, pero no se distribuye como capa SIG. Debe validarse con técnicos forestales y trabajo de campo.</li>
-    <li>Costes: precios unitarios de las <a href="http://extremambiente.juntaex.es/files/2024/forestales/Tarifas%20SOGF_2024.pdf" target="_blank" rel="noopener">Tarifas forestales de la Junta de Extremadura 2024</a>; recargos de VAERSA según la <a href="https://dogv.gva.es/datos/2025/09/30/pdf/2025_41281_es.pdf" target="_blank" rel="noopener">Resolución de 25/9/2025 (DOGV)</a>. Las densidades de plantación (500 y 1.000 plantas/ha) son supuestos del modelo.</li>
+    <li>Costes: precios unitarios de las <a href="http://extremambiente.juntaex.es/files/2024/forestales/Tarifas%20SOGF_2024.pdf" target="_blank" rel="noopener">Tarifas forestales de la Junta de Extremadura 2024</a>${F.recargoNota ?? '; recargos de VAERSA según la <a href="https://dogv.gva.es/datos/2025/09/30/pdf/2025_41281_es.pdf" target="_blank" rel="noopener">Resolución de 25/9/2025 (DOGV)</a>'}. Las densidades de plantación (500 y 1.000 plantas/ha) son supuestos del modelo.</li>
   </ul>
 `;
 
 // --- enlace al otro incendio
-if (F.otherFire) $('.brand').insertAdjacentHTML('beforeend', `<a class="other-fire" href="${F.otherFire.href}">${F.otherFire.label} →</a>`);
+for (const o of [].concat(F.otherFire || [])) $('.brand').insertAdjacentHTML('beforeend', `<a class="other-fire" href="${o.href}">${o.label} →</a>`);
 
 // --- móvil: el panel funciona como hoja inferior
 {

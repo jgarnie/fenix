@@ -5,6 +5,7 @@
 #
 #   public/data/        → vallduixo/data/
 #   public/bejis/data/  → bejis/data/
+#   public/tietar/data/ → tietar/data/
 #
 # Uso: scripts/publish_data.sh
 set -euo pipefail
@@ -14,9 +15,10 @@ REPO="https://github.com/jgarnie/fenix-data.git"
 TMP="$(mktemp -d)"
 trap 'rm -rf "$TMP"' EXIT
 
-mkdir -p "$TMP/vallduixo" "$TMP/bejis"
+mkdir -p "$TMP/vallduixo" "$TMP/bejis" "$TMP/tietar"
 cp -R "$ROOT/public/data" "$TMP/vallduixo/data"
 cp -R "$ROOT/public/bejis/data" "$TMP/bejis/data"
+cp -R "$ROOT/public/tietar/data" "$TMP/tietar/data"
 touch "$TMP/.nojekyll"
 cat > "$TMP/README.md" <<'EOF'
 # fenix-data

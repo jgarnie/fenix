@@ -17,7 +17,7 @@ Método:
      las frondosas (alcornoque, carrasca...) suelen rebrotar aunque ardan.
   5. Intervalo del 90 % por remuestreo (bootstrap) de las parcelas.
 
-Uso:  python3 scripts/trees.py [espada|bejis]
+Uso:  python3 scripts/trees.py [espada|bejis|tietar]
 """
 import gzip
 import io
@@ -37,22 +37,23 @@ RAW = os.path.join(ROOT, "data-raw", "ifn3")
 # carpeta de datos, provincias del IFN3 (12 Castellón, 46 Valencia) y si se descuenta lo que volvió
 # a arder entre el inventario (2006) y el incendio: ahí no quedaban árboles de ≥ 7,5 cm
 # (en Bejís, buena parte había ardido en el incendio de Andilla de 2012)
-FIRES = {"espada": ("data", [12], False), "bejis": ("bejis/data", [12, 46], True)}
+FIRES = {"espada": ("data", [12], False), "bejis": ("bejis/data", [12, 46], True),
+         "tietar": ("tietar/data", [5, 28, 45], True)}
 FIRE_KEY = sys.argv[1] if len(sys.argv) > 1 else "espada"
 OUT = os.path.join(ROOT, "public", FIRES[FIRE_KEY][0])
 PROVS, REBURN = FIRES[FIRE_KEY][1], FIRES[FIRE_KEY][2]
-PROV_NAME = {12: "Castellón", 46: "Valencia"}
+PROV_NAME = {12: "Castellón", 46: "Valencia", 5: "Ávila", 28: "Madrid", 45: "Toledo"}
 IFN = "https://www.miteco.gob.es/content/dam/miteco/es/biodiversidad/servicios/banco-datos-naturaleza/"
 os.makedirs(RAW, exist_ok=True)
 
 
 def load_prov(prov):
-    for z, f in ((f"Sig_{prov}.zip", f"Sig_{prov}.accdb"), (f"Ifn3p{prov}.zip", f"Ifn3p{prov}.accdb")):
+    for z, f in ((f"Sig_{prov:02d}.zip", f"Sig_{prov:02d}.accdb"), (f"Ifn3p{prov:02d}.zip", f"Ifn3p{prov:02d}.accdb")):
         if not os.path.exists(os.path.join(RAW, f)):
             req = urllib.request.Request(IFN + z, headers={"User-Agent": "Mozilla/5.0"})
             zipfile.ZipFile(io.BytesIO(urllib.request.urlopen(req, timeout=300).read())).extractall(RAW)
-    campo = AccessParser(os.path.join(RAW, f"Ifn3p{prov}.accdb"))
-    sig = AccessParser(os.path.join(RAW, f"Sig_{prov}.accdb"))
+    campo = AccessParser(os.path.join(RAW, f"Ifn3p{prov:02d}.accdb"))
+    sig = AccessParser(os.path.join(RAW, f"Sig_{prov:02d}.accdb"))
     plots = pd.DataFrame(campo.parse_table("PCDatosMap"))[["Estadillo", "CoorX", "CoorY"]].drop_duplicates("Estadillo")
     plots[["CoorX", "CoorY"]] = plots[["CoorX", "CoorY"]].astype(float)
     exs = pd.DataFrame(sig.parse_table("Parcelas_exs"))
@@ -86,7 +87,7 @@ plots["row"] = ((y1 - py) / (y1 - y0) * H).astype(int)
 plots["dist_km"] = np.hypot(px - (x0 + x1) / 2, py - (y0 + y1) / 2) / 1000 * np.cos(np.radians((s + n) / 2))
 ok = plots.col.between(0, W - 1) & plots.row.between(0, H - 1)
 plots = plots[ok].copy()
-FOREST_VEG = [1, 2, 3, 4, 5, 6, 7, 8, 9, 13, 14, 15]
+FOREST_VEG = [1, 2, 3, 4, 5, 6, 7, 8, 9, 13, 14, 15, 16, 17, 18]
 inside, veg, sev = G["inside"] == 1, G["veg"], G["sev"]
 reburn = inside & (G["last"] >= 2006 - 1900) if REBURN else np.zeros_like(inside)
 reburn_ha = float(reburn.sum()) * meta["pixel_ha"]
@@ -166,7 +167,7 @@ result = {
         "arboles": r((pool[v][["coniferas", "frondosas"]].sum(axis=1).mean() if len(pool[v]) else 0) * area[v])}
         for v in FOREST_VEG if area.get(v, 0) > 0},
     "ha_ardidas_tras_ifn": round(reburn_ha),
-    "fuente": f"IFN3 {' y '.join(PROV_NAME[p] for p in PROVS)} (MITECO), pies mayores con diámetro ≥ 7,5 cm",
+    "fuente": f"IFN3 {', '.join(PROV_NAME[p] for p in PROVS[:-1]) + ' y ' + PROV_NAME[PROVS[-1]] if len(PROVS) > 1 else PROV_NAME[PROVS[0]]} (MITECO), pies mayores con diámetro ≥ 7,5 cm",
 }
 json.dump(result, open(os.path.join(OUT, "arboles.json"), "w"), ensure_ascii=False, indent=1)
 meta["stats"]["arboles"] = result
