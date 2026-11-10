@@ -119,6 +119,14 @@ function rampLegend(stops, a, b) {
 // ------------------------------------------------------------------ mapa
 const map = L.map('map', { zoomControl: false, attributionControl: true, minZoom: 9, maxZoom: 18 });
 L.control.zoom({ position: 'bottomright' }).addTo(map);
+// en móvil los créditos ocupan mucho sobre el mapa: se pliegan en un botón ⓘ que los despliega al tocarlo
+map.attributionControl.setPrefix('<button type="button" class="attr-toggle" aria-label="Mostrar créditos" aria-expanded="false">ⓘ</button><a href="https://leafletjs.com">Leaflet</a>');
+map.attributionControl.getContainer().addEventListener('click', (e) => {
+  const b = e.target.closest('.attr-toggle');
+  if (!b) return;
+  const open = b.parentElement.classList.toggle('open');
+  b.setAttribute('aria-expanded', open);
+});
 const bounds = L.latLngBounds(meta.bounds);
 const MOBILE = matchMedia('(max-width: 860px)');
 // en móvil el panel tapa la parte inferior: centrar el incendio en la zona visible
@@ -790,34 +798,38 @@ ${F.fuentesCeam}
 // --- enlace al otro incendio
 for (const o of [].concat(F.otherFire || [])) $('.brand').insertAdjacentHTML('beforeend', `<a class="other-fire" href="${o.href}">${o.label} →</a>`);
 
-// --- móvil: el panel funciona como hoja inferior
+// --- móvil: el panel funciona como hoja inferior con tres estados: 'min' (solo la pestaña), 'peek' y 'open'
 {
   const panel = $('#panel');
   const handle = $('#sheet-handle');
-  const isOpen = () => document.body.classList.contains('sheet-open');
-  const setOpen = (open) => {
-    if (!MOBILE.matches || open === isOpen()) return;
-    document.body.classList.toggle('sheet-open', open);
-    handle.setAttribute('aria-expanded', open);
+  const state = () => document.body.classList.contains('sheet-open') ? 'open' : document.body.classList.contains('sheet-min') ? 'min' : 'peek';
+  const setState = (s) => {
+    if (!MOBILE.matches || s === state()) return;
+    document.body.classList.toggle('sheet-open', s === 'open');
+    document.body.classList.toggle('sheet-min', s === 'min');
+    handle.setAttribute('aria-expanded', s !== 'min');
   };
-  handle.addEventListener('click', () => setOpen(!isOpen()));
+  // la pestaña: desde minimizado vuelve a la hoja; si no, alterna entre hoja y expandido
+  handle.addEventListener('click', () => setState(state() === 'min' ? 'peek' : state() === 'open' ? 'peek' : 'open'));
   // al poner el foco o tocar algo del panel, se expande
-  panel.addEventListener('focusin', (e) => { if (e.target !== handle) setOpen(true); });
-  panel.addEventListener('click', (e) => { if (!handle.contains(e.target)) setOpen(true); });
-  // deslizar hacia arriba expande; hacia abajo (con el contenido arriba del todo) contrae
+  panel.addEventListener('focusin', (e) => { if (e.target !== handle) setState('open'); });
+  panel.addEventListener('click', (e) => { if (!handle.contains(e.target)) setState('open'); });
+  // deslizar hacia arriba expande un nivel; hacia abajo (con el contenido arriba del todo) contrae un nivel
   let y0 = null;
   let scroller = null;
   panel.addEventListener('touchstart', (e) => { y0 = e.touches[0].clientY; scroller = e.target.closest('.tab'); }, { passive: true });
   panel.addEventListener('touchmove', (e) => {
     if (y0 === null) return;
     const dy = y0 - e.touches[0].clientY;
-    if (dy > 12 && !isOpen()) { setOpen(true); y0 = null; }
-    else if (dy < -12 && isOpen() && (!scroller || scroller.scrollTop <= 0)) { setOpen(false); y0 = null; }
+    const s = state();
+    if (dy > 12 && s !== 'open') { setState(s === 'min' ? 'peek' : 'open'); y0 = null; }
+    else if (dy < -12 && s !== 'min' && (!scroller || scroller.scrollTop <= 0)) { setState(s === 'open' ? 'peek' : 'min'); y0 = null; }
   }, { passive: true });
   panel.addEventListener('touchend', () => { y0 = null; });
-  // al usar el mapa, se contrae
-  map.on('click dragstart zoomstart', () => setOpen(false));
-  MOBILE.addEventListener('change', () => { if (!MOBILE.matches) document.body.classList.remove('sheet-open'); });
+  // al tocar o usar el mapa, se minimiza del todo
+  $('#map').addEventListener('pointerdown', (e) => { if (!e.target.closest('.leaflet-control')) setState('min'); });
+  map.on('click dragstart zoomstart', () => setState('min'));
+  MOBILE.addEventListener('change', () => { if (!MOBILE.matches) document.body.classList.remove('sheet-open', 'sheet-min'); });
 }
 
 renderTheme();

@@ -150,18 +150,22 @@ details ul { padding-left: 18px; margin: 6px 0; }
 .pixelated { image-rendering: pixelated; }
 
 .sheet-handle { display: none; }
+.attr-toggle { display: none; }
 
 /* --- móvil: el panel es una hoja inferior que se expande y contrae */
 @media (max-width: 860px) {
-  :root { --sheet: 42vh; --sheet-open: 80vh; }
+  :root { --sheet: 42vh; --sheet-open: 80vh; --sheet-min: calc(30px + env(safe-area-inset-bottom)); }
   @supports (height: 1dvh) { :root { --sheet: 42dvh; --sheet-open: 80dvh; } }
+  /* minimizado: solo queda visible la pestaña para volver a abrir */
+  body.sheet-min { --sheet: var(--sheet-min); }
   body { display: block; }
   #mapwrap { position: fixed; inset: 0; }
   #panel {
     position: fixed; left: 0; right: 0; bottom: 0; z-index: 1000; height: var(--sheet);
     border-right: 0; border-top: 1px solid var(--line); border-radius: 16px 16px 0 0;
-    box-shadow: 0 -4px 18px rgba(0, 0, 0, .18); transition: height .28s ease; will-change: height;
+    box-shadow: 0 -4px 18px rgba(0, 0, 0, .18); transition: height .28s ease; will-change: height; overflow: hidden;
   }
+  body.sheet-min .sheet-handle { height: 30px; }
   body.sheet-open #panel { height: var(--sheet-open); }
   .sheet-handle {
     display: flex; justify-content: center; align-items: center; width: 100%; height: 22px; flex: none;
@@ -176,8 +180,18 @@ details ul { padding-left: 18px; margin: 6px 0; }
   .cmp-label { top: 92px; }
   #info { left: 8px; right: 8px; width: auto; top: 120px; bottom: auto; max-height: calc(100vh - var(--sheet) - 132px); }
   #legend { left: 8px; bottom: calc(var(--sheet) + 10px); max-width: 60%; max-height: 30vh; }
-  .leaflet-bottom { bottom: var(--sheet); }
+  .leaflet-bottom { bottom: var(--sheet); transition: bottom .28s ease; }
+  #legend { transition: bottom .28s ease; }
   body.sheet-open #legend, body.sheet-open #info { display: none; }
+  /* créditos plegados: solo el botón ⓘ; al tocarlo se despliegan */
+  .attr-toggle {
+    display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; margin-right: 4px;
+    border: 0; padding: 0; background: none; color: #333; font: 15px/1 system-ui, sans-serif; cursor: pointer; vertical-align: middle;
+  }
+  .leaflet-control-attribution:not(.open) { font-size: 0; padding: 0; border-radius: 12px; }
+  .leaflet-control-attribution:not(.open) .attr-toggle { margin: 0; }
+  .leaflet-control-attribution:not(.open) > :not(.attr-toggle) { display: none; }
+  .leaflet-control-attribution.open { max-width: calc(100vw - 16px); white-space: normal; }
 }
 
 #recargo { width: 100%; max-width: 100%; }
