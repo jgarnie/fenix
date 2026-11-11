@@ -807,9 +807,8 @@ const authorLinks = [
   AUTHOR.email && `<a href="mailto:${AUTHOR.email}">${AUTHOR.email}</a>`,
   `<a href="${AUTHOR.github}" target="_blank" rel="noopener">GitHub</a>`,
 ].filter(Boolean);
-$('.brand > div').insertAdjacentHTML('beforeend', `<p class="byline">Hecho por <a href="${AUTHOR.linkedin || AUTHOR.github}" target="_blank" rel="noopener">${AUTHOR.name}</a></p>`);
-$('#tab-fuentes').insertAdjacentHTML('afterbegin', `<div class="author-card">
-  <h2>Quién lo ha hecho</h2>
+$('#tab-fuentes').insertAdjacentHTML('beforeend', `<div class="author-card">
+  <h2>Autor</h2>
   <p>Proyecto independiente de <b>${AUTHOR.name}</b>, hecho con datos abiertos de satélite y cartografía pública.
   ¿Te interesa, quieres colaborar o usarlo en tu municipio o asociación? Escríbeme.</p>
   <p class="author-links">${authorLinks.join(' · ')}</p>
