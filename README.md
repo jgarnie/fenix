@@ -1,6 +1,20 @@
 # Fénix · después del fuego
 
-Mapas interactivos de dos grandes incendios forestales del interior de Castellón:
+**[Ver la app →](https://jgarnie.github.io/fenix/)** · [Espadà 2026](https://jgarnie.github.io/fenix/) · [Bejís 2022](https://jgarnie.github.io/fenix/bejis/) · [Tiétar 2026](https://jgarnie.github.io/fenix/tietar/)
+
+[![Antes y después del incendio de Espadà visto por Sentinel-2](public/og/espada.jpg)](https://jgarnie.github.io/fenix/)
+
+Qué había, qué se quemó, de quién es el monte y cómo podría recuperarse, a partir de imágenes de satélite y cartografía
+pública, en un mapa que funciona en el móvil.
+
+Hecho por **Joaquín García Nieto** · [LinkedIn](https://www.linkedin.com/in/jgarnie/) · [garcia.nieto.joaquin@gmail.com](mailto:garcia.nieto.joaquin@gmail.com).
+¿Quieres usarlo en tu municipio o asociación, colaborar o proponer otro incendio? Escríbeme.
+
+> Proyecto independiente y divulgativo. No es una fuente oficial.
+
+## Qué incluye
+
+Mapas interactivos de tres grandes incendios forestales:
 
 - **Espadà** (`public/`): incendio de la Vall d'Uixó / Serra d'Espadà (25 jul – 1 ago 2026).
 - **Bejís** (`public/bejis/`): incendio de Bejís, Alto Palancia (agosto 2022), con imágenes de cada verano hasta 2026
@@ -8,7 +22,7 @@ Mapas interactivos de dos grandes incendios forestales del interior de Castelló
 - **Tiétar** (`public/tietar/`): incendio de Burgohondo, Alberche y valle del Tiétar (Ávila y oeste de Madrid, julio 2026).
   Fuera de la Comunitat Valenciana: las capas salen de fuentes nacionales y autonómicas (ver tabla).
 
-Los dos usan el mismo visor (`public/app.js`); los textos propios de cada incendio están en su `fire.js`.
+Los tres usan el mismo visor (`public/app.js`); los textos propios de cada incendio están en su `fire.js`.
 
 - **Antes / después / ahora:** comparador deslizante con imágenes Sentinel-2 (color natural y falso color) y ortofoto PNOA.
 - **Capas:** severidad del fuego (dNBR), monte público (catálogo de utilidad pública), vegetación previa (Mapa Forestal de España),

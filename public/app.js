@@ -795,6 +795,27 @@ ${F.fuentesCeam}
   </ul>
 `;
 
+// --- autor: firma visible y contacto (los campos vacíos no se muestran)
+const AUTHOR = {
+  name: 'Joaquín García Nieto',
+  github: 'https://github.com/jgarnie',
+  linkedin: 'https://www.linkedin.com/in/jgarnie/',
+  email: 'garcia.nieto.joaquin@gmail.com',
+};
+const authorLinks = [
+  AUTHOR.linkedin && `<a href="${AUTHOR.linkedin}" target="_blank" rel="noopener">LinkedIn</a>`,
+  AUTHOR.email && `<a href="mailto:${AUTHOR.email}">${AUTHOR.email}</a>`,
+  `<a href="${AUTHOR.github}" target="_blank" rel="noopener">GitHub</a>`,
+].filter(Boolean);
+$('.brand > div').insertAdjacentHTML('beforeend', `<p class="byline">Hecho por <a href="${AUTHOR.linkedin || AUTHOR.github}" target="_blank" rel="noopener">${AUTHOR.name}</a></p>`);
+$('#tab-fuentes').insertAdjacentHTML('afterbegin', `<div class="author-card">
+  <h2>Quién lo ha hecho</h2>
+  <p>Proyecto independiente de <b>${AUTHOR.name}</b>, hecho con datos abiertos de satélite y cartografía pública.
+  ¿Te interesa, quieres colaborar o usarlo en tu municipio o asociación? Escríbeme.</p>
+  <p class="author-links">${authorLinks.join(' · ')}</p>
+  <p class="muted">Código abierto en <a href="https://github.com/jgarnie/fenix" target="_blank" rel="noopener">github.com/jgarnie/fenix</a>.</p>
+</div>`);
+
 // --- enlace al otro incendio
 for (const o of [].concat(F.otherFire || [])) $('.brand').insertAdjacentHTML('beforeend', `<a class="other-fire" href="${o.href}">${o.label} →</a>`);
 

@@ -41,6 +41,12 @@ a { color: var(--accent); }
 #panel { background: var(--panel); border-right: 1px solid var(--line); display: flex; flex-direction: column; min-height: 0; }
 .brand { padding: 16px 18px 10px; }
 .sub { color: var(--muted); margin: 2px 0 0; font-size: 13px; }
+.byline { color: var(--muted); margin: 3px 0 0; font-size: 12px; }
+.byline a { color: inherit; font-weight: 600; text-decoration: none; border-bottom: 1px dotted currentColor; }
+.author-card { margin: 12px 0 6px; padding: 4px 14px 10px; border: 1px solid var(--line); border-radius: var(--radius); }
+.author-card h2 { margin-top: 10px; }
+.author-links a { font-weight: 600; }
+.author-card .muted { color: var(--muted); font-size: 12.5px; }
 .other-fire { display: inline-block; margin-top: 6px; font-size: 12.5px; color: var(--accent); text-decoration: none; }
 .other-fire:hover { text-decoration: underline; }
 .other-fire + .other-fire { margin-left: 14px; }
