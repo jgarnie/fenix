@@ -123,9 +123,15 @@ L.Control.Credit = L.Control.extend({
   options: { position: 'bottomright' },
   onAdd() {
     const d = L.DomUtil.create('div', 'map-credit');
-    d.innerHTML = `Creado por Joaquín García Nieto · <a href="mailto:garcia.nieto.joaquin@gmail.com" title="Escríbeme"><span class="credit-long">garcia.nieto.joaquin@gmail.com</span><span class="credit-short">✉</span></a><span class="credit-long"> · proyecto divulgativo, no oficial</span>`;
+    d.innerHTML = `Creado por <a href="#autor" class="credit-author" title="Ver autor y contacto">Joaquín García Nieto</a> · <a href="mailto:garcia.nieto.joaquin@gmail.com" title="Escríbeme"><span class="credit-long">garcia.nieto.joaquin@gmail.com</span><span class="credit-short">✉</span></a><span class="credit-long"> · proyecto divulgativo, no oficial</span>`;
     d.title = 'Proyecto independiente con fines divulgativos. No es una fuente oficial: ver Aviso en la pestaña Fuentes.';
     L.DomEvent.disableClickPropagation(d);
+    // el nombre lleva a la tarjeta "Autor" (pestaña Fuentes); en móvil también despliega el panel
+    d.querySelector('.credit-author').addEventListener('click', (e) => {
+      e.preventDefault();
+      document.querySelector('[data-tab=fuentes]').click();
+      requestAnimationFrame(() => setTimeout(() => document.getElementById('autor')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 300));
+    });
     return d;
   },
 });
@@ -819,7 +825,7 @@ const authorLinks = [
   AUTHOR.email && `<a href="mailto:${AUTHOR.email}">${AUTHOR.email}</a>`,
   `<a href="${AUTHOR.github}" target="_blank" rel="noopener">GitHub</a>`,
 ].filter(Boolean);
-$('#tab-fuentes').insertAdjacentHTML('beforeend', `<div class="author-card">
+$('#tab-fuentes').insertAdjacentHTML('beforeend', `<div class="author-card" id="autor">
   <h2>Autor</h2>
   <p>Proyecto independiente de <b>${AUTHOR.name}</b>, hecho con datos abiertos de satélite y cartografía pública.
   ¿Te interesa, quieres colaborar o usarlo en tu municipio o asociación? Escríbeme.</p>

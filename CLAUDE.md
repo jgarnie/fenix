@@ -21,7 +21,7 @@ Publicado en https://jgarnie.github.io/fenix/ (GitHub Pages desde `public/`, ver
   incendios previos de EFFIS + estadística autonómica donde exista). Nunca recortar en el límite autonómico.
 - Todo dato de los textos (`fire.js`) lleva fuente enlazada; si algo es incierto o contradictorio, decirlo en el texto.
 - Mantener el aviso de "no es fuente oficial" y la firma del autor: tarjeta "Autor" al final de la pestaña Fuentes y
-  crédito semitransparente abajo a la derecha del mapa (`L.Control.Credit` en `app.js`, clase `.map-credit`).
+  crédito semitransparente abajo a la derecha del mapa con email (`L.Control.Credit` en `app.js`, clase `.map-credit`); el nombre lleva a la tarjeta `#autor`.
 - Al añadir un incendio: entrada en `FIRES` (build_data.py y trees.py), carpeta `public/<x>/`, enlace `otherFire` en los
   demás `fire.js`, `.gitignore`, `publish_data.sh`, README y tarjeta og.
 - No publicar (push a `main` ni `publish_data.sh`) sin confirmación del usuario.
