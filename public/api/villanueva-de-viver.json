@@ -1,0 +1,444 @@
+{
+ "slug": "villanueva-de-viver",
+ "nombre": "Alto Mijares después del fuego",
+ "subtitulo": "Incendio de Villanueva de Viver · Castellón y Teruel · marzo 2023",
+ "descripcion": "Mapa del incendio de Villanueva de Viver y el Alto Mijares (marzo 2023, Castellón y Teruel): antes, después y tres años más tarde; monte público, vegetación previa y potencial, y plan de restauración.",
+ "anyo": 2023,
+ "mapa": "https://jgarnie.github.io/fenix/villanueva-de-viver/",
+ "dataUrl": "https://jgarnie.github.io/fenix-data/villanueva-de-viver/data/",
+ "bounds": [
+  [
+   40.015056071121904,
+   -0.6735519373342527
+  ],
+  [
+   40.12830761456401,
+   -0.49812556666563446
+  ]
+ ],
+ "ems": "EMSR656",
+ "ems_url": "https://rapidmapping.emergency.copernicus.eu/EMSR656",
+ "superficie_satelite_ha": 4524,
+ "superficie_forestal_ha": 4044.4,
+ "monte_publico_ha": 499.8,
+ "oficial": {
+  "valor": "4.723 ha",
+  "nota": "superficie provisional según la Generalitat (abril 2023), unas 840 de ellas en Aragón según el Gobierno de Aragón"
+ },
+ "municipios": [
+  {
+   "nombre": "Puebla de Arenoso",
+   "ha_total": 1590.2,
+   "ha_forestal": 1412.9
+  },
+  {
+   "nombre": "Montanejos",
+   "ha_total": 1000.8,
+   "ha_forestal": 975.6
+  },
+  {
+   "nombre": "Montán",
+   "ha_total": 765.5,
+   "ha_forestal": 687.6
+  },
+  {
+   "nombre": "San Agustín",
+   "ha_total": 738.1,
+   "ha_forestal": 562.4
+  },
+  {
+   "nombre": "Fuente la Reina",
+   "ha_total": 207.4,
+   "ha_forestal": 190.6
+  },
+  {
+   "nombre": "Olba",
+   "ha_total": 139.1,
+   "ha_forestal": 133.4
+  },
+  {
+   "nombre": "Villanueva de Viver",
+   "ha_total": 87.2,
+   "ha_forestal": 81.9
+  }
+ ],
+ "parque_natural": null,
+ "administracion": "la Generalitat o el Gobierno de Aragón",
+ "vegetacion_potencial_resumen": "carrascal y, en las umbrías y zonas altas, quejigar",
+ "nota_superficie": "la Generalitat dio 4.723 ha provisionales y el informe de Protección Civil, 4.220; en prensa circulan cifras entre 4.500 y 4.781. El Gobierno de Aragón situó en unas 840 ha la parte aragonesa. Las diferencias vienen de cómo se traza el perímetro y de qué se cuenta como quemado",
+ "destacado": "El fuego empezó en Villanueva de Viver, pero casi todo lo que ardió está en Puebla de Arenoso, Montanejos y Montán, y unas 850 ha en\nSan Agustín y Olba (Teruel). Era sobre todo pinar adulto de pino carrasco nacido en bancales abandonados, que regenera bien por semilla:\nel reto es más evitar masas demasiado densas que reforestar.",
+ "estadisticas": {
+  "ya_habia_ardido_ha": 358.9,
+  "desde": 1993,
+  "severidad_ha": {
+   "No quemado": 238.1,
+   "Baja": 790,
+   "Moderada-baja": 1383.6,
+   "Moderada-alta": 1469.2,
+   "Alta": 647.4
+  },
+  "propiedad_ha": {
+   "Monte público · Otras entidades o titular sin indicar": 499.8,
+   "Enclavado privado en monte público": 9.9,
+   "Sin catalogar (mayoritariamente privado)": 4018.6
+  },
+  "vegetacion_antes_ha": {
+   "Pinar de rodeno (P. pinaster)": 23.9,
+   "Pinar de pino carrasco": 3201.4,
+   "Bosque mixto pino + frondosas": 86.9,
+   "Encinar, quejigar y frondosas": 96.4,
+   "Bosque de ribera": 24.4,
+   "Matorral": 125.2,
+   "Pastizal-matorral": 431.9,
+   "Agrícola": 463.2,
+   "Artificial / minería": 6.4,
+   "Agua / humedal": 14.4,
+   "Otros arbolados": 43.5,
+   "Pinar de montaña (P. nigra, P. sylvestris)": 10.8
+  },
+  "vegetacion_potencial_ha": {
+   "Carrascal mesomediterráneo (22b, Bupleuro rigidi–Querceto rotundifoliae S.)": 3269.6,
+   "Vegetación de ribera (geomegaseries riparias)": 24.4,
+   "Uso no forestal (agrícola, urbano, agua)": 483.9,
+   "Quejigar basófilo maestracense y aragonés (19c, Violo willkommii–Querceto fagineae S.)": 750.4
+  },
+  "erosion_ha": {
+   "Bajo": 2408.4,
+   "Medio": 1347.6,
+   "Alto": 265.9,
+   "Muy alto": 22.4
+  },
+  "viabilidad_ha": {
+   "Baja (<45)": 822.4,
+   "Media (45–70)": 2556.7,
+   "Alta (≥70)": 665.3
+  },
+  "criterio_ceam_ha": {
+   "<30 %: estudiar plantación o siembra selectiva": {
+    "total": 1687.3,
+    "publico": 213.9
+   },
+   "30–60 %: analizar caso a caso": {
+    "total": 1826.7,
+    "publico": 188.9
+   },
+   ">60 %: regeneración favorable": {
+    "total": 398.5,
+    "publico": 33.9
+   }
+  },
+  "rebrote_ha": 3632.7,
+  "ndvi_serie_quemado": {
+   "2023-03-16": 0.62,
+   "2023-04-05": 0.193,
+   "2024-04-09": 0.263,
+   "2025-03-30": 0.366,
+   "2026-04-04": 0.406,
+   "2026-10-21": 0.441
+  },
+  "ndvi_serie_sin_quemar": {
+   "2023-03-16": 0.533,
+   "2023-04-05": 0.505,
+   "2024-04-09": 0.483,
+   "2025-03-30": 0.51,
+   "2026-04-04": 0.536,
+   "2026-10-21": 0.571
+  },
+  "escenas_sentinel2": {
+   "abril": "2023-02-04",
+   "antes": "2023-03-16",
+   "despues": "2023-04-05",
+   "y2024": "2024-04-09",
+   "y2025": "2025-03-30",
+   "y2026": "2026-04-04",
+   "ahora": "2026-10-21"
+  },
+  "sequedad_previa": {
+   "ndmi_abril": 0.1,
+   "ndmi_julio": 0.018,
+   "ndvi_abril": 0.652,
+   "ndvi_julio": 0.566
+  },
+  "arboles": {
+   "total": 1126000,
+   "intervalo90": [
+    823000,
+    1460000
+   ],
+   "muertos": 667000,
+   "muertos_intervalo90": [
+    480000,
+    869000
+   ],
+   "nota": "casi todos pinos carrascos; carrascas y quejigos rebrotan",
+   "fuente": "IFN3 Castellón y Teruel (MITECO), pies mayores con diámetro ≥ 7,5 cm"
+  }
+ },
+ "criterio_ceam_ahora": "La imagen de referencia es de dos años después del incendio (marzo de 2025), el plazo que propone el CEAM. En el 43 % del área\nforestal quemada (1687 ha) la cobertura sigue por debajo del 30 %. Es una aproximación: en primavera el NDVI cuenta la hierba como si fuera leñosa\ny se queda corto con el regenerado de pino muy pequeño. Conviene confirmarlo en campo antes de plantar.",
+ "plan": {
+  "escenario": "Escenario por defecto del mapa: control de la erosión en todo el área quemada y actuaciones a largo plazo solo en monte público. Precios de tarifa forestal con recargo de encargo a VAERSA",
+  "emergencia": {
+   "nombre": "Control de la erosión",
+   "que": "Severidad alta en pendiente. El CEAM señaló riesgo de erosión alto o muy alto en las zonas de severidad alta, sobre todo en las laderas del barranco de la Maimona y del Mijares: las cenizas ya bajaron hasta el río en 2023. Tres años después conviene revisar las cárcavas y barrancos donde el suelo sigue desnudo.",
+   "como": [
+    "Revisar y reponer fajinas y troncos en curva de nivel en las laderas donde la vegetación aún no cubre el suelo.",
+    "Albarradas o diques de mampostería en cárcavas y cabeceras de barranco (el CEAM propuso estudiarlos en el barranco de La Boscaja y junto a la ermita de Los Ángeles).",
+    "Apear los pinos muertos que aún pueden caer sobre caminos y carreteras (CV-20, CV-195, CV-107).",
+    "Evitar maquinaria pesada en pendientes fuertes."
+   ],
+   "ha": 288.3,
+   "coste_eur_ha": 2204,
+   "calendario": "revisión 2026–2027",
+   "coste_escenario_eur": 682879
+  },
+  "acciones": [
+   {
+    "clave": 1,
+    "nombre": "Regeneración natural",
+    "que": "El pinar de pino carrasco era adulto y tenía piñas serótinas: el CEAM estimó entre 9 y 10 piñones por m² en el suelo tras el incendio, así que regenera por semilla. Carrasca, quejigo, coscoja y enebros rebrotan de cepa.",
+    "como": [
+     "Comprobar en campo que hay regeneración suficiente: 1.000–3.000 pies/ha, según el CEAM.",
+     "Clarear el regenerado de pino donde haya nacido demasiado denso, entre 8 y 12 años después del incendio (2031–2035). Tras el incendio de Espadilla de 1994 quedaron rodales de 2.000 a 10.000 pies/ha.",
+     "Proteger los rebrotes de carrasca y quejigo frente al ramoneo donde haya mucha presión de herbívoros.",
+     "Seguimiento con parcelas de campo y NDVI (Sentinel-2) cada primavera."
+    ],
+    "ha_total": 1385.4,
+    "ha_publico": 180.3,
+    "ha_privado": 1205.1,
+    "ha_erosion_alta": 13.8,
+    "coste_eur_ha": 17,
+    "calendario": "2026 – 2035",
+    "coste_escenario_eur": 3294
+   },
+   {
+    "clave": 2,
+    "nombre": "Regeneración asistida",
+    "que": "Pinar quemado con daño alto o pinar joven, nacido tras un incendio reciente, que probablemente no tenía piñas suficientes; o carrascal y matorral donde, dos años después, la cobertura vegetal sigue por debajo del 30 % (criterio CEAM). Se refuerza con siembras y núcleos de plantación de frondosas.",
+    "como": [
+     "Comprobar en campo dónde no ha nacido pino ni rebrotado nada (capa Criterio CEAM, por debajo del 30 %).",
+     "Siembra de bellotas de carrasca o quejigo por puntos, protegidas.",
+     "Plantación en bosquetes / núcleos de dispersión (400–600 plantas/ha) con protector, en otoño-invierno: carrasca, quejigo, madroño, mostajo.",
+     "Clareos del regenerado de pino a los 8–12 años para evitar masas densas muy inflamables."
+    ],
+    "ha_total": 2527.1,
+    "ha_publico": 256.3,
+    "ha_privado": 2270.8,
+    "ha_erosion_alta": 274.5,
+    "coste_eur_ha": 3125,
+    "calendario": "2026 – 2029",
+    "coste_escenario_eur": 860768
+   },
+   {
+    "clave": 3,
+    "nombre": "Restauración activa",
+    "que": "La zona ya había ardido (Espadilla 1994) y el matorral ya no evoluciona solo, o el fuego fue muy intenso en terreno que ya había ardido. Hay que reintroducir las especies de la vegetación potencial.",
+    "como": [
+     "Plantación de 800–1.100 plantas/ha de las especies de la serie potencial (ver pestaña Cómo).",
+     "Planta de la región de procedencia local (Banc de Llavors Forestals de la GVA; en Aragón, viveros del Gobierno de Aragón).",
+     "Hoyos manuales en pendiente, protectores, riego de apoyo el primer verano y reposición de marras.",
+     "Priorizar donde, tres años después, la cobertura sigue por debajo del 30 %."
+    ],
+    "ha_total": 0,
+    "ha_publico": 0,
+    "ha_privado": 0,
+    "ha_erosion_alta": 0,
+    "coste_eur_ha": 6963,
+    "calendario": "2026 – 2030",
+    "coste_escenario_eur": 0
+   },
+   {
+    "clave": 4,
+    "nombre": "Recuperar cultivo / mosaico",
+    "que": "Terreno agrícola (bancales de almendro, olivo y cereal de secano, muchos abandonados) dentro del perímetro. Buena parte del pinar quemado nació sobre bancales abandonados desde mediados del siglo XX.",
+    "como": [
+     "Recuperar cultivos de secano y pastos como discontinuidades cortafuegos (mosaico agroforestal).",
+     "Ayudas a explotaciones afectadas y pastoreo controlado en fajas."
+    ],
+    "ha_total": 369,
+    "ha_publico": 33.2,
+    "ha_privado": 335.8,
+    "ha_erosion_alta": 0,
+    "coste_eur_ha": 0,
+    "calendario": "2026 –",
+    "coste_escenario_eur": 0
+   }
+  ],
+  "coste_total_escenario_eur": 1546941,
+  "presupuesto_referencia_eur": 1200000,
+  "referencia": "Referencia: la Generalitat y el Ministerio anunciaron 1 M€ para los trabajos urgentes del primer año (abril 2023), y el Gobierno de Aragón, casi 200.000 € para restaurar unas 200 ha de montes de utilidad pública en San Agustín y Olba (2023). No hemos encontrado proyectos de restauración publicados para 2024–2026.",
+  "metodo_actuacion": "rebrotadoras → regeneración natural, salvo donde dos años después (marzo de 2025) la cobertura sigue por debajo del 30 % (criterio CEAM) → asistida; pinar maduro poco dañado y sin incendios recientes → natural; resto de pinar → asistida; matorral que ha ardido dos o más veces, o severidad alta en zonas que ya habían ardido dos o más veces → restauración activa. Mismo modelo a los dos lados del límite entre comunidades; en la parte aragonesa los incendios previos solo se conocen desde 2016 (EFFIS)."
+ },
+ "series_potenciales": [
+  {
+   "clave": 3,
+   "ha": 3269.6,
+   "corto": "Carrascal mesomediterráneo",
+   "codigo": "22b",
+   "serie": "Mesomediterránea manchega y aragonesa basófila de la encina (Bupleuro rigidi–Querceto rotundifoliae sigmetum)",
+   "piso": "Mesomediterráneo, sobre calizas",
+   "especies": "Quercus rotundifolia, Hedera helix, Teline patens, Genista hispanica",
+   "especiesNota": "de la serie 22d de la revisión de 2011",
+   "revision": "El mapa de 1987 asigna esta zona a la serie manchega y aragonesa (22b). La revisión de 2011 describe los carrascales valencianos de este piso como una serie propia, la 22d (Hedero helicis–Querco rotundifoliae sigmetum), con faciaciones altopalanciana y turiana septentrional silicícola. Las especies indicadas son las de esa serie 22d."
+  },
+  {
+   "clave": 6,
+   "ha": 24.4,
+   "corto": "Vegetación de ribera",
+   "codigo": "I",
+   "serie": "Geomegaseries riparias mediterráneas",
+   "piso": "Fondos de valle y cauces (también donde el Mapa Forestal indica bosque de ribera)",
+   "especies": "",
+   "revision": "El mapa de 1987 no detalla las especies de las riberas."
+  },
+  {
+   "clave": 7,
+   "ha": 483.9,
+   "corto": "Uso no forestal",
+   "codigo": "",
+   "serie": "Cultivos, núcleos urbanos, infraestructuras o agua (según el Mapa Forestal)",
+   "piso": "",
+   "especies": "",
+   "revision": ""
+  },
+  {
+   "clave": 15,
+   "ha": 750.4,
+   "corto": "Quejigar",
+   "codigo": "19c",
+   "serie": "Supra-mesomediterránea tarraconense, maestracense y aragonesa basófila del quejigo (Violo willkommii–Querceto fagineae sigmetum)",
+   "piso": "Supramediterráneo y mesomediterráneo superior, sobre calizas y margas, en umbrías y zonas altas",
+   "especies": "Quercus faginea (roble valenciano o quejigo), Viola willkommii, Acer opalus subsp. granatense, Amelanchier ovalis",
+   "especiesNota": "especies características del quejigar maestracense según la bibliografía fitosociológica, no de la memoria de 2011",
+   "revision": "Serie endémica de la península, propia del Maestrazgo, el Sistema Ibérico y el somontano aragonés. En el Alto Mijares ocupa las zonas altas y las umbrías, en contacto con los carrascales (22b)."
+  }
+ ],
+ "cronologia": [
+  {
+   "cuando": "23 mar 2023 · Inicio",
+   "que": "A las 12:50 se declara en el barranco de Sentenal (Villanueva de Viver). Se desaloja Montanejos, Fuente la Reina, Puebla de Arenoso, Arañuel y sus pedanías, y masías de San Agustín y Olba en Teruel. Protección Civil cifra los desalojados en 2.357 en la Comunitat Valenciana y 285 en Aragón."
+  },
+  {
+   "cuando": "26–27 mar · Reactivación",
+   "que": "El fuego se reaviva en el barranco de la Maimona (Montán) y obliga a desalojar Torralba del Pinar, Pavías e Higueras. En San Agustín arden casas del barrio de La García."
+  },
+  {
+   "cuando": "31 mar · Estabilizado y controlado",
+   "que": "Unas 4.700 ha: 4.723 según la Generalitat, unas 840 de ellas en Aragón. Se da por extinguido el 11 de abril."
+  },
+  {
+   "cuando": "Abr – may 2023 · Emergencia",
+   "que": "Oficina técnica en Montanejos, informe de impacto del CEAM (3 de mayo) y 1 M€ anunciado por la Generalitat y el Ministerio para apeo de árboles peligrosos, control de la erosión y caminos."
+  },
+  {
+   "cuando": "Jun – dic 2023 · Aragón",
+   "que": "Restauración de unas 200 ha de montes públicos de San Agustín y Olba: retirada de madera quemada, fajinas, albarradas y poda de carrascas y quejigos."
+  },
+  {
+   "cuando": "2024 – 2026 · Seguimiento",
+   "que": "Ayudas por daños a los ayuntamientos (325.350 €, 2024) y plantaciones de asociaciones, como la de la Fundación Desert Leaves en Fuente la Reina. El CEAM propone evaluar la regeneración uno o dos años después (capa Criterio CEAM)."
+  },
+  {
+   "cuando": "2031 – 2035 · Clareos",
+   "que": "Aclarar el regenerado de pino donde haya salido muy denso, para no repetir los rodales hiperdensos que dejó el incendio de Espadilla de 1994."
+  },
+  {
+   "cuando": "2035 – 2060 · Consolidación",
+   "que": "Mosaico de pinar, carrascal, quejigar y cultivos menos inflamable."
+  }
+ ],
+ "como_ayudar": [
+  "Registrar observaciones de rebrote con fotos geolocalizadas (p. ej. iNaturalist).",
+  "Participar en jornadas oficiales de voluntariado de siembra y plantación (otoño-invierno).",
+  "Apoyar a los ayuntamientos del Alto Mijares y de Gúdar-Javalambre, a las asociaciones que replantan (como la Fundación Desert Leaves) y la recuperación de cultivos y pastos."
+ ],
+ "fuentes": {
+  "texto": "- Área quemada: Copernicus EMS Rapid Mapping EMSR656 (https://rapidmapping.emergency.copernicus.eu/EMSR656), producto de evaluación (GRA, AOI01 Villanueva de Viver, v2, 30 mar 2023).\n- Monte público: montes gestionados por la Generalitat (https://dadesobertes.gva.es/es/dataset/montes-gestionados-por-la-administracion-autonomica1) (ICV/GVA) y\nmontes públicos de Aragón (https://idearagon.aragon.es/) (IDEAragon, Gobierno de Aragón). El catálogo aragonés no indica el titular.\n- Vegetación previa: Mapa Forestal de España 1:50.000 de Castellón y Teruel (MITECO, Banco de Datos de la Naturaleza).\n- Incendios previos: estadística de la Generalitat desde 1993 (parte valenciana) y EFFIS, Copernicus, desde 2016 (las dos comunidades).\nEspacios Naturales Protegidos: MITECO. Términos municipales: IGN.\n- Superficie, fechas y desalojos:\n112 Comunitat Valenciana (abr. 2023) (https://www.112cv.gva.es/es/inicio/-/asset_publisher/OriTjHiopH9w/content/bravo-informa-a-los-municipios-afectados-por-el-incendio-de-villanueva-de-viver-de-la-inmediata-puesta-en-marcha-de-la-oficina-t%C3%A9cnica-post-emergencia),\nGobierno de Aragón (https://www.aragonhoy.es/medio-ambiente-turismo/gobierno-aragon-restauracion-zonas-afectadas-incendio-san-agustin-olba-93163) y\ninforme de seguimiento de Protección Civil (jun. 2023) (https://www.proteccioncivil.es/documents/20121/0/Informe+de+Seguimiento+de+IIFF+20230604+(1).pdf/34e72c8c-3517-fc5e-bf9d-9e55e2a5e6e6?t=1686132668547&download=true).\nLa causa sigue en el juzgado: no hay causa oficial publicada.\n- Actuaciones e inversiones:\nValencia Plaza (abr. 2023) (https://valenciaplaza.com/valenciaplaza/lageneralitatytransicionecologicainvertiranunmillonenlazonaquemadadevillanuevadeviver1),\nDiario de Teruel (sep. 2023) (https://www.diariodeteruel.es/comarcas/comienzan-los-trabajos-de-restauracion-en-200-hectareas-de-las-zonas-afectadas-por-el-incendio-de-san-agustin-y-olba),\nayudas por daños (112 CV, jul. 2024) (https://www.112cv.gva.es/es/inicio/-/asset_publisher/OriTjHiopH9w/content/el-consell-aprova-les-bases-per-a-concedir-les-ajudes-pels-danys-produ%C3%AFts-per-l-incendi-forestal-de-villanueva-de-viver?_com_liferay_asset_publisher_web_portlet_AssetPublisherPortlet_INSTANCE_OriTjHiopH9w_assetEntryId=385358979) y\nFundación Desert Leaves (https://www.desertleaves.org/en/our-work/alto-mijares).\nCriterio del CEAM\n- Informe de impacto del incendio de Villanueva de Viver (https://postfire.es/informes/impacto/informe_villanueva_viver.pdf) (Fundación CEAM para la Generalitat, 3 de mayo de 2023):\nvegetación quemada, severidad, regeneración esperada del pino carrasco, riesgo de erosión, incendios previos (Espadilla 1994) y propuestas de emergencia.\nUmbrales y plazos del manual Postfire-DSS. La capa de cobertura a dos años es una aproximación propia con datos abiertos, no una evaluación del CEAM.",
+  "enlaces": [
+   {
+    "texto": "Copernicus EMS Rapid Mapping EMSR656",
+    "url": "https://rapidmapping.emergency.copernicus.eu/EMSR656"
+   },
+   {
+    "texto": "montes gestionados por la Generalitat",
+    "url": "https://dadesobertes.gva.es/es/dataset/montes-gestionados-por-la-administracion-autonomica1"
+   },
+   {
+    "texto": "montes públicos de Aragón",
+    "url": "https://idearagon.aragon.es/"
+   },
+   {
+    "texto": "112 Comunitat Valenciana (abr. 2023)",
+    "url": "https://www.112cv.gva.es/es/inicio/-/asset_publisher/OriTjHiopH9w/content/bravo-informa-a-los-municipios-afectados-por-el-incendio-de-villanueva-de-viver-de-la-inmediata-puesta-en-marcha-de-la-oficina-t%C3%A9cnica-post-emergencia"
+   },
+   {
+    "texto": "Gobierno de Aragón",
+    "url": "https://www.aragonhoy.es/medio-ambiente-turismo/gobierno-aragon-restauracion-zonas-afectadas-incendio-san-agustin-olba-93163"
+   },
+   {
+    "texto": "informe de seguimiento de Protección Civil (jun. 2023)",
+    "url": "https://www.proteccioncivil.es/documents/20121/0/Informe+de+Seguimiento+de+IIFF+20230604+(1).pdf/34e72c8c-3517-fc5e-bf9d-9e55e2a5e6e6?t=1686132668547&download=true"
+   },
+   {
+    "texto": "Valencia Plaza (abr. 2023)",
+    "url": "https://valenciaplaza.com/valenciaplaza/lageneralitatytransicionecologicainvertiranunmillonenlazonaquemadadevillanuevadeviver1"
+   },
+   {
+    "texto": "Diario de Teruel (sep. 2023)",
+    "url": "https://www.diariodeteruel.es/comarcas/comienzan-los-trabajos-de-restauracion-en-200-hectareas-de-las-zonas-afectadas-por-el-incendio-de-san-agustin-y-olba"
+   },
+   {
+    "texto": "ayudas por daños (112 CV, jul. 2024)",
+    "url": "https://www.112cv.gva.es/es/inicio/-/asset_publisher/OriTjHiopH9w/content/el-consell-aprova-les-bases-per-a-concedir-les-ajudes-pels-danys-produ%C3%AFts-per-l-incendi-forestal-de-villanueva-de-viver?_com_liferay_asset_publisher_web_portlet_AssetPublisherPortlet_INSTANCE_OriTjHiopH9w_assetEntryId=385358979"
+   },
+   {
+    "texto": "Fundación Desert Leaves",
+    "url": "https://www.desertleaves.org/en/our-work/alto-mijares"
+   },
+   {
+    "texto": "Informe de impacto del incendio de Villanueva de Viver",
+    "url": "https://postfire.es/informes/impacto/informe_villanueva_viver.pdf"
+   },
+   {
+    "texto": "Imágenes Sentinel-2 L2A (Copernicus) vía Earth Search",
+    "url": "https://earth-search.aws.element84.com/v1"
+   },
+   {
+    "texto": "Mapa de Series de Vegetación de España (Rivas-Martínez 1987), MITECO",
+    "url": "https://www.miteco.gob.es/es/biodiversidad/servicios/banco-datos-naturaleza/informacion-disponible/memoria_mapa_series_veg_descargas.html"
+   },
+   {
+    "texto": "Geología: IGME GEODE 1:50.000",
+    "url": "https://mapas.igme.es/gis/rest/services/Cartografia_Geologica/IGME_Geode_50/MapServer"
+   },
+   {
+    "texto": "Relieve: Copernicus DEM GLO-30",
+    "url": null
+   },
+   {
+    "texto": "Tercer Inventario Forestal Nacional (IFN3), MITECO",
+    "url": "https://www.miteco.gob.es/es/biodiversidad/servicios/banco-datos-naturaleza/informacion-disponible/ifn3_base_datos_1_25.html"
+   },
+   {
+    "texto": "Costes: Tarifas forestales de la Junta de Extremadura 2024",
+    "url": "http://extremambiente.juntaex.es/files/2024/forestales/Tarifas%20SOGF_2024.pdf"
+   }
+  ],
+  "limites": "La capa de montes públicos une el catálogo de la Generalitat y el de Aragón; el aragonés no indica el titular (ayuntamiento o comunidad). Puede haber otras fincas públicas no catalogadas. En la parte aragonesa, los incendios previos solo se conocen desde 2016. El sustrato geológico se ha reconstruido a partir de las imágenes del mapa GEODE del IGME (en noviembre de 2026 el IGME desactivó la descarga de datos): el método reproduce el 99 % de los píxeles en Espadà y Bejís, donde sí teníamos los datos originales."
+ },
+ "metodo": {
+  "severidad": "dNBR = NBR(antes) − NBR(después), con NBR = (B8 − B12)/(B8 + B12), Sentinel-2. Umbrales de Key & Benson (USGS): 0,10 · 0,27 · 0,44 · 0,66.",
+  "vegetacion_potencial": "Serie de vegetación del Mapa de Series de Vegetación de España (Rivas-Martínez, 1987), escala nacional: indica la serie dominante de la zona, no la de cada ladera.",
+  "erosion": "(clase de severidad − 1) × pendiente/25 %.",
+  "viabilidad": "Índice 0–100: cercanía entre la vegetación previa y la potencial, con ajustes por severidad, recurrencia, pendiente, solanas secas sobre rodeno y rebrote observado.",
+  "ceam": "Cobertura vegetal estimada con NDVI respecto a suelo quemado y vegetación densa; umbrales del CEAM 30 % y 60 %. Aproximación: el CEAM lo evalúa en campo.",
+  "arboles": "Densidad de las parcelas IFN3 por tipo de bosque × hectáreas quemadas, con mortalidad supuesta según severidad. Datos de campo de 2006."
+ },
+ "aviso": "Fénix es un proyecto divulgativo e independiente, no una fuente oficial. Las capas derivadas (severidad, actuaciones, viabilidad, costes) son elaboración propia y ningún organismo las ha revisado ni respaldado. Para decisiones, consultar a la administración forestal competente.",
+ "autor": {
+  "nombre": "Joaquín García Nieto",
+  "email": "garcia.nieto.joaquin@gmail.com",
+  "linkedin": "https://www.linkedin.com/in/jgarnie/",
+  "github": "https://github.com/jgarnie",
+  "codigo": "https://github.com/jgarnie/fenix"
+ }
+}

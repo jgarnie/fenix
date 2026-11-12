@@ -34,6 +34,7 @@ Los cuatro usan el mismo visor (`public/app.js`); los textos propios de cada inc
 - **Análisis de la Fundación CEAM** reproducidos con datos abiertos: sequedad de la vegetación antes del incendio, su criterio para decidir dónde reforzar la regeneración (30 % y 60 % de cobertura de leñosas rebrotadoras, evaluado a 1–2 años del incendio), los parajes que cita y una comparación de cifras.
 - **Ficha de cada punto:** al pulsar el mapa, qué había, qué debería haber, de quién es, la viabilidad de recuperarlo y cómo actuar.
 - **Plan:** superficie y coste por actuación según el alcance. Los costes salen de tarifas forestales oficiales y se pueden editar.
+- **Para asistentes de IA:** resúmenes en JSON (`public/api/`) y un servidor MCP ([`mcp/`](mcp/README.md)) para preguntar a Claude, ChatGPT u otros por los incendios o por un punto concreto.
 
 ## Ejecutar
 
@@ -53,6 +54,7 @@ python3 scripts/build_data.py tietar    # Tiétar: data-raw/tietar/ → public/t
 python3 scripts/trees.py tietar
 python3 scripts/build_data.py villanueva-de-viver   # Alto Mijares: data-raw/villanueva-de-viver/ → public/villanueva-de-viver/data/
 python3 scripts/trees.py villanueva-de-viver
+node scripts/build_api.mjs              # resúmenes JSON para IAs y el servidor MCP → public/api/ (sí se versiona)
 ```
 
 Los datos generados (`public/data/` y `public/bejis/data/`) no se versionan en este repo: la web publicada los lee del repo

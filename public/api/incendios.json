@@ -1,0 +1,431 @@
+{
+ "proyecto": "Fénix · mapas de incendios forestales en España después del fuego",
+ "web": "https://jgarnie.github.io/fenix/",
+ "generado": "2026-11-12",
+ "incendios": [
+  {
+   "slug": "espada",
+   "nombre": "Espadà después del fuego",
+   "subtitulo": "Incendio de la Vall d'Uixó · 25 jul – 1 ago 2026",
+   "descripcion": "Mapa del incendio de la Vall d'Uixó / Serra d'Espadà (julio 2026): antes y después, monte público, vegetación previa y potencial, y plan de restauración.",
+   "anyo": 2026,
+   "mapa": "https://jgarnie.github.io/fenix/",
+   "dataUrl": "https://jgarnie.github.io/fenix-data/vallduixo/data/",
+   "bounds": [
+    [
+     39.809048991490194,
+     -0.359201930487544
+    ],
+    [
+     39.969740109194795,
+     -0.15514961951245593
+    ]
+   ],
+   "ems": "EMSR905",
+   "ems_url": "https://rapidmapping.emergency.copernicus.eu/EMSR905",
+   "superficie_satelite_ha": 7341.8,
+   "superficie_forestal_ha": 6837.6,
+   "monte_publico_ha": 283.3,
+   "oficial": {
+    "valor": "9.568 ha",
+    "nota": "superficie oficial (CCE Generalitat)"
+   },
+   "municipios": [
+    {
+     "nombre": "Artana",
+     "ha_total": 2533.1,
+     "ha_forestal": 2294.5
+    },
+    {
+     "nombre": "la Vall d'Uixó",
+     "ha_total": 1263.4,
+     "ha_forestal": 1126.6
+    },
+    {
+     "nombre": "Alcudia de Veo",
+     "ha_total": 681.3,
+     "ha_forestal": 681.1
+    },
+    {
+     "nombre": "Alfondeguilla",
+     "ha_total": 611.4,
+     "ha_forestal": 610.1
+    },
+    {
+     "nombre": "Onda",
+     "ha_total": 546.8,
+     "ha_forestal": 524.6
+    },
+    {
+     "nombre": "Tales",
+     "ha_total": 463.8,
+     "ha_forestal": 446.9
+    },
+    {
+     "nombre": "Eslida",
+     "ha_total": 441.8,
+     "ha_forestal": 430.8
+    },
+    {
+     "nombre": "Nules",
+     "ha_total": 385.4,
+     "ha_forestal": 352.4
+    },
+    {
+     "nombre": "la Vilavella",
+     "ha_total": 250.7,
+     "ha_forestal": 200.9
+    },
+    {
+     "nombre": "Betxí",
+     "ha_total": 136.1,
+     "ha_forestal": 133.6
+    },
+    {
+     "nombre": "Aín",
+     "ha_total": 36.8,
+     "ha_forestal": 34.1
+    },
+    {
+     "nombre": "Chóvar",
+     "ha_total": 2.1,
+     "ha_forestal": 2.1
+    }
+   ]
+  },
+  {
+   "slug": "bejis",
+   "nombre": "Bejís después del fuego",
+   "subtitulo": "Incendio de Bejís · Alto Palancia · agosto 2022",
+   "descripcion": "Mapa del incendio de Bejís (agosto 2022): antes, después y cuatro años más tarde; monte público, vegetación previa y potencial, y plan de restauración.",
+   "anyo": 2022,
+   "mapa": "https://jgarnie.github.io/fenix/bejis/",
+   "dataUrl": "https://jgarnie.github.io/fenix-data/bejis/data/",
+   "bounds": [
+    [
+     39.77388912288324,
+     -0.8305267787856034
+    ],
+    [
+     39.991544358223436,
+     -0.5817832212143964
+    ]
+   ],
+   "ems": "EMSR625",
+   "ems_url": "https://mapping.emergency.copernicus.eu/activations/EMSR625",
+   "superficie_satelite_ha": 18057.8,
+   "superficie_forestal_ha": 16478.9,
+   "monte_publico_ha": 7407.5,
+   "oficial": {
+    "valor": "16.824 ha",
+    "nota": "superficie oficial (estadística de incendios de la Generalitat), de ellas 11.644 no arboladas"
+   },
+   "municipios": [
+    {
+     "nombre": "Bejís",
+     "ha_total": 4011.8,
+     "ha_forestal": 3696.6
+    },
+    {
+     "nombre": "Sacañet",
+     "ha_total": 2336.1,
+     "ha_forestal": 2253
+    },
+    {
+     "nombre": "El Toro",
+     "ha_total": 2100.2,
+     "ha_forestal": 1993.8
+    },
+    {
+     "nombre": "Altura",
+     "ha_total": 1875.9,
+     "ha_forestal": 1835.1
+    },
+    {
+     "nombre": "Teresa",
+     "ha_total": 1703.7,
+     "ha_forestal": 1449.9
+    },
+    {
+     "nombre": "Torás",
+     "ha_total": 1567.8,
+     "ha_forestal": 1087.1
+    },
+    {
+     "nombre": "Jérica",
+     "ha_total": 1541.8,
+     "ha_forestal": 1511.1
+    },
+    {
+     "nombre": "Viver",
+     "ha_total": 1406,
+     "ha_forestal": 1204.6
+    },
+    {
+     "nombre": "Andilla",
+     "ha_total": 703.9,
+     "ha_forestal": 684.8
+    },
+    {
+     "nombre": "Alcublas",
+     "ha_total": 529.4,
+     "ha_forestal": 486.4
+    },
+    {
+     "nombre": "Barracas",
+     "ha_total": 286,
+     "ha_forestal": 276.5
+    }
+   ]
+  },
+  {
+   "slug": "tietar",
+   "nombre": "Tiétar después del fuego",
+   "subtitulo": "Incendio de Burgohondo · Alberche y valle del Tiétar · julio 2026",
+   "descripcion": "Mapa de los incendios de Burgohondo, el valle del Tiétar y el oeste de Madrid (julio 2026): antes y después, monte público, vegetación previa y potencial, y plan de restauración.",
+   "anyo": 2026,
+   "mapa": "https://jgarnie.github.io/fenix/tietar/",
+   "dataUrl": "https://jgarnie.github.io/fenix-data/tietar/data/",
+   "bounds": [
+    [
+     40.207031247980765,
+     -4.8461094367303055
+    ],
+    [
+     40.547750495588375,
+     -4.123753303269694
+    ]
+   ],
+   "ems": "EMSR900",
+   "ems_url": "https://rapidmapping.emergency.copernicus.eu/EMSR900",
+   "superficie_satelite_ha": 48531.1,
+   "superficie_forestal_ha": 42180.5,
+   "monte_publico_ha": 20803.9,
+   "oficial": {
+    "valor": "37.800 ha",
+    "nota": "superficie afectada según la Junta de Castilla y León (agosto 2026, estimación por satélite), de ellas 33.900 forestales"
+   },
+   "municipios": [
+    {
+     "nombre": "San Martín de Valdeiglesias",
+     "ha_total": 5581.9,
+     "ha_forestal": 4580.6
+    },
+    {
+     "nombre": "Cebreros",
+     "ha_total": 5058.8,
+     "ha_forestal": 3065.7
+    },
+    {
+     "nombre": "El Barraco",
+     "ha_total": 4542.9,
+     "ha_forestal": 4405.9
+    },
+    {
+     "nombre": "El Tiemblo",
+     "ha_total": 3986.4,
+     "ha_forestal": 3048.6
+    },
+    {
+     "nombre": "Navas del Rey",
+     "ha_total": 3779.5,
+     "ha_forestal": 3702.8
+    },
+    {
+     "nombre": "Navaluenga",
+     "ha_total": 3332.3,
+     "ha_forestal": 3331.8
+    },
+    {
+     "nombre": "Piedralaves",
+     "ha_total": 3307.6,
+     "ha_forestal": 2860.5
+    },
+    {
+     "nombre": "Villa del Prado",
+     "ha_total": 2934.6,
+     "ha_forestal": 2460.6
+    },
+    {
+     "nombre": "Casavieja",
+     "ha_total": 2780.3,
+     "ha_forestal": 2230.1
+    },
+    {
+     "nombre": "La Adrada",
+     "ha_total": 2290.8,
+     "ha_forestal": 2069.2
+    },
+    {
+     "nombre": "Robledo de Chavela",
+     "ha_total": 2166.1,
+     "ha_forestal": 2153.8
+    },
+    {
+     "nombre": "Burgohondo",
+     "ha_total": 1697.7,
+     "ha_forestal": 1646.8
+    },
+    {
+     "nombre": "Sotillo de la Adrada",
+     "ha_total": 1036.3,
+     "ha_forestal": 995.4
+    },
+    {
+     "nombre": "San Juan de la Nava",
+     "ha_total": 965.7,
+     "ha_forestal": 959.8
+    },
+    {
+     "nombre": "Colmenar del Arroyo",
+     "ha_total": 917.3,
+     "ha_forestal": 906.6
+    },
+    {
+     "nombre": "La Iglesuela del Tiétar",
+     "ha_total": 741.8,
+     "ha_forestal": 549.1
+    },
+    {
+     "nombre": "Fresnedillas de la Oliva",
+     "ha_total": 733.6,
+     "ha_forestal": 731.6
+    },
+    {
+     "nombre": "El Hoyo de Pinares",
+     "ha_total": 486.1,
+     "ha_forestal": 328.1
+    },
+    {
+     "nombre": "Pelayos de la Presa",
+     "ha_total": 433.2,
+     "ha_forestal": 392.8
+    },
+    {
+     "nombre": "Mijares",
+     "ha_total": 384,
+     "ha_forestal": 342.4
+    },
+    {
+     "nombre": "Chapinería",
+     "ha_total": 381.6,
+     "ha_forestal": 375.8
+    },
+    {
+     "nombre": "Valdemaqueda",
+     "ha_total": 265.6,
+     "ha_forestal": 265.6
+    },
+    {
+     "nombre": "Aldea del Fresno",
+     "ha_total": 256.1,
+     "ha_forestal": 256.1
+    },
+    {
+     "nombre": "Almorox",
+     "ha_total": 231.8,
+     "ha_forestal": 223.1
+    },
+    {
+     "nombre": "Casillas",
+     "ha_total": 154,
+     "ha_forestal": 153.6
+    },
+    {
+     "nombre": "Navahondilla",
+     "ha_total": 123.2,
+     "ha_forestal": 123.2
+    },
+    {
+     "nombre": "Navalagamella",
+     "ha_total": 12.4,
+     "ha_forestal": 12.4
+    },
+    {
+     "nombre": "Sartajada",
+     "ha_total": 8.9,
+     "ha_forestal": 8.1
+    },
+    {
+     "nombre": "Cadalso de los Vidrios",
+     "ha_total": 2.7,
+     "ha_forestal": 0.5
+    }
+   ]
+  },
+  {
+   "slug": "villanueva-de-viver",
+   "nombre": "Alto Mijares después del fuego",
+   "subtitulo": "Incendio de Villanueva de Viver · Castellón y Teruel · marzo 2023",
+   "descripcion": "Mapa del incendio de Villanueva de Viver y el Alto Mijares (marzo 2023, Castellón y Teruel): antes, después y tres años más tarde; monte público, vegetación previa y potencial, y plan de restauración.",
+   "anyo": 2023,
+   "mapa": "https://jgarnie.github.io/fenix/villanueva-de-viver/",
+   "dataUrl": "https://jgarnie.github.io/fenix-data/villanueva-de-viver/data/",
+   "bounds": [
+    [
+     40.015056071121904,
+     -0.6735519373342527
+    ],
+    [
+     40.12830761456401,
+     -0.49812556666563446
+    ]
+   ],
+   "ems": "EMSR656",
+   "ems_url": "https://rapidmapping.emergency.copernicus.eu/EMSR656",
+   "superficie_satelite_ha": 4524,
+   "superficie_forestal_ha": 4044.4,
+   "monte_publico_ha": 499.8,
+   "oficial": {
+    "valor": "4.723 ha",
+    "nota": "superficie provisional según la Generalitat (abril 2023), unas 840 de ellas en Aragón según el Gobierno de Aragón"
+   },
+   "municipios": [
+    {
+     "nombre": "Puebla de Arenoso",
+     "ha_total": 1590.2,
+     "ha_forestal": 1412.9
+    },
+    {
+     "nombre": "Montanejos",
+     "ha_total": 1000.8,
+     "ha_forestal": 975.6
+    },
+    {
+     "nombre": "Montán",
+     "ha_total": 765.5,
+     "ha_forestal": 687.6
+    },
+    {
+     "nombre": "San Agustín",
+     "ha_total": 738.1,
+     "ha_forestal": 562.4
+    },
+    {
+     "nombre": "Fuente la Reina",
+     "ha_total": 207.4,
+     "ha_forestal": 190.6
+    },
+    {
+     "nombre": "Olba",
+     "ha_total": 139.1,
+     "ha_forestal": 133.4
+    },
+    {
+     "nombre": "Villanueva de Viver",
+     "ha_total": 87.2,
+     "ha_forestal": 81.9
+    }
+   ]
+  }
+ ],
+ "aviso": "Fénix es un proyecto divulgativo e independiente, no una fuente oficial. Las capas derivadas (severidad, actuaciones, viabilidad, costes) son elaboración propia y ningún organismo las ha revisado ni respaldado. Para decisiones, consultar a la administración forestal competente.",
+ "autor": {
+  "nombre": "Joaquín García Nieto",
+  "email": "garcia.nieto.joaquin@gmail.com",
+  "linkedin": "https://www.linkedin.com/in/jgarnie/",
+  "github": "https://github.com/jgarnie",
+  "codigo": "https://github.com/jgarnie/fenix"
+ },
+ "detalle": "Detalle de cada incendio en api/<slug>.json"
+}

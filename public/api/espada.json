@@ -1,0 +1,430 @@
+{
+ "slug": "espada",
+ "nombre": "Espadà después del fuego",
+ "subtitulo": "Incendio de la Vall d'Uixó · 25 jul – 1 ago 2026",
+ "descripcion": "Mapa del incendio de la Vall d'Uixó / Serra d'Espadà (julio 2026): antes y después, monte público, vegetación previa y potencial, y plan de restauración.",
+ "anyo": 2026,
+ "mapa": "https://jgarnie.github.io/fenix/",
+ "dataUrl": "https://jgarnie.github.io/fenix-data/vallduixo/data/",
+ "bounds": [
+  [
+   39.809048991490194,
+   -0.359201930487544
+  ],
+  [
+   39.969740109194795,
+   -0.15514961951245593
+  ]
+ ],
+ "ems": "EMSR905",
+ "ems_url": "https://rapidmapping.emergency.copernicus.eu/EMSR905",
+ "superficie_satelite_ha": 7341.8,
+ "superficie_forestal_ha": 6837.6,
+ "monte_publico_ha": 283.3,
+ "oficial": {
+  "valor": "9.568 ha",
+  "nota": "superficie oficial (CCE Generalitat)"
+ },
+ "municipios": [
+  {
+   "nombre": "Artana",
+   "ha_total": 2533.1,
+   "ha_forestal": 2294.5
+  },
+  {
+   "nombre": "la Vall d'Uixó",
+   "ha_total": 1263.4,
+   "ha_forestal": 1126.6
+  },
+  {
+   "nombre": "Alcudia de Veo",
+   "ha_total": 681.3,
+   "ha_forestal": 681.1
+  },
+  {
+   "nombre": "Alfondeguilla",
+   "ha_total": 611.4,
+   "ha_forestal": 610.1
+  },
+  {
+   "nombre": "Onda",
+   "ha_total": 546.8,
+   "ha_forestal": 524.6
+  },
+  {
+   "nombre": "Tales",
+   "ha_total": 463.8,
+   "ha_forestal": 446.9
+  },
+  {
+   "nombre": "Eslida",
+   "ha_total": 441.8,
+   "ha_forestal": 430.8
+  },
+  {
+   "nombre": "Nules",
+   "ha_total": 385.4,
+   "ha_forestal": 352.4
+  },
+  {
+   "nombre": "la Vilavella",
+   "ha_total": 250.7,
+   "ha_forestal": 200.9
+  },
+  {
+   "nombre": "Betxí",
+   "ha_total": 136.1,
+   "ha_forestal": 133.6
+  },
+  {
+   "nombre": "Aín",
+   "ha_total": 36.8,
+   "ha_forestal": 34.1
+  },
+  {
+   "nombre": "Chóvar",
+   "ha_total": 2.1,
+   "ha_forestal": 2.1
+  }
+ ],
+ "parque_natural": {
+  "nombre": "Serra d'Espadà",
+  "ha_dentro": 2673.8
+ },
+ "administracion": "Generalitat Valenciana",
+ "vegetacion_potencial_resumen": "alcornocal sobre el rodeno y carrascal sobre la caliza",
+ "nota_superficie": "la cifra oficial (9.568 ha) usa el perímetro exterior e incluye islas no quemadas",
+ "destacado": null,
+ "estadisticas": {
+  "ya_habia_ardido_ha": 1812.2,
+  "desde": 1993,
+  "severidad_ha": {
+   "No quemado": 49.3,
+   "Baja": 517.2,
+   "Moderada-baja": 1593.4,
+   "Moderada-alta": 2699.1,
+   "Alta": 2493.9
+  },
+  "propiedad_ha": {
+   "Utilidad pública · Ayuntamiento": 279.1,
+   "Utilidad pública · Generalitat": 4.2,
+   "Enclavado privado en monte público": 1.6,
+   "Sin catalogar (mayoritariamente privado)": 7068
+  },
+  "vegetacion_antes_ha": {
+   "Alcornocal": 451.4,
+   "Pinar de rodeno (P. pinaster)": 156.8,
+   "Pinar de pino carrasco": 3667.4,
+   "Bosque mixto pino + frondosas": 1099.7,
+   "Encinar, quejigar y frondosas": 449.3,
+   "Algarrobal / acebuchal": 360.8,
+   "Matorral": 498.7,
+   "Pastizal-matorral": 153.6,
+   "Agrícola": 459.1,
+   "Artificial / minería": 43.8,
+   "Agua / humedal": 12.3
+  },
+  "vegetacion_potencial_ha": {
+   "Alcornocal (23b, Asplenio onopteridis–Querceto suberis S.)": 2737.5,
+   "Carrascal termomediterráneo (27c, Rubio longifoliae–Querceto rotundifoliae S.)": 2321.7,
+   "Carrascal mesomediterráneo (22b, Bupleuro rigidi–Querceto rotundifoliae S.)": 1778.4,
+   "Uso no forestal (agrícola, urbano, agua)": 515.2
+  },
+  "erosion_ha": {
+   "Bajo": 1695.2,
+   "Medio": 2803.2,
+   "Alto": 1821.3,
+   "Muy alto": 517.9
+  },
+  "viabilidad_ha": {
+   "Baja (<45)": 4205.1,
+   "Media (45–70)": 2204.6,
+   "Alta (≥70)": 427.9
+  },
+  "criterio_ceam_ha": {
+   "<30 %: estudiar plantación o siembra selectiva": {
+    "total": 6423.6,
+    "publico": 269.6
+   },
+   "30–60 %: analizar caso a caso": {
+    "total": 376,
+    "publico": 12.1
+   },
+   ">60 %: regeneración favorable": {
+    "total": 14.9,
+    "publico": 0.3
+   }
+  },
+  "rebrote_ha": 700.4,
+  "ndvi_serie_quemado": {
+   "2026-07-03": 0.604,
+   "2026-08-19": 0.148,
+   "2026-09-08": 0.175
+  },
+  "ndvi_serie_sin_quemar": {
+   "2026-07-03": 0.572,
+   "2026-08-19": 0.534,
+   "2026-09-08": 0.542
+  },
+  "escenas_sentinel2": {
+   "abril": "2026-04-04",
+   "antes": "2026-07-03",
+   "despues": "2026-08-19",
+   "ahora": "2026-09-08"
+  },
+  "sequedad_previa": {
+   "ndmi_abril": 0.15,
+   "ndmi_julio": 0.079,
+   "ndvi_abril": 0.665,
+   "ndvi_julio": 0.557
+  },
+  "arboles": {
+   "total": 2180000,
+   "intervalo90": [
+    1709000,
+    2676000
+   ],
+   "muertos": 1475000,
+   "muertos_intervalo90": [
+    1117000,
+    1870000
+   ],
+   "nota": "sobre todo pinos; la mayoría de alcornoques y carrascas rebrotará",
+   "fuente": "IFN3 Castellón (MITECO), pies mayores con diámetro ≥ 7,5 cm"
+  }
+ },
+ "criterio_ceam_ahora": "Es normal que casi todo salga por debajo del 30 %: solo han pasado unas semanas. La evaluación que propone el CEAM corresponde a 2027–2028.",
+ "plan": {
+  "escenario": "Escenario por defecto del mapa: control de la erosión en todo el área quemada y actuaciones a largo plazo solo en monte público. Precios de tarifa forestal con recargo de encargo a VAERSA",
+  "emergencia": {
+   "nombre": "Estabilización urgente del suelo",
+   "que": "Severidad alta en pendiente: alto riesgo de erosión y arrastres con las primeras lluvias fuertes de otoño.",
+   "como": [
+    "Fajinas y barreras con troncos quemados siguiendo las curvas de nivel.",
+    "Albarradas o diques de mampostería en cárcavas y cabeceras de barranco.",
+    "Acolchado (mulching) de paja o astilla en las laderas más expuestas.",
+    "Evitar maquinaria pesada y la saca de madera en pendientes fuertes."
+   ],
+   "ha": 2339.2,
+   "coste_eur_ha": 2204,
+   "calendario": "oct 2026 – mar 2027",
+   "coste_escenario_eur": 5540720
+  },
+  "acciones": [
+   {
+    "clave": 1,
+    "nombre": "Regeneración natural",
+    "que": "La vegetación previa rebrota (alcornoque, carrasca, coscoja, lentisco, madroño, palmito…) o el pinar era maduro y sin incendios recientes, por lo que regenera por semilla.",
+    "como": [
+     "No cortar ni desbrozar los rebrotes; no descorchar alcornoques en al menos 5 años.",
+     "Esperar a la brotación de la primavera de 2027 antes de declarar muertos alcornoques y carrascas.",
+     "Excluir pastoreo y proteger frente a herbívoros 3–5 años donde haya presión.",
+     "Seguimiento con parcelas de campo y NDVI (Sentinel-2) cada primavera."
+    ],
+    "ha_total": 2783.6,
+    "ha_publico": 89.2,
+    "ha_privado": 2694.3,
+    "ha_erosion_alta": 627.7,
+    "coste_eur_ha": 17,
+    "calendario": "2027 – 2032",
+    "coste_escenario_eur": 1630
+   },
+   {
+    "clave": 2,
+    "nombre": "Regeneración asistida",
+    "que": "Pinar con daño alto o pinar joven: probablemente no hay banco de piñas serótinas suficiente. Se ayuda con siembras y núcleos de plantación que aceleren la entrada de frondosas.",
+    "como": [
+     "Medir el regenerado de pino en primavera-verano 2027; actuar donde haya <1.000 plántulas/ha.",
+     "Siembra de bellotas (alcornoque o carrasca, según la vegetación potencial) por puntos, protegidas.",
+     "Plantación en bosquetes / núcleos de dispersión (400–600 plantas/ha) con protector, en otoño-invierno.",
+     "Clareos del regenerado de pino a los 8–12 años para evitar masas densas muy inflamables."
+    ],
+    "ha_total": 2764.1,
+    "ha_publico": 85,
+    "ha_privado": 2679.1,
+    "ha_erosion_alta": 934,
+    "coste_eur_ha": 3125,
+    "calendario": "2027 – 2030",
+    "coste_escenario_eur": 285467
+   },
+   {
+    "clave": 3,
+    "nombre": "Restauración activa",
+    "que": "El pinar ocupaba suelos donde debería haber alcornocal o carrascal, o la zona ha ardido repetidamente y el matorral ya no evoluciona solo. Hay que reintroducir las especies de la vegetación potencial.",
+    "como": [
+     "Plantación de 800–1.100 plantas/ha de las especies de la serie potencial (ver pestaña Cómo).",
+     "Planta de la región de procedencia local (Banc de Llavors Forestals de la GVA).",
+     "Hoyos manuales en pendiente, protectores, riego de apoyo el primer verano y reposición de marras.",
+     "Ejecutar tras la estabilización del suelo, en la ventana de plantación de otoño-invierno 2027–28."
+    ],
+    "ha_total": 1266.8,
+    "ha_publico": 107.8,
+    "ha_privado": 1159,
+    "ha_erosion_alta": 777.5,
+    "coste_eur_ha": 6963,
+    "calendario": "2027 – 2031",
+    "coste_escenario_eur": 806682
+   },
+   {
+    "clave": 4,
+    "nombre": "Recuperar cultivo / mosaico",
+    "que": "Terreno agrícola (sobre todo algarrobos, olivos y almendros de secano) dentro del perímetro.",
+    "como": [
+     "Recuperar cultivos de secano como discontinuidades cortafuegos (mosaico agroforestal).",
+     "Ayudas a explotaciones afectadas (Generalitat / PAC) y pastoreo controlado en fajas."
+    ],
+    "ha_total": 442.1,
+    "ha_publico": 0.9,
+    "ha_privado": 441.1,
+    "ha_erosion_alta": 0,
+    "coste_eur_ha": 0,
+    "calendario": "2027 –",
+    "coste_escenario_eur": 0
+   }
+  ],
+  "coste_total_escenario_eur": 6634499,
+  "presupuesto_referencia_eur": 2700000,
+  "referencia": "Referencia: la Generalitat anunció 4,2 M€ (oct 2026), de los que 2,7 M€ van a recuperación forestal y caminos.",
+  "metodo_actuacion": "rebrotadoras → regeneración natural; pinar maduro poco dañado y sin incendios recientes → natural; resto de pinar → asistida; pinar con daño alto donde debería haber alcornocal o zonas con ≥2 incendios previos → restauración activa."
+ },
+ "series_potenciales": [
+  {
+   "clave": 1,
+   "ha": 2737.5,
+   "corto": "Alcornocal",
+   "codigo": "23b",
+   "serie": "Meso-termomediterránea valenciano-castellonense subhúmeda del alcornoque (Asplenio onopteridis–Querceto suberis sigmetum)",
+   "piso": "Mesomediterráneo, sobre suelos silíceos (rodeno)",
+   "especies": "Quercus suber, Asplenium onopteris, Quercus rotundifolia, Calicotome spinosa",
+   "revision": "En la revisión de 2011 sigue siendo la serie 23b, silicícola, con una faciación mesomediterránea típica y otra termomediterránea con Chamaerops humilis."
+  },
+  {
+   "clave": 2,
+   "ha": 2321.7,
+   "corto": "Carrascal termomediterráneo",
+   "codigo": "27c",
+   "serie": "Termomediterránea valenciano-tarraconense, murciano-almeriense e ibicenca basófila de la encina (Rubio longifoliae–Querceto rotundifoliae sigmetum)",
+   "piso": "Termomediterráneo, sobre calizas",
+   "especies": "Quercus rotundifolia, Rubia longifolia, Pistacia lentiscus, Erica multiflora",
+   "revision": "En 2011 se amplía al mesomediterráneo inferior, con faciaciones de Chamaerops humilis (termomediterránea), de Pistacia lentiscus (mesomediterránea termófila) y de Calicotome spinosa (sobre areniscas del rodeno)."
+  },
+  {
+   "clave": 3,
+   "ha": 1778.4,
+   "corto": "Carrascal mesomediterráneo",
+   "codigo": "22b",
+   "serie": "Mesomediterránea manchega y aragonesa basófila de la encina (Bupleuro rigidi–Querceto rotundifoliae sigmetum)",
+   "piso": "Mesomediterráneo, sobre calizas",
+   "especies": "Quercus rotundifolia, Hedera helix, Teline patens, Genista hispanica",
+   "especiesNota": "de la serie 22d de la revisión de 2011",
+   "revision": "El mapa de 1987 asigna esta zona a la serie manchega y aragonesa (22b). La revisión de 2011 describe los carrascales valencianos de este piso como una serie propia, la 22d (Hedero helicis–Querco rotundifoliae sigmetum), con faciaciones altopalanciana y turiana septentrional silicícola. Las especies indicadas son las de esa serie 22d."
+  },
+  {
+   "clave": 7,
+   "ha": 515.2,
+   "corto": "Uso no forestal",
+   "codigo": "",
+   "serie": "Cultivos, núcleos urbanos, infraestructuras o agua (según el Mapa Forestal)",
+   "piso": "",
+   "especies": "",
+   "revision": ""
+  }
+ ],
+ "cronologia": [
+  {
+   "cuando": "Ahora – marzo 2027 · Emergencia",
+   "que": "Estabilizar laderas antes y durante las lluvias de otoño (fajinas, albarradas, acolchado), retirar árboles peligrosos junto a caminos y casas. No plantar todavía."
+  },
+  {
+   "cuando": "Primavera – verano 2027 · Diagnóstico",
+   "que": "Ver qué rebrota y cuánto pino nace. Parcelas de campo + imágenes Sentinel-2. Ajustar el mapa de actuaciones."
+  },
+  {
+   "cuando": "Otoño 2027 – invierno 2029 · Restauración",
+   "que": "Siembras y plantaciones con planta local donde la regeneración no basta. Protección frente a herbívoros."
+  },
+  {
+   "cuando": "2030 – 2040 · Consolidación",
+   "que": "Reposición de marras, clareos del regenerado denso de pino, creación de un mosaico menos inflamable."
+  },
+  {
+   "cuando": "2040 – 2060 · Bosque maduro",
+   "que": "Primer descorche de los alcornoques nuevos (~25–30 años), dominancia de frondosas."
+  }
+ ],
+ "como_ayudar": [
+  "Registrar observaciones de rebrote con fotos geolocalizadas (p. ej. iNaturalist).",
+  "Participar en jornadas oficiales de voluntariado de siembra y plantación (otoño-invierno).",
+  "Apoyar a las asociaciones de custodia del territorio y a la economía local del corcho."
+ ],
+ "fuentes": {
+  "texto": "- Área quemada: Copernicus EMS Rapid Mapping EMSR905 (https://rapidmapping.emergency.copernicus.eu/EMSR905), producto de evaluación (GRA v2, imagen del 31 jul 2026).\n- Cifras oficiales (9.568 ha, 89 km de perímetro, 4,2 M€): Centro de Coordinación de Emergencias y Generalitat, según prensa.\nFundación CEAM\n- Cifras y conclusiones: nota de la Generalitat sobre el análisis del CEAM (https://comunica.gva.es/es/detalle?id=413511022&site=373428693),\nzonas por severidad (https://www.elperiodic.com/pcastellon/fuego-quema-parque-natural-serra-despada-pero-todo-ardido-igual-zonas-arrasadas-menos_1087008) y\nprotocolo de restauración (https://www.elperiodic.com/pcastellon/cuando-podra-reforestar-serra-despada-esto-debe-ocurrir-primero_1086815) (El Periòdic) y\npérdida de humedad previa (https://castellonplaza.com/castellonplaza/comarcas/informe-del-ceam-sobre-el-incendio-de-la-vall-duixo-la-vegetacion-perdio-el-51-de-humedad-en-los-meses-previos) (Castellón Plaza).\n- Protocolo y umbrales: manual Postfire-DSS de la Fundación CEAM, según El Periòdic.\n- El CEAM no ha publicado sus mapas: las capas de sequedad y de criterio CEAM de esta app reproducen sus análisis con datos abiertos y pueden no coincidir exactamente con los suyos.\n- Coordenadas de los parajes: Nomenclátor Geográfico Básico de España (IGN), vía CartoCiudad. El Puntal de Nules es el Pic de la Font de Cabres (639 m), según esta ruta de Wikiloc (https://de.wikiloc.com/routen-wandern/ume1963-el-puntal-de-nules-pic-de-la-font-de-cabres-639-m-80185664).",
+  "enlaces": [
+   {
+    "texto": "Copernicus EMS Rapid Mapping EMSR905",
+    "url": "https://rapidmapping.emergency.copernicus.eu/EMSR905"
+   },
+   {
+    "texto": "nota de la Generalitat sobre el análisis del CEAM",
+    "url": "https://comunica.gva.es/es/detalle?id=413511022&site=373428693"
+   },
+   {
+    "texto": "zonas por severidad",
+    "url": "https://www.elperiodic.com/pcastellon/fuego-quema-parque-natural-serra-despada-pero-todo-ardido-igual-zonas-arrasadas-menos_1087008"
+   },
+   {
+    "texto": "protocolo de restauración",
+    "url": "https://www.elperiodic.com/pcastellon/cuando-podra-reforestar-serra-despada-esto-debe-ocurrir-primero_1086815"
+   },
+   {
+    "texto": "pérdida de humedad previa",
+    "url": "https://castellonplaza.com/castellonplaza/comarcas/informe-del-ceam-sobre-el-incendio-de-la-vall-duixo-la-vegetacion-perdio-el-51-de-humedad-en-los-meses-previos"
+   },
+   {
+    "texto": "esta ruta de Wikiloc",
+    "url": "https://de.wikiloc.com/routen-wandern/ume1963-el-puntal-de-nules-pic-de-la-font-de-cabres-639-m-80185664"
+   },
+   {
+    "texto": "Imágenes Sentinel-2 L2A (Copernicus) vía Earth Search",
+    "url": "https://earth-search.aws.element84.com/v1"
+   },
+   {
+    "texto": "Mapa de Series de Vegetación de España (Rivas-Martínez 1987), MITECO",
+    "url": "https://www.miteco.gob.es/es/biodiversidad/servicios/banco-datos-naturaleza/informacion-disponible/memoria_mapa_series_veg_descargas.html"
+   },
+   {
+    "texto": "Geología: IGME GEODE 1:50.000",
+    "url": "https://mapas.igme.es/gis/rest/services/Cartografia_Geologica/IGME_Geode_50/MapServer"
+   },
+   {
+    "texto": "Relieve: Copernicus DEM GLO-30",
+    "url": null
+   },
+   {
+    "texto": "Tercer Inventario Forestal Nacional (IFN3), MITECO",
+    "url": "https://www.miteco.gob.es/es/biodiversidad/servicios/banco-datos-naturaleza/informacion-disponible/ifn3_base_datos_1_25.html"
+   },
+   {
+    "texto": "Costes: Tarifas forestales de la Junta de Extremadura 2024",
+    "url": "http://extremambiente.juntaex.es/files/2024/forestales/Tarifas%20SOGF_2024.pdf"
+   }
+  ],
+  "limites": null
+ },
+ "metodo": {
+  "severidad": "dNBR = NBR(antes) − NBR(después), con NBR = (B8 − B12)/(B8 + B12), Sentinel-2. Umbrales de Key & Benson (USGS): 0,10 · 0,27 · 0,44 · 0,66.",
+  "vegetacion_potencial": "Serie de vegetación del Mapa de Series de Vegetación de España (Rivas-Martínez, 1987), escala nacional: indica la serie dominante de la zona, no la de cada ladera.",
+  "erosion": "(clase de severidad − 1) × pendiente/25 %.",
+  "viabilidad": "Índice 0–100: cercanía entre la vegetación previa y la potencial, con ajustes por severidad, recurrencia, pendiente, solanas secas sobre rodeno y rebrote observado.",
+  "ceam": "Cobertura vegetal estimada con NDVI respecto a suelo quemado y vegetación densa; umbrales del CEAM 30 % y 60 %. Aproximación: el CEAM lo evalúa en campo.",
+  "arboles": "Densidad de las parcelas IFN3 por tipo de bosque × hectáreas quemadas, con mortalidad supuesta según severidad. Datos de campo de 2006."
+ },
+ "aviso": "Fénix es un proyecto divulgativo e independiente, no una fuente oficial. Las capas derivadas (severidad, actuaciones, viabilidad, costes) son elaboración propia y ningún organismo las ha revisado ni respaldado. Para decisiones, consultar a la administración forestal competente.",
+ "autor": {
+  "nombre": "Joaquín García Nieto",
+  "email": "garcia.nieto.joaquin@gmail.com",
+  "linkedin": "https://www.linkedin.com/in/jgarnie/",
+  "github": "https://github.com/jgarnie",
+  "codigo": "https://github.com/jgarnie/fenix"
+ }
+}

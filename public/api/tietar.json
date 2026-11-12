@@ -1,0 +1,550 @@
+{
+ "slug": "tietar",
+ "nombre": "Tiétar después del fuego",
+ "subtitulo": "Incendio de Burgohondo · Alberche y valle del Tiétar · julio 2026",
+ "descripcion": "Mapa de los incendios de Burgohondo, el valle del Tiétar y el oeste de Madrid (julio 2026): antes y después, monte público, vegetación previa y potencial, y plan de restauración.",
+ "anyo": 2026,
+ "mapa": "https://jgarnie.github.io/fenix/tietar/",
+ "dataUrl": "https://jgarnie.github.io/fenix-data/tietar/data/",
+ "bounds": [
+  [
+   40.207031247980765,
+   -4.8461094367303055
+  ],
+  [
+   40.547750495588375,
+   -4.123753303269694
+  ]
+ ],
+ "ems": "EMSR900",
+ "ems_url": "https://rapidmapping.emergency.copernicus.eu/EMSR900",
+ "superficie_satelite_ha": 48531.1,
+ "superficie_forestal_ha": 42180.5,
+ "monte_publico_ha": 20803.9,
+ "oficial": {
+  "valor": "37.800 ha",
+  "nota": "superficie afectada según la Junta de Castilla y León (agosto 2026, estimación por satélite), de ellas 33.900 forestales"
+ },
+ "municipios": [
+  {
+   "nombre": "San Martín de Valdeiglesias",
+   "ha_total": 5581.9,
+   "ha_forestal": 4580.6
+  },
+  {
+   "nombre": "Cebreros",
+   "ha_total": 5058.8,
+   "ha_forestal": 3065.7
+  },
+  {
+   "nombre": "El Barraco",
+   "ha_total": 4542.9,
+   "ha_forestal": 4405.9
+  },
+  {
+   "nombre": "El Tiemblo",
+   "ha_total": 3986.4,
+   "ha_forestal": 3048.6
+  },
+  {
+   "nombre": "Navas del Rey",
+   "ha_total": 3779.5,
+   "ha_forestal": 3702.8
+  },
+  {
+   "nombre": "Navaluenga",
+   "ha_total": 3332.3,
+   "ha_forestal": 3331.8
+  },
+  {
+   "nombre": "Piedralaves",
+   "ha_total": 3307.6,
+   "ha_forestal": 2860.5
+  },
+  {
+   "nombre": "Villa del Prado",
+   "ha_total": 2934.6,
+   "ha_forestal": 2460.6
+  },
+  {
+   "nombre": "Casavieja",
+   "ha_total": 2780.3,
+   "ha_forestal": 2230.1
+  },
+  {
+   "nombre": "La Adrada",
+   "ha_total": 2290.8,
+   "ha_forestal": 2069.2
+  },
+  {
+   "nombre": "Robledo de Chavela",
+   "ha_total": 2166.1,
+   "ha_forestal": 2153.8
+  },
+  {
+   "nombre": "Burgohondo",
+   "ha_total": 1697.7,
+   "ha_forestal": 1646.8
+  },
+  {
+   "nombre": "Sotillo de la Adrada",
+   "ha_total": 1036.3,
+   "ha_forestal": 995.4
+  },
+  {
+   "nombre": "San Juan de la Nava",
+   "ha_total": 965.7,
+   "ha_forestal": 959.8
+  },
+  {
+   "nombre": "Colmenar del Arroyo",
+   "ha_total": 917.3,
+   "ha_forestal": 906.6
+  },
+  {
+   "nombre": "La Iglesuela del Tiétar",
+   "ha_total": 741.8,
+   "ha_forestal": 549.1
+  },
+  {
+   "nombre": "Fresnedillas de la Oliva",
+   "ha_total": 733.6,
+   "ha_forestal": 731.6
+  },
+  {
+   "nombre": "El Hoyo de Pinares",
+   "ha_total": 486.1,
+   "ha_forestal": 328.1
+  },
+  {
+   "nombre": "Pelayos de la Presa",
+   "ha_total": 433.2,
+   "ha_forestal": 392.8
+  },
+  {
+   "nombre": "Mijares",
+   "ha_total": 384,
+   "ha_forestal": 342.4
+  },
+  {
+   "nombre": "Chapinería",
+   "ha_total": 381.6,
+   "ha_forestal": 375.8
+  },
+  {
+   "nombre": "Valdemaqueda",
+   "ha_total": 265.6,
+   "ha_forestal": 265.6
+  },
+  {
+   "nombre": "Aldea del Fresno",
+   "ha_total": 256.1,
+   "ha_forestal": 256.1
+  },
+  {
+   "nombre": "Almorox",
+   "ha_total": 231.8,
+   "ha_forestal": 223.1
+  },
+  {
+   "nombre": "Casillas",
+   "ha_total": 154,
+   "ha_forestal": 153.6
+  },
+  {
+   "nombre": "Navahondilla",
+   "ha_total": 123.2,
+   "ha_forestal": 123.2
+  },
+  {
+   "nombre": "Navalagamella",
+   "ha_total": 12.4,
+   "ha_forestal": 12.4
+  },
+  {
+   "nombre": "Sartajada",
+   "ha_total": 8.9,
+   "ha_forestal": 8.1
+  },
+  {
+   "nombre": "Cadalso de los Vidrios",
+   "ha_total": 2.7,
+   "ha_forestal": 0.5
+  }
+ ],
+ "parque_natural": {
+  "nombre": "Valle de Iruelas",
+  "ha_dentro": 5299.8
+ },
+ "administracion": "la Junta o la Comunidad de Madrid",
+ "vegetacion_potencial_resumen": "encinar silicícola en las zonas bajas y melojar (roble melojo) en las altas",
+ "nota_superficie": "la Junta estima 37.800 ha y en los primeros días se llegó a hablar de más de 50.000. Las diferencias vienen de cómo se traza el perímetro, de qué se cuenta como quemado y de que este mapa incluye también los focos de San Martín de Valdeiglesias y Almorox – Villa del Prado",
+ "destacado": "Este mapa reúne todo lo que ardió junto en julio de 2026 entre Ávila y el oeste de Madrid: el incendio de Burgohondo,\nel foco de San Martín de Valdeiglesias (Navas del Rey, Robledo de Chavela…) y el incendio de Almorox – Villa del Prado, en los encinares del Alberche.\nEmpezaron por separado, pero sus áreas quemadas acabaron tocándose y Copernicus los cartografió en la misma activación.",
+ "estadisticas": {
+  "ya_habia_ardido_ha": 866.1,
+  "desde": 2016,
+  "severidad_ha": {
+   "No quemado": 515.8,
+   "Baja": 8340,
+   "Moderada-baja": 17464.9,
+   "Moderada-alta": 14676.1,
+   "Alta": 7473.3
+  },
+  "propiedad_ha": {
+   "Utilidad pública · Ayuntamiento": 17204.6,
+   "Utilidad pública · Otras entidades (asocios, Estado)": 3599.3,
+   "Sin catalogar (mayoritariamente privado)": 27789.4
+  },
+  "vegetacion_antes_ha": {
+   "Pinar de pino resinero (P. pinaster)": 10388.6,
+   "Bosque mixto pino + frondosas": 3212,
+   "Encinar y otras frondosas": 7516.2,
+   "Bosque de ribera": 163.1,
+   "Matorral": 6945.1,
+   "Pastizal-matorral": 1038.9,
+   "Agrícola": 6111.9,
+   "Artificial / minería": 280.2,
+   "Agua / humedal": 20.6,
+   "Otros arbolados": 60.2,
+   "Pinar de montaña (P. nigra, P. sylvestris)": 459.7,
+   "Enebral": 2046.2,
+   "Pinar de pino piñonero (P. pinea)": 7586,
+   "Melojar (Quercus pyrenaica)": 885.2,
+   "Mezcla de pinos (resinero y piñonero)": 1879.2
+  },
+  "vegetacion_potencial_ha": {
+   "Vegetación de ribera (geomegaseries riparias)": 759.9,
+   "Uso no forestal (agrícola, urbano, agua)": 6412.8,
+   "Encinar silicícola guadarrámico (24a, Junipero oxycedri–Querceto rotundifoliae S.)": 23336.4,
+   "Encinar silicícola luso-extremadurense (24c, Pyro bourgaeanae–Querceto rotundifoliae S.)": 2525,
+   "Melojar supramediterráneo (18a, Luzulo forsteri–Querceto pyrenaicae S.)": 12730.8,
+   "Piornal oromediterráneo gredense (13b, Cytiso purgantis–Echinosparteto barnadesii S.)": 2828.4
+  },
+  "erosion_ha": {
+   "Bajo": 25401.4,
+   "Medio": 11758.4,
+   "Alto": 4528,
+   "Muy alto": 492.7
+  },
+  "viabilidad_ha": {
+   "Baja (<45)": 6936.2,
+   "Media (45–70)": 20338.2,
+   "Alta (≥70)": 14906.1
+  },
+  "criterio_ceam_ha": null,
+  "rebrote_ha": 39657.9,
+  "ndvi_serie_quemado": {
+   "2026-07-16": 0.569,
+   "2026-08-08": 0.167,
+   "2026-11-01": 0.334
+  },
+  "ndvi_serie_sin_quemar": {
+   "2026-07-16": 0.435,
+   "2026-08-08": 0.374,
+   "2026-11-01": 0.577
+  },
+  "escenas_sentinel2": {
+   "abril": "2026-04-15",
+   "antes": "2026-07-16",
+   "despues": "2026-08-08",
+   "ahora": "2026-11-01"
+  },
+  "sequedad_previa": {
+   "ndmi_abril": 0.09,
+   "ndmi_julio": 0.015,
+   "ndvi_abril": 0.611,
+   "ndvi_julio": 0.485
+  },
+  "arboles": {
+   "total": 9361000,
+   "intervalo90": [
+    8162000,
+    10822000
+   ],
+   "muertos": 4924000,
+   "muertos_intervalo90": [
+    4102000,
+    5868000
+   ],
+   "nota": "sobre todo pinos resineros y piñoneros; encinas y melojos rebrotan",
+   "fuente": "IFN3 Ávila, Madrid y Toledo (MITECO), pies mayores con diámetro ≥ 7,5 cm"
+  }
+ },
+ "criterio_ceam_ahora": null,
+ "plan": {
+  "escenario": "Escenario por defecto del mapa: control de la erosión en todo el área quemada y actuaciones a largo plazo solo en monte público. Precios de tarifa forestal con recargo de contrato licitado (+GG, BI e IVA)",
+  "emergencia": {
+   "nombre": "Control de la erosión",
+   "que": "Severidad alta en pendiente. En los granitos de la Paramera, el Alberche y el Tiétar, el suelo es arenoso y poco profundo: con las lluvias de otoño se pierde rápido y acaba en los embalses del Burguillo y San Juan.",
+   "como": [
+    "Fajinas y cordones de restos de corta siguiendo las curvas de nivel en las laderas más expuestas.",
+    "Albarradas o diques en cárcavas y cabeceras de barranco que vierten a los embalses.",
+    "Acolchado (mulching) de paja o astilla donde la severidad ha sido alta.",
+    "Evitar maquinaria pesada y la saca de madera en pendientes fuertes."
+   ],
+   "ha": 5020.7,
+   "coste_eur_ha": 2204,
+   "calendario": "oct 2026 – mar 2027",
+   "coste_escenario_eur": 15933390
+  },
+  "acciones": [
+   {
+    "clave": 1,
+    "nombre": "Regeneración natural",
+    "que": "La vegetación previa rebrota (encina, melojo, castaño, enebro, jara, retama…) o el pinar de resinero era maduro, ardió con poca severidad y no había ardido hace poco, así que puede regenerar por semilla.",
+    "como": [
+     "Esperar a la primavera de 2027 y comprobar en campo que hay regeneración suficiente (como referencia, 1.000–3.000 pies/ha).",
+     "Proteger los rebrotes de encina y melojo frente al ganado y los herbívoros donde haya mucha presión.",
+     "Clarear el regenerado de pino resinero donde nazca demasiado denso, entre 8 y 12 años después (2034–2038).",
+     "Seguimiento con parcelas de campo y NDVI (Sentinel-2) cada primavera."
+    ],
+    "ha_total": 27945.4,
+    "ha_publico": 11492.1,
+    "ha_privado": 16453.3,
+    "ha_erosion_alta": 1927,
+    "coste_eur_ha": 17,
+    "calendario": "2027 – 2038",
+    "coste_escenario_eur": 281307
+   },
+   {
+    "clave": 2,
+    "nombre": "Regeneración asistida",
+    "que": "Pinar quemado con daño alto, pinar joven o pinar de pino piñonero, que regenera mal tras el fuego porque sus piñas no se abren con el calor. Se refuerza con siembras y núcleos de plantación, mejor con encina, melojo y otras frondosas de la serie potencial.",
+    "como": [
+     "Esperar a ver qué nace en 2027 y reforzar solo donde no regenere.",
+     "Siembra de bellotas de encina o melojo por puntos, protegidas.",
+     "Plantación en bosquetes / núcleos de dispersión (400–600 plantas/ha) con protector, en otoño-invierno.",
+     "Donde se repueble con pino, hacerlo en mosaico con frondosas y con densidades bajas."
+    ],
+    "ha_total": 13721.7,
+    "ha_publico": 9085.3,
+    "ha_privado": 4636.4,
+    "ha_erosion_alta": 3093.7,
+    "coste_eur_ha": 3125,
+    "calendario": "2027 – 2030",
+    "coste_escenario_eur": 40881011
+   },
+   {
+    "clave": 3,
+    "nombre": "Restauración activa",
+    "que": "El fuego fue muy intenso en terreno que ya había ardido, o el matorral se ha quemado varias veces y ya no evoluciona solo. Hay que reintroducir las especies de la vegetación potencial.",
+    "como": [
+     "Plantación de 800–1.100 plantas/ha de las especies de la serie potencial (ver pestaña Cómo).",
+     "Planta de la región de procedencia local (viveros forestales de la Junta y de la Comunidad de Madrid).",
+     "Hoyos manuales en pendiente, protectores, riego de apoyo el primer verano y reposición de marras."
+    ],
+    "ha_total": 8.1,
+    "ha_publico": 1.1,
+    "ha_privado": 6.9,
+    "ha_erosion_alta": 0,
+    "coste_eur_ha": 6963,
+    "calendario": "2027 – 2031",
+    "coste_escenario_eur": 11029
+   },
+   {
+    "clave": 4,
+    "nombre": "Recuperar cultivo / mosaico",
+    "que": "Terreno agrícola (viñedo de Cebreros y San Martín, olivar, huertas y prados) dentro del perímetro.",
+    "como": [
+     "Recuperar viñedos, olivares y prados como discontinuidades cortafuegos (mosaico agroforestal).",
+     "Ayudas a explotaciones afectadas (plan de la Junta, Comunidad de Madrid, PAC) y pastoreo controlado en fajas."
+    ],
+    "ha_total": 5990.9,
+    "ha_publico": 26,
+    "ha_privado": 5964.9,
+    "ha_erosion_alta": 0,
+    "coste_eur_ha": 0,
+    "calendario": "2027 –",
+    "coste_escenario_eur": 0
+   }
+  ],
+  "coste_total_escenario_eur": 57106737,
+  "presupuesto_referencia_eur": 15000000,
+  "referencia": "Referencia: la Consejería de Medio Ambiente de la Junta destinó 15 M€ a recuperar las zonas forestales de todos los incendios de 2026 en Castilla y León (Ávilared, agosto 2026), dentro de un plan de unos 90 M€; los estudios y proyectos se encargaron a Somacyl. La Comunidad de Madrid actúa aparte en su parte del incendio.",
+  "metodo_actuacion": "rebrotadoras (encinar, melojar, castañar, matorral) → regeneración natural; pinar maduro poco dañado y sin incendios recientes → natural; resto de pinar, incluido todo el pino piñonero con daño alto → asistida; matorral que ha ardido dos o más veces, o severidad alta en zonas que ya habían ardido dos o más veces → restauración activa. Los incendios previos solo se conocen desde 2016 (EFFIS)."
+ },
+ "series_potenciales": [
+  {
+   "clave": 6,
+   "ha": 759.9,
+   "corto": "Vegetación de ribera",
+   "codigo": "I",
+   "serie": "Geomegaseries riparias mediterráneas",
+   "piso": "Fondos de valle y cauces (también donde el Mapa Forestal indica bosque de ribera)",
+   "especies": "",
+   "revision": "El mapa de 1987 no detalla las especies de las riberas."
+  },
+  {
+   "clave": 7,
+   "ha": 6412.8,
+   "corto": "Uso no forestal",
+   "codigo": "",
+   "serie": "Cultivos, núcleos urbanos, infraestructuras o agua (según el Mapa Forestal)",
+   "piso": "",
+   "especies": "",
+   "revision": ""
+  },
+  {
+   "clave": 9,
+   "ha": 23336.4,
+   "corto": "Encinar silicícola guadarrámico",
+   "codigo": "24a",
+   "serie": "Supra-mesomediterránea guadarrámica, ibérico-soriana, celtibérico-alcarreña y leonesa silicícola de la encina (Junipero oxycedri–Querceto rotundifoliae sigmetum)",
+   "piso": "Supra y mesomediterráneo, sobre granitos y otros suelos silíceos. En las zonas bajas, faciación mesomediterránea con retama (24ab)",
+   "especies": "Quercus rotundifolia, Juniperus lagunae (J. oxycedrus), Carex distachya, Lavandula pedunculata; en la faciación baja, Retama sphaerocarpa",
+   "revision": "Se mantiene en 2011 (24a), renombrada Junipero lagunae–Querco rotundifoliae sigmetum; la faciación de retama conserva el código 24ab."
+  },
+  {
+   "clave": 10,
+   "ha": 2525,
+   "corto": "Encinar silicícola luso-extremadurense",
+   "codigo": "24c",
+   "serie": "Mesomediterránea luso-extremadurense silicícola de la encina (Pyro bourgaeanae–Querceto rotundifoliae sigmetum)",
+   "piso": "Mesomediterráneo, sobre suelos silíceos (incluye la faciación mesófila con quejigo, 24cc)",
+   "especies": "Quercus rotundifolia, Pyrus bourgaeana, Cytisus bourgaei, Lavandula sampaioana",
+   "revision": "Se mantiene en 2011 (24c). La antigua faciación con quejigo (24cc) pasa a la 24cb o a la serie del quejigo Quercus broteroi (25a)."
+  },
+  {
+   "clave": 11,
+   "ha": 12730.8,
+   "corto": "Melojar",
+   "codigo": "18a",
+   "serie": "Supramediterránea carpetano-ibérico-alcarreña subhúmeda silicícola del roble melojo (Luzulo forsteri–Querceto pyrenaicae sigmetum)",
+   "piso": "Supramediterráneo, sobre suelos silíceos",
+   "especies": "Quercus pyrenaica, Luzula forsteri, Milium vernale, Cistus laurifolius",
+   "revision": "Se mantiene en 2011 (18a), con una faciación nueva, alberchense, de Genista falcata (18ad), propia del valle del Alberche."
+  },
+  {
+   "clave": 12,
+   "ha": 2828.4,
+   "corto": "Piornal de alta montaña",
+   "codigo": "13b",
+   "serie": "Oromediterránea gredense centro-oriental silicícola del piorno serrano (Cytiso purgantis–Echinosparteto barnadesii sigmetum)",
+   "piso": "Oromediterráneo, en las cumbres",
+   "especies": "Cytisus oromediterraneus, Echinospartum barnadesii, Juniperus alpina, Festuca iberica",
+   "especiesNota": "de la serie 13a de la revisión de 2011, en la que queda incluida",
+   "revision": "La revisión de 2011 no mantiene la 13b: su asociación principal pasa a formar parte de la serie 13a (Avenello ibericae–Junipero alpinae sigmetum)."
+  }
+ ],
+ "cronologia": [
+  {
+   "cuando": "22 jul – 6 ago 2026 · Incendio",
+   "que": "Empieza el 22 de julio en Burgohondo (según la Guardia Civil, por una imprudencia con maquinaria pesada) y cruza la sierra hacia el Alberche y el valle del Tiétar. Esa misma tarde empieza otro incendio en Almorox (Toledo) que pasa a Villa del Prado, y hay otro foco en San Martín de Valdeiglesias; sus áreas quemadas acaban tocándose. Más de 30.000 personas desalojadas en Ávila y Madrid. Se da por estabilizado el 6 de agosto."
+  },
+  {
+   "cuando": "Ahora – marzo 2027 · Emergencia",
+   "que": "Estabilizar laderas antes y durante las lluvias de otoño, sobre todo las que vierten a los embalses del Burguillo y San Juan; retirar árboles peligrosos junto a caminos y casas. No plantar todavía."
+  },
+  {
+   "cuando": "Primavera – verano 2027 · Diagnóstico",
+   "que": "Ver qué rebrota (encina, melojo, castaño) y cuánto pino nace. Parcelas de campo + Sentinel-2. Plan comarcal de restauración de la Junta."
+  },
+  {
+   "cuando": "Otoño 2027 – invierno 2030 · Restauración",
+   "que": "Siembras y plantaciones con planta local donde la regeneración no basta, con frondosas en mosaico. Protección frente a herbívoros."
+  },
+  {
+   "cuando": "2034 – 2040 · Clareos",
+   "que": "Aclarar el regenerado de pino resinero donde salga muy denso, para no volver a crear masas continuas e inflamables."
+  },
+  {
+   "cuando": "2040 – 2060 · Consolidación",
+   "que": "Mosaico de pinar, encinar, melojar, viñedo y prado, menos inflamable."
+  }
+ ],
+ "como_ayudar": [
+  "Registrar observaciones de rebrote con fotos geolocalizadas (p. ej. iNaturalist).",
+  "Participar en jornadas oficiales de voluntariado de siembra y plantación (otoño-invierno).",
+  "Apoyar a las asociaciones de custodia del territorio, a los viticultores de Cebreros y San Martín de Valdeiglesias y a la ganadería extensiva que mantiene los cortafuegos verdes."
+ ],
+ "fuentes": {
+  "texto": "- Área quemada: Copernicus EMS Rapid Mapping EMSR900 (https://rapidmapping.emergency.copernicus.eu/EMSR900): delimitación final de la AOI03 La Atalaya (28 jul 2026) unida a las evaluaciones de daños de las AOI02 y AOI04–07 (Villa del Prado, Piedralaves, San Martín de Valdeiglesias, Navas del Rey, La Rinconada). La AOI02 corresponde al incendio de Almorox – Villa del Prado, que se incluye porque su área quemada toca la del resto.\n- Monte público: montes de utilidad pública de la Junta de Castilla y León (IDECyL) (https://idecyl.jcyl.es) y de la Comunidad de Madrid (IDEM) (https://idem.comunidad.madrid).\n- Vegetación previa: Mapa Forestal de España 1:50.000 (https://www.miteco.gob.es/es/biodiversidad/servicios/banco-datos-naturaleza/informacion-disponible/mfe50.html) de Ávila, Madrid y Toledo (MITECO).\n- Incendios 2016–2025: EFFIS (https://forest-fire.emergency.copernicus.eu) (Copernicus), áreas quemadas cartografiadas por satélite, en general de más de 30 ha.\n- Reserva Natural del Valle de Iruelas: Espacios Naturales Protegidos (https://www.miteco.gob.es/es/biodiversidad/servicios/banco-datos-naturaleza/informacion-disponible/enp_descargas.html) (MITECO, 2025).\n- Términos municipales: Instituto Geográfico Nacional (unidades administrativas).\n- Superficie, fechas, causa y desalojos: Junta de Castilla y León según\nelDiario.es (https://www.eldiario.es/castilla-y-leon/sociedad/junta-castilla-leon-rebaja-37-800-hectareas-superficie-afectada-incendio-avila_1_13459661.html),\nInfobae (https://www.infobae.com/espana/2026/08/06/estabilizado-el-incendio-de-burgohondo-avila-tras-quince-dias-activos-y-mas-de-50000-hectareas-afectadas/) y\nEl Debate (https://www.eldebate.com/espana/castilla-y-leon/20260902/justicia-investiga-origen-posibles-responsabilidades-incendio-burgohondo-avila_454495.html).\nPlan de recuperación: Ávilared (https://avilared.com/art/94019/medio-ambiente-destina-15-millones-recuperar-zonas-forestales-incendios-castilla-leon) y\nelDiario.es (https://www.eldiario.es/castilla-y-leon/politica/manueco-anuncia-plan-90-millones-recuperacion-zonas-arrasadas-incendios-castilla-leon_1_13417281.html).",
+  "enlaces": [
+   {
+    "texto": "Copernicus EMS Rapid Mapping EMSR900",
+    "url": "https://rapidmapping.emergency.copernicus.eu/EMSR900"
+   },
+   {
+    "texto": "Junta de Castilla y León (IDECyL)",
+    "url": "https://idecyl.jcyl.es"
+   },
+   {
+    "texto": "Comunidad de Madrid (IDEM)",
+    "url": "https://idem.comunidad.madrid"
+   },
+   {
+    "texto": "Mapa Forestal de España 1:50.000",
+    "url": "https://www.miteco.gob.es/es/biodiversidad/servicios/banco-datos-naturaleza/informacion-disponible/mfe50.html"
+   },
+   {
+    "texto": "EFFIS",
+    "url": "https://forest-fire.emergency.copernicus.eu"
+   },
+   {
+    "texto": "Espacios Naturales Protegidos",
+    "url": "https://www.miteco.gob.es/es/biodiversidad/servicios/banco-datos-naturaleza/informacion-disponible/enp_descargas.html"
+   },
+   {
+    "texto": "elDiario.es",
+    "url": "https://www.eldiario.es/castilla-y-leon/sociedad/junta-castilla-leon-rebaja-37-800-hectareas-superficie-afectada-incendio-avila_1_13459661.html"
+   },
+   {
+    "texto": "Infobae",
+    "url": "https://www.infobae.com/espana/2026/08/06/estabilizado-el-incendio-de-burgohondo-avila-tras-quince-dias-activos-y-mas-de-50000-hectareas-afectadas/"
+   },
+   {
+    "texto": "El Debate",
+    "url": "https://www.eldebate.com/espana/castilla-y-leon/20260902/justicia-investiga-origen-posibles-responsabilidades-incendio-burgohondo-avila_454495.html"
+   },
+   {
+    "texto": "Ávilared",
+    "url": "https://avilared.com/art/94019/medio-ambiente-destina-15-millones-recuperar-zonas-forestales-incendios-castilla-leon"
+   },
+   {
+    "texto": "elDiario.es",
+    "url": "https://www.eldiario.es/castilla-y-leon/politica/manueco-anuncia-plan-90-millones-recuperacion-zonas-arrasadas-incendios-castilla-leon_1_13417281.html"
+   },
+   {
+    "texto": "Imágenes Sentinel-2 L2A (Copernicus) vía Earth Search",
+    "url": "https://earth-search.aws.element84.com/v1"
+   },
+   {
+    "texto": "Mapa de Series de Vegetación de España (Rivas-Martínez 1987), MITECO",
+    "url": "https://www.miteco.gob.es/es/biodiversidad/servicios/banco-datos-naturaleza/informacion-disponible/memoria_mapa_series_veg_descargas.html"
+   },
+   {
+    "texto": "Geología: IGME GEODE 1:50.000",
+    "url": "https://mapas.igme.es/gis/rest/services/Cartografia_Geologica/IGME_Geode_50/MapServer"
+   },
+   {
+    "texto": "Relieve: Copernicus DEM GLO-30",
+    "url": null
+   },
+   {
+    "texto": "Tercer Inventario Forestal Nacional (IFN3), MITECO",
+    "url": "https://www.miteco.gob.es/es/biodiversidad/servicios/banco-datos-naturaleza/informacion-disponible/ifn3_base_datos_1_25.html"
+   },
+   {
+    "texto": "Costes: Tarifas forestales de la Junta de Extremadura 2024",
+    "url": "http://extremambiente.juntaex.es/files/2024/forestales/Tarifas%20SOGF_2024.pdf"
+   }
+  ],
+  "limites": "La capa de montes públicos incluye los catálogos de utilidad pública de Castilla y León y Madrid; la pequeña parte quemada en Toledo (unas 750 ha) no se ha cruzado con el catálogo de Castilla-La Mancha. Puede haber otras fincas públicas no catalogadas. Los incendios previos solo se conocen desde 2016."
+ },
+ "metodo": {
+  "severidad": "dNBR = NBR(antes) − NBR(después), con NBR = (B8 − B12)/(B8 + B12), Sentinel-2. Umbrales de Key & Benson (USGS): 0,10 · 0,27 · 0,44 · 0,66.",
+  "vegetacion_potencial": "Serie de vegetación del Mapa de Series de Vegetación de España (Rivas-Martínez, 1987), escala nacional: indica la serie dominante de la zona, no la de cada ladera.",
+  "erosion": "(clase de severidad − 1) × pendiente/25 %.",
+  "viabilidad": "Índice 0–100: cercanía entre la vegetación previa y la potencial, con ajustes por severidad, recurrencia, pendiente, solanas secas sobre rodeno y rebrote observado.",
+  "ceam": "Cobertura vegetal estimada con NDVI respecto a suelo quemado y vegetación densa; umbrales del CEAM 30 % y 60 %. Aproximación: el CEAM lo evalúa en campo.",
+  "arboles": "Densidad de las parcelas IFN3 por tipo de bosque × hectáreas quemadas, con mortalidad supuesta según severidad. Datos de campo de 2006."
+ },
+ "aviso": "Fénix es un proyecto divulgativo e independiente, no una fuente oficial. Las capas derivadas (severidad, actuaciones, viabilidad, costes) son elaboración propia y ningún organismo las ha revisado ni respaldado. Para decisiones, consultar a la administración forestal competente.",
+ "autor": {
+  "nombre": "Joaquín García Nieto",
+  "email": "garcia.nieto.joaquin@gmail.com",
+  "linkedin": "https://www.linkedin.com/in/jgarnie/",
+  "github": "https://github.com/jgarnie",
+  "codigo": "https://github.com/jgarnie/fenix"
+ }
+}

@@ -13,6 +13,13 @@ Publicado en https://jgarnie.github.io/fenix/ (GitHub Pages desde `public/`, ver
 - `scripts/publish_data.sh`: los datos generados NO se versionan aquí; se suben (un único commit forzado) al repo
   `jgarnie/fenix-data`, que sirve la web publicada. Sobrescribe los datos de todos los incendios a la vez.
 - `data-raw/`: descargas cacheadas (no versionado). Borrar un fichero fuerza su descarga en la siguiente ejecución.
+- `scripts/build_api.mjs`: genera `public/api/incendios.json` y `public/api/<slug>.json` (textos de `fire.js`/`series.js` +
+  estadísticas de `meta.json`, sin rejillas). **Volver a ejecutarlo tras `build_data.py`/`trees.py` o al cambiar textos de un
+  `fire.js`**; `public/api/` sí se versiona y se publica con el push a `main`. Al añadir un incendio, añadirlo a su lista `FIRES`.
+- `mcp/`: servidor MCP (paquete npm `fenix-mcp`). `src/core.js` lógica sin dependencias de transporte (fetch +
+  DecompressionStream, lee `api/` de la web y `grid.bin.gz` de fenix-data; decodifica la rejilla igual que `app.js`),
+  `src/tools.js` herramientas, `src/stdio.js` servidor local. Pensado para reutilizar `core.js`/`tools.js` en un servidor
+  remoto (HTTP, p. ej. Cloudflare Workers). Pruebas en local: `FENIX_SITE=http://localhost:8765/ FENIX_DATA=local`.
 - `public/og/*.jpg`: imágenes de vista previa para redes (1200×630). Al añadir un incendio, crear la suya y las etiquetas og/twitter.
 
 ## Reglas del proyecto
@@ -22,9 +29,10 @@ Publicado en https://jgarnie.github.io/fenix/ (GitHub Pages desde `public/`, ver
 - Todo dato de los textos (`fire.js`) lleva fuente enlazada; si algo es incierto o contradictorio, decirlo en el texto.
 - Mantener el aviso de "no es fuente oficial" y la firma del autor: tarjeta "Autor" al final de la pestaña Fuentes y
   crédito semitransparente abajo a la derecha del mapa con email (`L.Control.Credit` en `app.js`, clase `.map-credit`); el nombre lleva a la tarjeta `#autor`.
-- Al añadir un incendio: entrada en `FIRES` (build_data.py y trees.py), carpeta `public/<x>/`, enlace `otherFire` en los
+- Al añadir un incendio: entrada en `FIRES` (build_data.py, trees.py y build_api.mjs), carpeta `public/<x>/`, enlace `otherFire` en los
   demás `fire.js`, `.gitignore`, `publish_data.sh`, README y tarjeta og.
-- No publicar (push a `main` ni `publish_data.sh`) sin confirmación del usuario.
+- No publicar (push a `main`, `publish_data.sh` ni `npm publish` del MCP) sin confirmación del usuario.
+- Las respuestas del MCP terminan siempre con la fuente, el aviso de no oficial y la firma del autor: mantenerlo.
 
 ## Detalles técnicos que han dado problemas
 - **Rejilla**: 25 m reales sobre el terreno = `25 / cos(lat)` m en Mercator (`RES` en build_data.py). Cualquier script de
