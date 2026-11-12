@@ -152,6 +152,8 @@ details ul { padding-left: 18px; margin: 6px 0; }
 
 .sheet-handle { display: none; }
 .attr-toggle { display: none; }
+.leaflet-control.map-credit { margin: 0 0 2px; padding: 1px 6px; border-radius: 4px; font-size: 11px; line-height: 1.4;
+  color: rgba(0, 0, 0, .6); background: rgba(255, 255, 255, .55); pointer-events: none; white-space: nowrap; }
 
 /* --- móvil: el panel es una hoja inferior que se expande y contrae */
 @media (max-width: 860px) {
@@ -189,6 +191,7 @@ details ul { padding-left: 18px; margin: 6px 0; }
     display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; margin-right: 4px;
     border: 0; padding: 0; background: none; color: #333; font: 15px/1 system-ui, sans-serif; cursor: pointer; vertical-align: middle;
   }
+  .map-credit .credit-long { display: none; }
   .leaflet-control-attribution:not(.open) { font-size: 0; padding: 0; border-radius: 12px; }
   .leaflet-control-attribution:not(.open) .attr-toggle { margin: 0; }
   .leaflet-control-attribution:not(.open) > :not(.attr-toggle) { display: none; }

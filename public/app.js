@@ -118,6 +118,17 @@ function rampLegend(stops, a, b) {
 
 // ------------------------------------------------------------------ mapa
 const map = L.map('map', { zoomControl: false, attributionControl: true, minZoom: 9, maxZoom: 18 });
+// autoría: discreta, abajo a la derecha, entre los créditos de las fuentes y el zoom
+L.Control.Credit = L.Control.extend({
+  options: { position: 'bottomright' },
+  onAdd() {
+    const d = L.DomUtil.create('div', 'map-credit');
+    d.innerHTML = 'Creado por Joaquín García Nieto<span class="credit-long"> · proyecto divulgativo, no oficial</span>';
+    d.title = 'Proyecto independiente con fines divulgativos. No es una fuente oficial: ver Aviso en la pestaña Fuentes.';
+    return d;
+  },
+});
+new L.Control.Credit().addTo(map);
 L.control.zoom({ position: 'bottomright' }).addTo(map);
 // en móvil los créditos ocupan mucho sobre el mapa: se pliegan en un botón ⓘ que los despliega al tocarlo
 map.attributionControl.setPrefix('<button type="button" class="attr-toggle" aria-label="Mostrar créditos" aria-expanded="false">ⓘ</button><a href="https://leafletjs.com">Leaflet</a>');
