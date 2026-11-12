@@ -124,4 +124,14 @@ export const POT_INFO = {
     revision: 'Se mantiene en 2011 (13a), renombrada Avenello ibericae–Junipero alpinae sigmetum.',
     color: '#c2a5cf',
   },
+  15: {
+    corto: 'Quejigar',
+    codigo: '19c',
+    serie: 'Supra-mesomediterránea tarraconense, maestracense y aragonesa basófila del quejigo (Violo willkommii–Querceto fagineae sigmetum)',
+    piso: 'Supramediterráneo y mesomediterráneo superior, sobre calizas y margas, en umbrías y zonas altas',
+    especies: 'Quercus faginea (roble valenciano o quejigo), Viola willkommii, Acer opalus subsp. granatense, Amelanchier ovalis',
+    especiesNota: 'especies características del quejigar maestracense según la bibliografía fitosociológica, no de la memoria de 2011',
+    revision: 'Serie endémica de la península, propia del Maestrazgo, el Sistema Ibérico y el somontano aragonés. En el Alto Mijares ocupa las zonas altas y las umbrías, en contacto con los carrascales (22b).',
+    color: '#8c6d31',
+  },
 };

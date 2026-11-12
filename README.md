@@ -1,6 +1,6 @@
 # Fénix · después del fuego
 
-**[Ver la app →](https://jgarnie.github.io/fenix/)** · [Espadà 2026](https://jgarnie.github.io/fenix/) · [Bejís 2022](https://jgarnie.github.io/fenix/bejis/) · [Tiétar 2026](https://jgarnie.github.io/fenix/tietar/)
+**[Ver la app →](https://jgarnie.github.io/fenix/)** · [Espadà 2026](https://jgarnie.github.io/fenix/) · [Bejís 2022](https://jgarnie.github.io/fenix/bejis/) · [Tiétar 2026](https://jgarnie.github.io/fenix/tietar/) · [Alto Mijares 2023](https://jgarnie.github.io/fenix/viver/)
 
 [![Antes y después del incendio de Espadà visto por Sentinel-2](public/og/espada.jpg)](https://jgarnie.github.io/fenix/)
 
@@ -14,15 +14,17 @@ Hecho por **Joaquín García Nieto** · [LinkedIn](https://www.linkedin.com/in/j
 
 ## Qué incluye
 
-Mapas interactivos de tres grandes incendios forestales:
+Mapas interactivos de cuatro grandes incendios forestales:
 
 - **Espadà** (`public/`): incendio de la Vall d'Uixó / Serra d'Espadà (25 jul – 1 ago 2026).
 - **Bejís** (`public/bejis/`): incendio de Bejís, Alto Palancia (agosto 2022), con imágenes de cada verano hasta 2026
   para seguir la recuperación.
 - **Tiétar** (`public/tietar/`): incendio de Burgohondo, Alberche y valle del Tiétar (Ávila y oeste de Madrid, julio 2026).
   Fuera de la Comunitat Valenciana: las capas salen de fuentes nacionales y autonómicas (ver tabla).
+- **Alto Mijares** (`public/viver/`): incendio de Villanueva de Viver (marzo 2023), que cruzó de Castellón a Teruel.
+  Las capas continúan entre comunidades: catálogos de montes de la Generalitat y de Aragón, y fuentes nacionales para el resto.
 
-Los tres usan el mismo visor (`public/app.js`); los textos propios de cada incendio están en su `fire.js`.
+Los cuatro usan el mismo visor (`public/app.js`); los textos propios de cada incendio están en su `fire.js`.
 
 - **Antes / después / ahora:** comparador deslizante con imágenes Sentinel-2 (color natural y falso color) y ortofoto PNOA.
 - **Capas:** severidad del fuego (dNBR), monte público (catálogo de utilidad pública), vegetación previa (Mapa Forestal de España),
@@ -49,10 +51,12 @@ python3 scripts/build_data.py bejis     # Bejís: data-raw/bejis/ → public/bej
 python3 scripts/trees.py bejis
 python3 scripts/build_data.py tietar    # Tiétar: data-raw/tietar/ → public/tietar/data/
 python3 scripts/trees.py tietar
+python3 scripts/build_data.py viver     # Alto Mijares: data-raw/viver/ → public/viver/data/
+python3 scripts/trees.py viver
 ```
 
 Los datos generados (`public/data/` y `public/bejis/data/`) no se versionan en este repo: la web publicada los lee del repo
-[fenix-data](https://github.com/jgarnie/fenix-data) (`vallduixo/data/`, `bejis/data/` y `tietar/data/`), que solo guarda la última versión.
+[fenix-data](https://github.com/jgarnie/fenix-data) (`vallduixo/data/`, `bejis/data/`, `tietar/data/` y `viver/data/`), que solo guarda la última versión.
 En local se usan las carpetas de `public/`. Tras regenerarlos, publícalos con:
 
 ```bash
@@ -63,7 +67,7 @@ scripts/publish_data.sh
 
 | Datos | Fuente | Licencia / condiciones |
 |---|---|---|
-| Área quemada | © Unión Europea, Copernicus Emergency Management Service (EMSR905 Espadà, EMSR625 Bejís, EMSR900 Tiétar) | [Condiciones de Copernicus EMS](https://mapping.emergency.copernicus.eu/terms-and-conditions/): reproducción autorizada citando la fuente |
+| Área quemada | © Unión Europea, Copernicus Emergency Management Service (EMSR905 Espadà, EMSR625 Bejís, EMSR900 Tiétar, EMSR656 Villanueva de Viver) | [Condiciones de Copernicus EMS](https://mapping.emergency.copernicus.eu/terms-and-conditions/): reproducción autorizada citando la fuente |
 | Imágenes | Contiene datos modificados de Copernicus Sentinel (2022–2026), vía Earth Search (Element 84) | Datos Copernicus de acceso libre y abierto |
 | Ortofotos | PNOA histórico (2021, 2024), © Instituto Geográfico Nacional | CC BY 4.0 scne.es |
 | Relieve | Copernicus DEM GLO-30: © DLR e.V. 2010-2014 y © Airbus Defence and Space GmbH 2014-2018, suministrado bajo COPERNICUS por la UE y la ESA | Licencia Copernicus DEM |
@@ -72,6 +76,8 @@ scripts/publish_data.sh
 | Tiétar: montes de utilidad pública | Junta de Castilla y León (IDECyL) y Comunidad de Madrid (IDEM) | Datos abiertos de cada comunidad |
 | Tiétar: Mapa Forestal 1:50.000 y Espacios Naturales Protegidos | MITECO, Banco de Datos de la Naturaleza | Datos públicos del Banco de Datos de la Naturaleza |
 | Tiétar: términos municipales | Instituto Geográfico Nacional | CC BY 4.0 scne.es |
+| Alto Mijares: montes públicos de Aragón | Gobierno de Aragón (IDEAragon) | Datos abiertos del Gobierno de Aragón |
+| Alto Mijares: Mapa Forestal, ENP, municipios, incendios previos | MITECO, IGN, EFFIS (más ICV/GVA en la parte valenciana) | Ver filas anteriores |
 | Tiétar: incendios 2016–2025 | EFFIS, © Unión Europea, Copernicus | Condiciones de Copernicus |
 | Árboles por hectárea | Tercer Inventario Forestal Nacional (IFN3), Castellón y Valencia, MITECO | Datos públicos del Banco de Datos de la Naturaleza |
 | Geología | IGME-CSIC, GEODE 1:50.000 | CC BY 4.0 |

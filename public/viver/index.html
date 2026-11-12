@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Alto Mijares después del fuego</title>
+  <meta name="description" content="Mapa del incendio de Villanueva de Viver y el Alto Mijares (marzo 2023, Castellón y Teruel): antes, después y tres años más tarde; monte público, vegetación previa y potencial, y plan de restauración.">
+  <meta name="author" content="Joaquín García Nieto">
+  <link rel="author" href="https://www.linkedin.com/in/jgarnie/">
+  <link rel="canonical" href="https://jgarnie.github.io/fenix/viver/">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Fénix · después del fuego">
+  <meta property="og:locale" content="es_ES">
+  <meta property="og:url" content="https://jgarnie.github.io/fenix/viver/">
+  <meta property="og:title" content="Alto Mijares después del fuego">
+  <meta property="og:description" content="Mapa del incendio de Villanueva de Viver y el Alto Mijares (marzo 2023, Castellón y Teruel): antes, después y tres años más tarde; monte público, vegetación previa y potencial, y plan de restauración.">
+  <meta property="og:image" content="https://jgarnie.github.io/fenix/og/viver.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Imagen de satélite Sentinel-2 antes y después del incendio">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Alto Mijares después del fuego">
+  <meta name="twitter:description" content="Mapa del incendio de Villanueva de Viver y el Alto Mijares (marzo 2023, Castellón y Teruel): antes, después y tres años más tarde; monte público, vegetación previa y potencial, y plan de restauración.">
+  <meta name="twitter:image" content="https://jgarnie.github.io/fenix/og/viver.jpg">
+  <meta name="theme-color" content="#1d211e">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22%3E%3Ctext y=%22.9em%22 font-size=%2290%22%3E%F0%9F%94%A5%3C/text%3E%3C/svg%3E">
+  <link rel="stylesheet" href="../vendor/leaflet/leaflet.css">
+  <!-- código y estilos siempre en su última versión (los datos sí se cachean) -->
+  <script>document.write('<link rel="stylesheet" href="../style.css?v=' + Date.now() + '">');</script>
+</head>
+<body>
+  <aside id="panel">
+    <button class="sheet-handle" id="sheet-handle" aria-label="Expandir o contraer el panel" aria-expanded="false"><span></span></button>
+    <header class="brand">
+      <div>
+        <h1>Alto Mijares después del fuego</h1>
+        <p class="sub">Incendio de Villanueva de Viver · Castellón y Teruel · marzo 2023</p>
+      </div>
+    </header>
+
+    <nav class="tabs" role="tablist">
+      <button role="tab" data-tab="resumen" class="active">Resumen</button>
+      <button role="tab" data-tab="capas">Mapa</button>
+      <button role="tab" data-tab="plan">Plan</button>
+      <button role="tab" data-tab="como">Cómo</button>
+      <button role="tab" data-tab="fuentes">Fuentes</button>
+    </nav>
+
+    <section class="tab active" id="tab-resumen"></section>
+    <section class="tab" id="tab-capas"></section>
+    <section class="tab" id="tab-plan"></section>
+    <section class="tab" id="tab-como"></section>
+    <section class="tab" id="tab-fuentes"></section>
+  </aside>
+
+  <main id="mapwrap">
+    <div id="map"></div>
+
+    <div id="compare-bar" class="floating">
+      <label>Izquierda
+        <select id="cmp-left"></select>
+      </label>
+      <button id="cmp-toggle" class="chip" aria-pressed="true">Comparar</button>
+      <label>Derecha
+        <select id="cmp-right"></select>
+      </label>
+    </div>
+    <div id="swipe"><div class="handle" aria-label="Arrastra para comparar">⟷</div></div>
+
+    <div id="legend" class="floating"></div>
+    <div id="info" class="floating hidden"></div>
+  </main>
+
+  <script src="../vendor/leaflet/leaflet.js"></script>
+  <script type="module">import(`../app.js?v=${Date.now()}`);</script>
+</body>
+</html>
