@@ -831,6 +831,7 @@ $('#tab-fuentes').insertAdjacentHTML('beforeend', `<div class="author-card" id="
   ¿Te interesa, quieres colaborar o usarlo en tu municipio o asociación? Escríbeme.</p>
   <p class="author-links">${authorLinks.join(' · ')}</p>
   <p class="muted">Código abierto en <a href="https://github.com/jgarnie/fenix" target="_blank" rel="noopener">github.com/jgarnie/fenix</a>.</p>
+  <p class="muted">¿Usas Claude Desktop? <a href="https://github.com/jgarnie/fenix/releases/latest/download/fenix.mcpb">Descarga la extensión Fénix</a> (doble clic para instalar) y pregúntale a Claude por estos incendios. <a href="https://github.com/jgarnie/fenix/tree/main/mcp#readme" target="_blank" rel="noopener">Más info</a>.</p>
 </div>`);
 
 // --- enlace al otro incendio

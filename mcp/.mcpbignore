@@ -1,0 +1,5 @@
+/dist/
+/*.mcpb
+/package-lock.json
+/README.md
+.DS_Store

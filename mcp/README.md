@@ -28,7 +28,16 @@ Ejemplos de preguntas:
 - «¿Cuántas hectáreas se quemaron en Montanejos y qué plan de restauración se propone?»
 - «¿Qué parte del incendio de Bejís es monte público?»
 
-## Instalación (local)
+## Instalación fácil en Claude Desktop (sin programar)
+
+1. Descarga el fichero **`fenix.mcpb`** (extensión de Claude Desktop).
+2. Haz doble clic sobre él, o en Claude Desktop ve a *Ajustes → Extensiones* y arrástralo o pulsa *Instalar extensión*.
+3. Confirma la instalación. Ya puedes preguntar a Claude por los incendios de Fénix.
+
+No hace falta tener Node.js instalado: Claude Desktop trae el suyo. La extensión **solo funciona en Claude Desktop**
+(Mac, Windows y Linux); no sirve para ChatGPT, ni para Claude en la web o el móvil.
+
+## Instalación manual (local)
 
 Necesita [Node.js](https://nodejs.org) 18 o superior. El servidor solo lee datos públicos de
 `jgarnie.github.io/fenix` y `jgarnie.github.io/fenix-data`; no envía nada a ningún otro sitio.
@@ -76,6 +85,22 @@ Cualquier cliente MCP por stdio: comando `npx -y fenix-mcp` (o `node mcp/src/std
 
 Datos: `public/api/*.json` (textos y estadísticas, generados con `node scripts/build_api.mjs`) y la rejilla
 `grid.bin.gz` de cada incendio en el repo `fenix-data`.
+
+### Empaquetar la extensión (`fenix.mcpb`)
+
+`manifest.json` + `icon.png` describen la extensión ([MCPB](https://github.com/anthropics/mcpb)). Para regenerarla,
+subir la versión en `package.json` **y** en `manifest.json`, y empaquetar desde una copia con solo las dependencias de
+producción (así no entran las de desarrollo ni basura local):
+
+```bash
+B=$(mktemp -d) && cp -R src manifest.json icon.png package.json package-lock.json .mcpbignore "$B"/ \
+  && (cd "$B" && npm ci --omit=dev --ignore-scripts && npx -y @anthropic-ai/mcpb validate manifest.json \
+  && npx -y @anthropic-ai/mcpb pack . "$OLDPWD/dist/fenix.mcpb")
+```
+
+Los patrones de `.mcpbignore` van anclados a la raíz (`/dist/`): sin la barra excluirían también el `dist/` de los
+paquetes de `node_modules` y la extensión no arrancaría. Antes de distribuirla, probar el `.mcpb` desempaquetado
+(`npx @anthropic-ai/mcpb unpack`) con un cliente MCP fuera del repositorio.
 
 Para probar contra una copia local (`python3 -m http.server 8765` en `public/`):
 

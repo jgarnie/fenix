@@ -1,0 +1,43 @@
+{
+  "manifest_version": "0.2",
+  "name": "fenix",
+  "display_name": "Fénix · incendios forestales",
+  "version": "0.1.0",
+  "description": "Datos de incendios forestales en España: área quemada, severidad, vegetación, monte público y plan de restauración.",
+  "long_description": "Conecta tu asistente con los mapas de **Fénix** (https://jgarnie.github.io/fenix/): incendios de Espadà (2026), Bejís (2022), valle del Tiétar (2026) y Villanueva de Viver – Alto Mijares (2023).\n\nPuedes preguntar qué incendios hay, pedir el resumen o el plan de restauración de uno, buscar un municipio o consultar unas coordenadas concretas: si ardió y con qué severidad, qué vegetación había, si es monte público, el sustrato, qué bosque debería haber y qué actuación se propone.\n\nLos datos salen de fuentes abiertas (Copernicus, Sentinel-2, Mapa Forestal de España, catálogos de montes, IGME, MITECO) y se descargan de la web pública de Fénix; no se envía ningún dato tuyo.\n\n**Proyecto divulgativo e independiente, no es una fuente oficial.** Creado por Joaquín García Nieto.",
+  "author": {
+    "name": "Joaquín García Nieto",
+    "email": "garcia.nieto.joaquin@gmail.com",
+    "url": "https://www.linkedin.com/in/jgarnie/"
+  },
+  "homepage": "https://jgarnie.github.io/fenix/",
+  "documentation": "https://github.com/jgarnie/fenix/tree/main/mcp",
+  "support": "https://github.com/jgarnie/fenix/issues",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jgarnie/fenix"
+  },
+  "icon": "icon.png",
+  "server": {
+    "type": "node",
+    "entry_point": "src/stdio.js",
+    "mcp_config": {
+      "command": "node",
+      "args": ["${__dirname}/src/stdio.js"]
+    }
+  },
+  "tools": [
+    { "name": "listar_incendios", "description": "Lista los incendios forestales cartografiados en Fénix, con superficie quemada, municipios y enlace al mapa interactivo." },
+    { "name": "resumen_incendio", "description": "Resumen de un incendio: superficie (satélite y oficial), municipios, severidad, vegetación antes y potencial, monte público, erosión, árboles afectados, recuperación observada con NDVI, cronología y fuentes." },
+    { "name": "plan_restauracion", "description": "Plan de restauración que propone Fénix para un incendio: actuaciones, hectáreas en monte público y privado, qué hacer y cómo, calendario, costes orientativos y presupuesto oficial de referencia." },
+    { "name": "consultar_punto", "description": "Qué pasó en unas coordenadas concretas: si ardió y con qué severidad, vegetación que había, propiedad y monte público, municipio, sustrato, altitud y pendiente, incendios previos, vegetación que debería haber, viabilidad y actuación recomendada (25 m)." },
+    { "name": "buscar_municipio", "description": "Busca en qué incendios de Fénix se quemó superficie de un municipio y cuántas hectáreas (sin distinguir tildes)." }
+  ],
+  "keywords": ["incendios", "incendios forestales", "wildfire", "restauración", "reforestación", "sentinel-2", "españa", "montes", "mapas"],
+  "license": "MIT",
+  "compatibility": {
+    "claude_desktop": ">=0.10.0",
+    "platforms": ["darwin", "win32", "linux"],
+    "runtimes": { "node": ">=18.0.0" }
+  }
+}

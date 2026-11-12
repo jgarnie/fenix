@@ -15,3 +15,6 @@ public/data/
 public/bejis/data/
 public/tietar/data/
 public/villanueva-de-viver/data/
+
+# extensión de Claude Desktop empaquetada (se adjunta a una release de GitHub)
+mcp/dist/

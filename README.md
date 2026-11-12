@@ -34,7 +34,7 @@ Los cuatro usan el mismo visor (`public/app.js`); los textos propios de cada inc
 - **Análisis de la Fundación CEAM** reproducidos con datos abiertos: sequedad de la vegetación antes del incendio, su criterio para decidir dónde reforzar la regeneración (30 % y 60 % de cobertura de leñosas rebrotadoras, evaluado a 1–2 años del incendio), los parajes que cita y una comparación de cifras.
 - **Ficha de cada punto:** al pulsar el mapa, qué había, qué debería haber, de quién es, la viabilidad de recuperarlo y cómo actuar.
 - **Plan:** superficie y coste por actuación según el alcance. Los costes salen de tarifas forestales oficiales y se pueden editar.
-- **Para asistentes de IA:** resúmenes en JSON (`public/api/`) y un servidor MCP ([`mcp/`](mcp/README.md)) para preguntar a Claude, ChatGPT u otros por los incendios o por un punto concreto.
+- **Para asistentes de IA:** resúmenes en JSON (`public/api/`) y un servidor MCP ([`mcp/`](mcp/README.md)) para preguntar a Claude, ChatGPT u otros por los incendios o por un punto concreto. En Claude Desktop basta con [descargar la extensión `fenix.mcpb`](https://github.com/jgarnie/fenix/releases/latest/download/fenix.mcpb) y hacer doble clic.
 
 ## Ejecutar
 
