@@ -123,8 +123,9 @@ L.Control.Credit = L.Control.extend({
   options: { position: 'bottomright' },
   onAdd() {
     const d = L.DomUtil.create('div', 'map-credit');
-    d.innerHTML = 'Creado por Joaquín García Nieto<span class="credit-long"> · proyecto divulgativo, no oficial</span>';
+    d.innerHTML = `Creado por Joaquín García Nieto · <a href="mailto:garcia.nieto.joaquin@gmail.com" title="Escríbeme"><span class="credit-long">garcia.nieto.joaquin@gmail.com</span><span class="credit-short">✉</span></a><span class="credit-long"> · proyecto divulgativo, no oficial</span>`;
     d.title = 'Proyecto independiente con fines divulgativos. No es una fuente oficial: ver Aviso en la pestaña Fuentes.';
+    L.DomEvent.disableClickPropagation(d);
     return d;
   },
 });
