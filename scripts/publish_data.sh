@@ -6,7 +6,7 @@
 #   public/data/        → vallduixo/data/
 #   public/bejis/data/  → bejis/data/
 #   public/tietar/data/ → tietar/data/
-#   public/viver/data/  → viver/data/
+#   public/villanueva-de-viver/data/ → villanueva-de-viver/data/
 #
 # Uso: scripts/publish_data.sh
 set -euo pipefail
@@ -16,11 +16,11 @@ REPO="https://github.com/jgarnie/fenix-data.git"
 TMP="$(mktemp -d)"
 trap 'rm -rf "$TMP"' EXIT
 
-mkdir -p "$TMP/vallduixo" "$TMP/bejis" "$TMP/tietar" "$TMP/viver"
+mkdir -p "$TMP/vallduixo" "$TMP/bejis" "$TMP/tietar" "$TMP/villanueva-de-viver"
 cp -R "$ROOT/public/data" "$TMP/vallduixo/data"
 cp -R "$ROOT/public/bejis/data" "$TMP/bejis/data"
 cp -R "$ROOT/public/tietar/data" "$TMP/tietar/data"
-cp -R "$ROOT/public/viver/data" "$TMP/viver/data"
+cp -R "$ROOT/public/villanueva-de-viver/data" "$TMP/villanueva-de-viver/data"
 touch "$TMP/.nojekyll"
 cat > "$TMP/README.md" <<'EOF'
 # fenix-data

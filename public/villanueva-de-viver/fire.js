@@ -61,7 +61,7 @@ export const EMERG = {
 };
 
 export const FIRE = {
-  dataDir: 'viver', // carpeta en el repo fenix-data
+  dataDir: 'villanueva-de-viver', // carpeta en el repo fenix-data
   ems: 'EMSR656',
   emsUrl: 'https://rapidmapping.emergency.copernicus.eu/EMSR656',
   park: null,

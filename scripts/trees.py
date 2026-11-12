@@ -17,7 +17,7 @@ Método:
      las frondosas (alcornoque, carrasca...) suelen rebrotar aunque ardan.
   5. Intervalo del 90 % por remuestreo (bootstrap) de las parcelas.
 
-Uso:  python3 scripts/trees.py [espada|bejis|tietar|viver]
+Uso:  python3 scripts/trees.py [espada|bejis|tietar|villanueva-de-viver]
 """
 import gzip
 import io
@@ -38,7 +38,7 @@ RAW = os.path.join(ROOT, "data-raw", "ifn3")
 # a arder entre el inventario (2006) y el incendio: ahí no quedaban árboles de ≥ 7,5 cm
 # (en Bejís, buena parte había ardido en el incendio de Andilla de 2012)
 FIRES = {"espada": ("data", [12], False), "bejis": ("bejis/data", [12, 46], True),
-         "tietar": ("tietar/data", [5, 28, 45], True), "viver": ("viver/data", [12, 44], True)}
+         "tietar": ("tietar/data", [5, 28, 45], True), "villanueva-de-viver": ("villanueva-de-viver/data", [12, 44], True)}
 FIRE_KEY = sys.argv[1] if len(sys.argv) > 1 else "espada"
 OUT = os.path.join(ROOT, "public", FIRES[FIRE_KEY][0])
 PROVS, REBURN = FIRES[FIRE_KEY][1], FIRES[FIRE_KEY][2]

@@ -7,8 +7,8 @@ Publicado en https://jgarnie.github.io/fenix/ (GitHub Pages desde `public/`, ver
 ## Estructura
 - `public/app.js`, `public/style.css`, `public/series.js`: visor común a todos los incendios.
 - `public/<incendio>/index.html` + `fire.js`: textos y datos propios de cada incendio (Espadà vive en la raíz de `public/`).
-  Incendios: `public/` (Espadà 2026), `bejis/` (2022), `tietar/` (2026, Ávila-Madrid), `viver/` (Villanueva de Viver – Alto Mijares, 2023, Castellón-Teruel).
-- `scripts/build_data.py <clave>`: genera `public/<out>/data/` (claves en `FIRES`: espada, bejis, tietar, viver).
+  Incendios: `public/` (Espadà 2026), `bejis/` (2022), `tietar/` (2026, Ávila-Madrid), `villanueva-de-viver/` (Villanueva de Viver – Alto Mijares, 2023, Castellón-Teruel).
+- `scripts/build_data.py <clave>`: genera `public/<out>/data/` (claves en `FIRES`: espada, bejis, tietar, villanueva-de-viver).
 - `scripts/trees.py <clave>`: árboles quemados (IFN3). Ejecutar después de `build_data.py`.
 - `scripts/publish_data.sh`: los datos generados NO se versionan aquí; se suben (un único commit forzado) al repo
   `jgarnie/fenix-data`, que sirve la web publicada. Sobrescribe los datos de todos los incendios a la vez.

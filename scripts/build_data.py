@@ -13,7 +13,7 @@ Fuentes:
     de España 1:50.000, Parque Natural, incendios históricos 1993-2024
   - IGME: mapa geológico continuo GEODE 1:50.000
 
-Uso:  python3 scripts/build_data.py [espada|bejis|tietar|viver]
+Uso:  python3 scripts/build_data.py [espada|bejis|tietar|villanueva-de-viver]
 """
 import gzip
 import io
@@ -119,10 +119,10 @@ FIRES = {
     # Villanueva de Viver – Alto Mijares (Castellón y Teruel, marzo 2023). Cruza a Aragón: las capas se continúan
     # entre comunidades con fuentes nacionales (MFE, ENP, municipios del IGN, EFFIS) más los catálogos de montes
     # de la Generalitat y del Gobierno de Aragón y la estadística de incendios de la Generalitat.
-    "viver": {
+    "villanueva-de-viver": {
         "year": 2023,
-        "raw": "viver",
-        "out": "viver/data",
+        "raw": "villanueva-de-viver",
+        "out": "villanueva-de-viver/data",
         "bbox": "-0.80,39.96,-0.40,40.20",
         "src": "nacional",
         "montes": ["gva", "aragon"],

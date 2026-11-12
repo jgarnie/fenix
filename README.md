@@ -1,6 +1,6 @@
 # Fénix · después del fuego
 
-**[Ver la app →](https://jgarnie.github.io/fenix/)** · [Espadà 2026](https://jgarnie.github.io/fenix/) · [Bejís 2022](https://jgarnie.github.io/fenix/bejis/) · [Tiétar 2026](https://jgarnie.github.io/fenix/tietar/) · [Alto Mijares 2023](https://jgarnie.github.io/fenix/viver/)
+**[Ver la app →](https://jgarnie.github.io/fenix/)** · [Espadà 2026](https://jgarnie.github.io/fenix/) · [Bejís 2022](https://jgarnie.github.io/fenix/bejis/) · [Tiétar 2026](https://jgarnie.github.io/fenix/tietar/) · [Alto Mijares 2023](https://jgarnie.github.io/fenix/villanueva-de-viver/)
 
 [![Antes y después del incendio de Espadà visto por Sentinel-2](public/og/espada.jpg)](https://jgarnie.github.io/fenix/)
 
@@ -21,7 +21,7 @@ Mapas interactivos de cuatro grandes incendios forestales:
   para seguir la recuperación.
 - **Tiétar** (`public/tietar/`): incendio de Burgohondo, Alberche y valle del Tiétar (Ávila y oeste de Madrid, julio 2026).
   Fuera de la Comunitat Valenciana: las capas salen de fuentes nacionales y autonómicas (ver tabla).
-- **Alto Mijares** (`public/viver/`): incendio de Villanueva de Viver (marzo 2023), que cruzó de Castellón a Teruel.
+- **Alto Mijares** (`public/villanueva-de-viver/`): incendio de Villanueva de Viver (marzo 2023), que cruzó de Castellón a Teruel.
   Las capas continúan entre comunidades: catálogos de montes de la Generalitat y de Aragón, y fuentes nacionales para el resto.
 
 Los cuatro usan el mismo visor (`public/app.js`); los textos propios de cada incendio están en su `fire.js`.
@@ -51,12 +51,12 @@ python3 scripts/build_data.py bejis     # Bejís: data-raw/bejis/ → public/bej
 python3 scripts/trees.py bejis
 python3 scripts/build_data.py tietar    # Tiétar: data-raw/tietar/ → public/tietar/data/
 python3 scripts/trees.py tietar
-python3 scripts/build_data.py viver     # Alto Mijares: data-raw/viver/ → public/viver/data/
-python3 scripts/trees.py viver
+python3 scripts/build_data.py villanueva-de-viver   # Alto Mijares: data-raw/villanueva-de-viver/ → public/villanueva-de-viver/data/
+python3 scripts/trees.py villanueva-de-viver
 ```
 
 Los datos generados (`public/data/` y `public/bejis/data/`) no se versionan en este repo: la web publicada los lee del repo
-[fenix-data](https://github.com/jgarnie/fenix-data) (`vallduixo/data/`, `bejis/data/`, `tietar/data/` y `viver/data/`), que solo guarda la última versión.
+[fenix-data](https://github.com/jgarnie/fenix-data) (`vallduixo/data/`, `bejis/data/`, `tietar/data/` y `villanueva-de-viver/data/`), que solo guarda la última versión.
 En local se usan las carpetas de `public/`. Tras regenerarlos, publícalos con:
 
 ```bash
