@@ -7,6 +7,151 @@ const fmt = (n, d = 0) => Number(n).toLocaleString('es-ES', { maximumFractionDig
 const ha = (n) => `${fmt(n)} ha`;
 const eur = (n) => n >= 1e6 ? `${fmt(n / 1e6, 2)} M€` : `${fmt(n / 1e3, 0)} k€`;
 const hex = (h) => [parseInt(h.slice(1, 3), 16), parseInt(h.slice(3, 5), 16), parseInt(h.slice(5, 7), 16)];
+const esc = (t) => String(t ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
+
+// ------------------------------------------------------------------ desplegables propios (sobre un <select>)
+// Mejora progresiva: el <select> nativo sigue en el DOM (oculto e inert) y guarda el valor, así que el resto del
+// código lo lee y escucha su 'change' como siempre. Se añade un botón y una lista (role=listbox) en <body> con
+// position: fixed, para que ni el panel ni el mapa la recorten; fundido de entrada y salida en CSS.
+// Cada <option> puede llevar data-a (texto principal) y data-b (secundario); los <optgroup> son secciones.
+const SEL_REDUCED = matchMedia('(prefers-reduced-motion: reduce)');
+const CHEVRON = '<svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 4.5 6 8l3.5-3.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+const SEL_VALUE = Object.getOwnPropertyDescriptor(HTMLSelectElement.prototype, 'value');
+const selMenus = {};
+let selOpen = null; // el desplegable abierto (solo uno a la vez)
+document.addEventListener('pointerdown', (e) => { if (selOpen && !selOpen.menu.contains(e.target) && !selOpen.btn.contains(e.target)) selOpen.close(false); });
+addEventListener('resize', () => selOpen?.close(false));
+addEventListener('pageshow', () => selOpen?.close(false));
+document.addEventListener('scroll', (e) => { if (selOpen && e.target !== selOpen.menu) selOpen.place(); }, true);
+document.addEventListener('transitionend', (e) => { if (selOpen && e.target.id === 'panel') selOpen.place(); }); // hoja inferior del móvil
+function enhanceSelect(sel, { cls = '', label = null, alignTo = () => null } = {}) {
+  const id = sel.id;
+  if (selMenus[id]) { if (selOpen?.menu === selMenus[id]) selOpen = null; selMenus[id].remove(); } // la tabla del plan se rehace
+  if (label && !label.id) label.id = `${id}-lbl`;
+  sel.classList.add('sel-native');
+  sel.inert = true;
+  sel.tabIndex = -1;
+  const btn = document.createElement('button');
+  Object.assign(btn, { type: 'button', id: `${id}-btn`, className: `sel-btn ${cls}`, innerHTML: `<span></span>${CHEVRON}` });
+  btn.setAttribute('aria-haspopup', 'listbox');
+  btn.setAttribute('aria-expanded', 'false');
+  btn.setAttribute('aria-controls', `${id}-menu`);
+  if (label) btn.setAttribute('aria-labelledby', `${label.id} ${btn.id}`);
+  sel.after(btn);
+  const menu = Object.assign(document.createElement('div'), { id: `${id}-menu`, className: `sel-menu ${cls}`, tabIndex: -1, hidden: true });
+  menu.setAttribute('role', 'listbox');
+  if (label) menu.setAttribute('aria-labelledby', label.id);
+  // las listas van en <body> (position: fixed, por encima del mapa y de la hoja inferior), dentro de una región
+  // con nombre para que todo el contenido esté en un punto de referencia (landmark)
+  const layer = $('#sel-layer') || document.body.appendChild(Object.assign(document.createElement('div'), { id: 'sel-layer' }));
+  if (!layer.hasAttribute('role')) { layer.setAttribute('role', 'region'); layer.setAttribute('aria-label', 'Opciones de los desplegables'); }
+  layer.append(menu);
+  selMenus[id] = menu;
+
+  let opts = [], sig = null, hideTimer = 0;
+  const optHtml = (o, i) => `<div role="option" id="${id}-o${i}" tabindex="-1" aria-selected="false"><b>${esc(o.dataset.a || o.text)}</b>${o.dataset.b ? `<small>${esc(o.dataset.b)}</small>` : ''}</div>`;
+  const build = () => {
+    const s = [...sel.options].map((o) => `${o.value}|${o.text}|${o.parentElement.label || ''}`).join('\n');
+    if (s === sig) return;
+    sig = s;
+    let html = '', i = 0;
+    for (const node of sel.children) {
+      if (node.tagName === 'OPTGROUP') {
+        const g = `${id}-g${i}`;
+        html += `<div role="group" aria-labelledby="${g}"><div class="sel-grp" id="${g}">${esc(node.label)}</div>${[...node.children].map((o) => optHtml(o, i++)).join('')}</div>`;
+      } else if (node.tagName === 'OPTION') html += optHtml(node, i++);
+    }
+    menu.innerHTML = html;
+    opts = [...menu.querySelectorAll('[role=option]')];
+    opts.forEach((o, j) => {
+      o.addEventListener('click', () => choose(j));
+      o.addEventListener('mousemove', () => { if (document.activeElement !== o) o.focus({ preventScroll: true }); });
+    });
+  };
+  const sync = () => {
+    build();
+    const i = sel.selectedIndex;
+    opts.forEach((o, j) => o.setAttribute('aria-selected', j === i));
+    btn.firstChild.textContent = sel.options[i]?.text ?? '';
+  };
+  // el código que cambia el valor (preajustes, zoom a ortofoto…) o las opciones mantiene el botón al día
+  Object.defineProperty(sel, 'value', { configurable: true, get() { return SEL_VALUE.get.call(this); }, set(v) { SEL_VALUE.set.call(this, v); sync(); } });
+  new MutationObserver(sync).observe(sel, { childList: true, subtree: true, characterData: true, attributes: true });
+  sel.addEventListener('change', sync);
+
+  const isOpen = () => btn.getAttribute('aria-expanded') === 'true';
+  const place = () => {
+    const r = btn.getBoundingClientRect();
+    const a = (alignTo() || btn).getBoundingClientRect();
+    menu.style.minWidth = `${a.width}px`;
+    menu.style.maxHeight = '';
+    const h = menu.scrollHeight + 2;
+    const below = innerHeight - r.bottom - 14, above = r.top - 14;
+    const up = h > below && above > below; // sin sitio debajo: hacia arriba
+    const room = Math.max(140, up ? above : below);
+    menu.style.maxHeight = `${room}px`;
+    menu.classList.toggle('up', up);
+    menu.style.top = `${up ? Math.max(8, r.top - Math.min(h, room) - 6) : r.bottom + 6}px`;
+    menu.style.left = `${Math.max(8, Math.min(a.left, innerWidth - menu.offsetWidth - 8))}px`;
+  };
+  const focusOpt = (i) => opts[(i + opts.length) % opts.length]?.focus();
+  const close = (refocus = true) => {
+    if (!isOpen()) return;
+    btn.setAttribute('aria-expanded', 'false');
+    menu.classList.remove('open');
+    clearTimeout(hideTimer);
+    hideTimer = setTimeout(() => { menu.hidden = true; }, SEL_REDUCED.matches ? 0 : 180);
+    if (selOpen?.menu === menu) selOpen = null;
+    if (refocus) btn.focus();
+  };
+  const open = () => {
+    if (isOpen()) return;
+    selOpen?.close(false);
+    sync();
+    clearTimeout(hideTimer);
+    menu.hidden = false;
+    place();
+    btn.setAttribute('aria-expanded', 'true');
+    selOpen = { menu, btn, close, place };
+    requestAnimationFrame(() => menu.classList.add('open'));
+    focusOpt(Math.max(0, sel.selectedIndex));
+  };
+  const choose = (i) => {
+    const v = sel.options[i].value;
+    close();
+    if (v !== sel.value) { sel.value = v; sel.dispatchEvent(new Event('change', { bubbles: true })); }
+  };
+  btn.addEventListener('click', () => (isOpen() ? close() : open()));
+  btn.addEventListener('keydown', (e) => {
+    if (!['ArrowDown', 'ArrowUp', 'Enter', ' '].includes(e.key)) return;
+    e.preventDefault();
+    open();
+    if (e.key === 'ArrowUp') focusOpt(opts.length - 1);
+  });
+  // clic en el rótulo (p. ej. "Izquierda"): enfoca el botón, como haría con el <select>
+  sel.closest('label')?.addEventListener('click', (e) => { if (!btn.contains(e.target)) { e.preventDefault(); btn.focus(); } });
+  let typed = '', typedAt = 0;
+  const norm = (t) => t.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+  menu.addEventListener('keydown', (e) => {
+    const i = opts.indexOf(document.activeElement);
+    if (e.key === 'ArrowDown') focusOpt(i + 1);
+    else if (e.key === 'ArrowUp') focusOpt(i - 1);
+    else if (e.key === 'Home') focusOpt(0);
+    else if (e.key === 'End') focusOpt(opts.length - 1);
+    else if (e.key === 'Enter' || e.key === ' ') choose(Math.max(0, i));
+    else if (e.key === 'Escape') close();
+    else if (e.key === 'Tab') { close(false); return; }
+    else if (e.key.length === 1) { // búsqueda por las primeras letras
+      typed = (Date.now() - typedAt > 700 ? '' : typed) + norm(e.key);
+      typedAt = Date.now();
+      const j = opts.findIndex((o) => norm(o.textContent).startsWith(typed));
+      if (j >= 0) focusOpt(j);
+    } else return;
+    e.preventDefault();
+  });
+  sync();
+  return { sync, btn, menu, close, place };
+}
 
 // ------------------------------------------------------------------ datos
 const { ACT_INFO, EMERG, FIRE: F } = await import(new URL(`fire.js?v=${Date.now()}`, location.href));
@@ -130,7 +275,13 @@ L.Control.Credit = L.Control.extend({
     d.querySelector('.credit-author').addEventListener('click', (e) => {
       e.preventDefault();
       document.querySelector('[data-tab=fuentes]').click();
-      requestAnimationFrame(() => setTimeout(() => document.getElementById('autor')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 300));
+      const smooth = !matchMedia('(prefers-reduced-motion: reduce)').matches;
+      requestAnimationFrame(() => setTimeout(() => {
+        const a = document.getElementById('autor');
+        a?.scrollIntoView({ behavior: smooth ? 'smooth' : 'auto', block: 'start' });
+        a?.querySelector('h2')?.setAttribute('tabindex', '-1');
+        a?.querySelector('h2')?.focus({ preventScroll: true }); // el foco sigue al usuario (teclado y lectores)
+      }, 300));
     });
     return d;
   },
@@ -164,13 +315,17 @@ L.tileLayer('https://www.ign.es/wmts/ign-base?layer=IGNBaseOrto&style=default&ti
   pane: 'labels', maxZoom: 18, bounds, // solo sobre la zona del incendio: fuera, el mapa base ya tiene los nombres
 }).addTo(map);
 
+// en pantallas estrechas los selectores del comparador usan etiquetas cortas ("23 ago 22"); la etiqueta
+// completa se sigue viendo en las píldoras sobre el mapa (cmp-label)
+const NARROW = matchMedia('(max-width: 480px)').matches;
+const dayShort = (d) => `${day(d, false)} ${d.slice(2, 4)}`;
 const IMAGES = {
-  ...Object.fromEntries(F.images.map(([k, l]) => [k, { label: `${l} · ${day(SC[k])}`, src: `${DATA}s2_${k}.jpg` }])),
-  ...Object.fromEntries(F.swir.map((k) => [`${k}_swir`, { label: `${F.images.find(([x]) => x === k)[1]} · falso color`, src: `${DATA}s2_${k}_swir.jpg` }])),
-  pnoa: { label: F.pnoa, tiles: 'https://www.ign.es/wmts/pnoa-ma?layer=OI.OrthoimageCoverage&style=default&tilematrixset=GoogleMapsCompatible&Service=WMTS&Request=GetTile&Version=1.0.0&Format=image/jpeg&TileMatrix={z}&TileCol={x}&TileRow={y}' },
+  ...Object.fromEntries(F.images.map(([k, l]) => [k, { label: `${l} · ${day(SC[k])}`, short: `${l} · ${dayShort(SC[k])}`, a: l, b: day(SC[k]), src: `${DATA}s2_${k}.jpg` }])),
+  ...Object.fromEntries(F.swir.map((k) => [`${k}_swir`, { label: `${F.images.find(([x]) => x === k)[1]} · falso color`, a: F.images.find(([x]) => x === k)[1], b: day(SC[k]), src: `${DATA}s2_${k}_swir.jpg` }])),
+  pnoa: { label: F.pnoa, short: 'Ortofoto PNOA', a: F.pnoa.replace(/\s*\(.*$/, ''), b: (F.pnoa.match(/\((.*)\)/) || [])[1] || '', tiles: 'https://www.ign.es/wmts/pnoa-ma?layer=OI.OrthoimageCoverage&style=default&tilematrixset=GoogleMapsCompatible&Service=WMTS&Request=GetTile&Version=1.0.0&Format=image/jpeg&TileMatrix={z}&TileCol={x}&TileRow={y}' },
   // ortofotos históricas del PNOA (25 cm): mucho más detalle que Sentinel-2 (10 m), pero una sola fecha por vuelo
-  ...Object.fromEntries((F.ortos || []).map((o) => [`orto${o.year}`, { label: `Ortofoto ${o.year} · ${o.label}`, wms: `PNOA${o.year}`, pre: o.pre }])),
-  none: { label: 'Mapa base' },
+  ...Object.fromEntries((F.ortos || []).map((o) => [`orto${o.year}`, { label: `Ortofoto ${o.year} · ${o.label}`, short: `Ortofoto ${o.year}`, a: `Ortofoto ${o.year}`, b: o.label, wms: `PNOA${o.year}`, pre: o.pre }])),
+  none: { label: 'Mapa base', a: 'Sin imagen', b: 'solo el mapa base' },
 };
 const S2_ATTR = `Contiene datos modificados de <a href="https://www.copernicus.eu">Copernicus Sentinel</a> (${S2_YEARS})`;
 function makeImage(key, pane) {
@@ -232,11 +387,19 @@ map.on('zoomend', () => {
   clip();
 });
 
+// secciones del desplegable del comparador (las claves de IMAGES ya van en este orden)
+const imgGroup = (k) => (k === 'none' ? 'Mapa base' : IMAGES[k].tiles || IMAGES[k].wms ? 'Ortofotos' : k.endsWith('_swir') ? 'Falso color (rebrote)' : 'Imágenes de satélite');
 for (const side of ['left', 'right']) {
   const sel = $(`#cmp-${side}`);
-  sel.innerHTML = Object.entries(IMAGES).map(([k, v]) => `<option value="${k}">${v.label}</option>`).join('');
+  const groups = {};
+  for (const [k, v] of Object.entries(IMAGES)) {
+    (groups[imgGroup(k)] ||= []).push(`<option value="${k}" data-a="${esc(v.a)}" data-b="${esc(v.b)}">${esc(NARROW && v.short ? v.short : v.label)}</option>`);
+  }
+  sel.innerHTML = Object.entries(groups).map(([g, o]) => `<optgroup label="${g}">${o.join('')}</optgroup>`).join('');
   sel.value = cmp[side];
   sel.onchange = () => { cmp[side] = sel.value; cmp.manual[side] = map.getZoom() >= ORTO_ZOOM; setImage(side); clip(); };
+  // en móvil el menú ocupa el ancho de la barra del comparador
+  enhanceSelect(sel, { cls: 'cmp', label: sel.closest('label').querySelector('.cmp-cap'), alignTo: () => (MOBILE.matches ? $('#compare-bar') : null) });
 }
 $('#cmp-toggle').onclick = (e) => {
   cmp.on = !cmp.on;
@@ -258,6 +421,23 @@ $('#cmp-toggle').onclick = (e) => {
   const end = () => { drag = false; map.dragging.enable(); };
   handle.addEventListener('pointerup', end);
   handle.addEventListener('pointercancel', end);
+  // con teclado: la barra es un control deslizante (←/→ mueven un 5 %, Inicio/Fin a los extremos)
+  Object.assign(handle, { tabIndex: 0 });
+  handle.setAttribute('role', 'slider');
+  handle.setAttribute('aria-label', 'Posición de la barra del comparador');
+  handle.setAttribute('aria-valuemin', 2);
+  handle.setAttribute('aria-valuemax', 98);
+  const sync = () => { handle.setAttribute('aria-valuenow', Math.round(cmp.x * 100)); handle.setAttribute('aria-valuetext', `${Math.round(cmp.x * 100)} % desde la izquierda`); };
+  sync();
+  map.on('move zoom resize', sync);
+  handle.addEventListener('pointerup', sync);
+  handle.addEventListener('keydown', (e) => {
+    const step = { ArrowLeft: -0.05, ArrowDown: -0.05, ArrowRight: 0.05, ArrowUp: 0.05 }[e.key];
+    if (step === undefined && e.key !== 'Home' && e.key !== 'End') return;
+    e.preventDefault(); e.stopPropagation();
+    cmp.x = e.key === 'Home' ? 0.02 : e.key === 'End' ? 0.98 : Math.max(0.02, Math.min(0.98, cmp.x + step));
+    clip(); sync();
+  });
 }
 setImage('left');
 setImage('right');
@@ -352,19 +532,35 @@ function pixelAt(latlng) {
   return x < 0 || y < 0 || x >= W || y >= H ? -1 : y * W + x;
 }
 let marker = null;
-map.on('click', (e) => {
-  const i = pixelAt(e.latlng);
+function queryPoint(ll, byKeyboard = false) {
+  const i = pixelAt(ll);
   if (i < 0) return;
-  if (marker) marker.setLatLng(e.latlng); else marker = L.circleMarker(e.latlng, { radius: 6, color: '#fff', weight: 2, fillColor: '#111', fillOpacity: 1, pane: 'vec' }).addTo(map);
-  showInfo(i, e.latlng);
-});
+  if (marker) marker.setLatLng(ll); else marker = L.circleMarker(ll, { radius: 6, color: '#fff', weight: 2, fillColor: '#111', fillOpacity: 1, pane: 'vec' }).addTo(map);
+  showInfo(i, ll, byKeyboard);
+}
+map.on('click', (e) => queryPoint(e.latlng));
+// accesibilidad: el mapa se maneja con teclado (flechas para moverse, + y − para el zoom) e Intro consulta el centro
+{
+  const mc = map.getContainer();
+  mc.setAttribute('role', 'application');
+  mc.setAttribute('aria-roledescription', 'mapa');
+  mc.setAttribute('aria-label', `Mapa del incendio. Flechas para moverte, + y − para el zoom, Intro para consultar el punto central. Los mismos datos están en texto en las pestañas Resumen y Plan.`);
+  mc.addEventListener('keydown', (e) => {
+    if (e.key !== 'Enter' || e.target !== mc) return;
+    e.preventDefault();
+    queryPoint(map.getCenter(), true);
+  });
+}
 
+// texto de las píldoras: negro o blanco, el que tenga más contraste con el fondo (WCAG)
+const lum = (c) => c.map((v) => { v /= 255; return v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4; }).reduce((a, v, j) => a + v * [0.2126, 0.7152, 0.0722][j], 0);
 function pill(color, text) {
   const c = typeof color === 'string' ? hex(color) : color;
-  const dark = c[0] * 0.299 + c[1] * 0.587 + c[2] * 0.114 > 160;
-  return `<span class="pill" style="background:rgb(${c});color:${dark ? '#222' : '#fff'}">${text}</span>`;
+  const L0 = lum(c);
+  const dark = (L0 + 0.05) / (lum([17, 17, 17]) + 0.05) >= 1.05 / (L0 + 0.05);
+  return `<span class="pill" style="background:rgb(${c});color:${dark ? '#111' : '#fff'}">${text}</span>`;
 }
-function showInfo(i, ll) {
+function showInfo(i, ll, byKeyboard = false) {
   const pt = [ll.lng, ll.lat];
   const monte = montes.features.find((f) => inFeature(pt, f.geometry));
   const fuegos = incendios.features.filter((f) => inFeature(pt, f.geometry)).map((f) => f.properties.anyo).sort();
@@ -387,7 +583,7 @@ function showInfo(i, ll) {
     [`Sequedad ${month(SC.abril)} → ${month(SC.antes)}`, G.dndmi[i] ? `NDMI ${fmt((G.dndmi[i] - 100) / 100, 2)}` : 's/d'],
     ...(G.ceam[i] && !F.hideCeam ? [['Criterio CEAM', `${pill(C.ceam[G.ceam[i]], leg.ceam[G.ceam[i]])}<br><small>Cobertura vegetal estimada: ${fmt(G.recov[i])} % (${CEAM_DATE}). El CEAM lo evalúa a 1–2 años del incendio.</small>`]] : []),
   ];
-  let html = `<button class="close" aria-label="Cerrar">×</button><h3>${inside ? 'Punto afectado' : 'Punto consultado'}</h3><small>${ll.lat.toFixed(5)}, ${ll.lng.toFixed(5)}</small>`;
+  let html = `<button type="button" class="close" aria-label="Cerrar la ficha del punto">×</button><h3 id="info-title" tabindex="-1">${inside ? 'Punto afectado' : 'Punto consultado'}</h3><small>${ll.lat.toFixed(5)}, ${ll.lng.toFixed(5)}</small>`;
   html += `<dl>${rows.map(([k, x]) => `<dt>${k}</dt><dd>${x}</dd>`).join('')}</dl>`;
   if (p) {
     html += `<div class="act"><b>Debería haber:</b> ${pill(C.pot[p], pi.corto)}<br><small>${pi.codigo ? `Serie ${pi.codigo}: ` : ''}${pi.serie}</small>
@@ -402,14 +598,72 @@ function showInfo(i, ll) {
   const el = $('#info');
   el.innerHTML = html;
   el.classList.remove('hidden');
-  $('.close', el).onclick = () => { el.classList.add('hidden'); if (marker) { map.removeLayer(marker); marker = null; } };
+  // lectores de pantalla: se anuncia la ficha; con teclado, el foco va a la ficha y al cerrarla vuelve al mapa
+  announce(`Ficha del punto: ${inside ? 'dentro del área quemada' : 'fuera del área quemada'}${G.mun[i] ? `, ${meta.municipios[G.mun[i] - 1]}` : ''}.`);
+  if (byKeyboard) $('#info-title').focus();
+  $('.close', el).onclick = () => {
+    const back = el.contains(document.activeElement);
+    el.classList.add('hidden');
+    if (marker) { map.removeLayer(marker); marker = null; }
+    if (back) map.getContainer().focus();
+  };
+}
+// región viva (oculta) para avisos a lectores de pantalla
+function announce(msg) {
+  let r = $('#sr-live');
+  if (!r) document.body.insertAdjacentHTML('beforeend', '<div id="sr-live" class="sr-only" aria-live="polite"></div>'), r = $('#sr-live');
+  r.textContent = '';
+  setTimeout(() => (r.textContent = msg), 50);
 }
 
 // ------------------------------------------------------------------ pestañas
-document.querySelectorAll('.tabs button').forEach((b) => (b.onclick = () => {
-  document.querySelectorAll('.tabs button').forEach((x) => x.classList.toggle('active', x === b));
-  document.querySelectorAll('.tab').forEach((x) => x.classList.toggle('active', x.id === `tab-${b.dataset.tab}`));
-}));
+// patrón ARIA de pestañas: tablist/tab/tabpanel, foco itinerante y flechas ←/→, Inicio/Fin
+{
+  const tabs = [...document.querySelectorAll('.tabs [role=tab]')];
+  $('.tabs').setAttribute('aria-label', 'Secciones');
+  const select = (b, focus = false) => {
+    for (const x of tabs) {
+      const on = x === b;
+      x.classList.toggle('active', on);
+      x.setAttribute('aria-selected', on);
+      x.tabIndex = on ? 0 : -1;
+      $(`#tab-${x.dataset.tab}`).classList.toggle('active', on);
+    }
+    if (focus) b.focus();
+  };
+  for (const b of tabs) {
+    const p = $(`#tab-${b.dataset.tab}`);
+    b.id = `tabbtn-${b.dataset.tab}`;
+    b.type = 'button';
+    b.setAttribute('aria-controls', p.id);
+    p.setAttribute('role', 'tabpanel');
+    p.setAttribute('aria-labelledby', b.id);
+    p.tabIndex = 0; // el panel tiene scroll propio: debe poder enfocarse para desplazarlo con teclado
+    b.onclick = () => select(b);
+    b.addEventListener('keydown', (e) => {
+      const i = tabs.indexOf(b);
+      const j = { ArrowRight: i + 1, ArrowLeft: i - 1, Home: 0, End: tabs.length - 1 }[e.key];
+      if (j === undefined) return;
+      e.preventDefault();
+      select(tabs[(j + tabs.length) % tabs.length], true);
+    });
+  }
+  select(tabs.find((b) => b.classList.contains('active')) || tabs[0]);
+}
+// enlace "saltar" al principio de la página (visible solo al enfocarlo con el teclado)
+document.body.insertAdjacentHTML('afterbegin', '<a class="skip-link" href="#tabbtn-resumen">Saltar a los datos del incendio</a>');
+$('.skip-link').addEventListener('click', (e) => { e.preventDefault(); $('.tabs [aria-selected=true]').focus(); });
+// ficha del punto y leyenda: regiones con nombre; la ficha se cierra con Escape
+{
+  const info = $('#info');
+  info.setAttribute('role', 'region');
+  info.setAttribute('aria-labelledby', 'info-title');
+  info.addEventListener('keydown', (e) => { if (e.key === 'Escape') $('.close', info)?.click(); });
+  const lg = $('#legend');
+  lg.setAttribute('role', 'region');
+  lg.setAttribute('aria-label', 'Leyenda de la capa');
+  lg.tabIndex = 0;
+}
 
 function bars(obj, colors, total) {
   const entries = Object.entries(obj).filter(([, v]) => v > 0);
@@ -448,7 +702,7 @@ function ceamTable() {
       ${rows.map(([a, b, c, n]) => `<tr><td>${a}${n ? `<br><small class="muted">${n}</small>` : ''}</td><td>${b}</td><td>${c}</td></tr>`).join('')}
     </tbody></table>
     <h3>Zonas que cita el CEAM</h3>
-    <table><thead><tr><th>Paraje</th><th>CEAM</th><th>dNBR medio (500 m)</th><th></th></tr></thead><tbody>${zonas}</tbody></table>
+    <table><thead><tr><th>Paraje</th><th>CEAM</th><th>dNBR medio (500 m)</th><th>¿Coincide?</th></tr></thead><tbody>${zonas}</tbody></table>
     <p class="muted">"Coincide" si nuestra severidad media alrededor del paraje es moderada-alta o alta (dNBR ≥ 0,44) donde el CEAM indica mayor severidad,
     y menor donde indica menor severidad. Algunos parajes son zonas amplias y aquí se representan con un punto del Nomenclátor del IGN.
     Las cifras del CEAM son provisionales y proceden de su nota de agosto de 2026.</p>`;
@@ -573,7 +827,7 @@ function recoveryTable() {
   $('#op').oninput = (e) => { theme.opacity = +e.target.value; themeLayer?.setOpacity(theme.opacity); };
   document.querySelectorAll('#scope .chip').forEach((b) => (b.onclick = () => {
     theme.scope = b.dataset.s;
-    document.querySelectorAll('#scope .chip').forEach((x) => x.classList.toggle('on', x === b));
+    document.querySelectorAll('#scope .chip').forEach((x) => { x.classList.toggle('on', x === b); x.setAttribute('aria-pressed', x === b); });
     renderTheme();
   }));
   $('#insideOnly').onchange = (e) => { theme.insideOnly = e.target.checked; renderTheme(); };
@@ -641,18 +895,25 @@ function renderPlan() {
     total += t;
     const sw = k === 'emerg' ? C.eros[4] : C.act[k];
     return `<tr><td><span class="sw" style="display:inline-block;background:${sw};vertical-align:-1px"></span> ${name}<br><small class="muted">${when}</small></td>
-      <td>${fmt(A[k])}</td><td><input type="number" min="0" step="100" data-c="${k}" value="${plan.cost[k]}"></td><td>${eur(t)}</td></tr>`;
+      <td>${fmt(A[k])}</td><td><input type="number" min="0" step="100" data-c="${k}" value="${plan.cost[k]}" aria-label="€/ha · ${name}"></td><td>${eur(t)}</td></tr>`;
   }).join('');
   const pct = Math.min(100, (plan.budget / total) * 100);
+  // al recalcular se rehace la tabla: recordar qué control tenía el foco para devolvérselo (teclado)
+  const ae = document.activeElement;
+  const refocus = ae && $('#plan-table').contains(ae) ? (ae.dataset.c ? `[data-c="${ae.dataset.c}"]` : ae.id ? `#${ae.id}` : null) : null;
   $('#plan-table').innerHTML = `<table><thead><tr><th>Actuación</th><th>ha</th><th>€/ha</th><th>Coste</th></tr></thead>
     <tbody>${body}</tbody><tfoot><tr><td>Total</td><td></td><td></td><td>${eur(total)}</td></tr></tfoot></table>
-    <div class="row"><label>Forma de ejecución <select id="recargo">${Object.entries(RECARGO).map(([k, r]) => `<option value="${k}" ${k === plan.recargo ? 'selected' : ''}>${r.lbl}</option>`).join('')}</select></label></div>
-    <div class="budget"><p>Presupuesto de referencia: <input type="number" id="budget" step="100000" min="0" value="${plan.budget}" style="width:110px"> €
+    <div class="row"><label><span id="recargo-lbl">Forma de ejecución</span> <select id="recargo">${Object.entries(RECARGO).map(([k, r]) => `<option value="${k}" data-a="${esc(r.lbl.replace(/\s*\(.*$/, ''))}" data-b="${esc((r.lbl.match(/\((.*)\)/) || [])[1] || '')}" ${k === plan.recargo ? 'selected' : ''}>${r.lbl}</option>`).join('')}</select></label></div>
+    <div class="budget"><p><label for="budget">Presupuesto de referencia:</label> <input type="number" id="budget" step="100000" min="0" value="${plan.budget}" style="width:110px"> €
     → cubre el <b>${fmt(pct)} %</b> de este escenario${total > plan.budget ? `; faltarían <b>${eur(total - plan.budget)}</b>` : ''}.</p>
-    <div class="track"><div class="fill" style="width:${pct}%"></div></div></div>`;
-  document.querySelectorAll('[data-c]').forEach((inp) => (inp.onchange = () => { plan.cost[inp.dataset.c] = +inp.value || 0; renderPlan(); }));
-  $('#budget').onchange = (e) => { plan.budget = +e.target.value || 0; renderPlan(); };
-  $('#recargo').onchange = (e) => { plan.recargo = e.target.value; renderPlan(); };
+    <div class="track" aria-hidden="true"><div class="fill" style="width:${pct}%"></div></div></div>`;
+  enhanceSelect($('#recargo'), { cls: 'wide', label: $('#recargo-lbl') });
+  if (refocus) $(refocus)?.focus();
+  // se recalcula en el siguiente ciclo: así, si el cambio llega al salir con Tab, el foco ya está en el control siguiente y se conserva
+  const later = () => setTimeout(renderPlan);
+  document.querySelectorAll('[data-c]').forEach((inp) => (inp.onchange = () => { plan.cost[inp.dataset.c] = +inp.value || 0; later(); }));
+  $('#budget').onchange = (e) => { plan.budget = +e.target.value || 0; later(); };
+  $('#recargo').onchange = (e) => { plan.recargo = e.target.value; later(); };
 }
 {
   const ac = S.actions;
@@ -696,7 +957,7 @@ function renderPlan() {
   `;
   document.querySelectorAll('#pscope .chip').forEach((b) => (b.onclick = () => {
     plan.scope = b.dataset.s;
-    document.querySelectorAll('#pscope .chip').forEach((x) => x.classList.toggle('on', x === b));
+    document.querySelectorAll('#pscope .chip').forEach((x) => { x.classList.toggle('on', x === b); x.setAttribute('aria-pressed', x === b); });
     renderPlan();
   }));
   renderPlan();
@@ -834,8 +1095,26 @@ $('#tab-fuentes').insertAdjacentHTML('beforeend', `<div class="author-card" id="
   <p class="muted"><b>Pregúntale a tu IA por estos incendios:</b> Fénix funciona con Claude y ChatGPT. <a href="https://github.com/jgarnie/fenix#%C3%BAsalo-con-tu-ia" target="_blank" rel="noopener">Cómo conectarlo</a> · <a href="https://github.com/jgarnie/fenix/releases/latest/download/fenix.mcpb">Descargar para Claude Desktop</a>.</p>
 </div>`);
 
-// --- enlace al otro incendio
-for (const o of [].concat(F.otherFire || [])) $('.brand').insertAdjacentHTML('beforeend', `<a class="other-fire" href="${o.href}">${o.label} →</a>`);
+// --- selector de incendio: la lista vive aquí (una sola vez para todos); `dir` es la carpeta dentro de public/
+// y `dataDir` el de cada fire.js, que sirve para marcar el incendio actual. Al añadir un incendio, añadirlo aquí.
+const FIRE_LIST = [
+  { dir: '', dataDir: 'vallduixo', label: "Espadà · Vall d'Uixó (2026)", name: 'Espadà', detail: "Vall d'Uixó · Castellón · julio 2026" },
+  { dir: 'bejis/', dataDir: 'bejis', label: 'Bejís · Alto Palancia (2022)', name: 'Bejís', detail: 'Alto Palancia · Castellón y Valencia · agosto 2022' },
+  { dir: 'tietar/', dataDir: 'tietar', label: 'Tiétar · Ávila y Madrid (2026)', name: 'Tiétar', detail: 'Alberche y valle del Tiétar · Ávila y Madrid · julio 2026' },
+  { dir: 'villanueva-de-viver/', dataDir: 'villanueva-de-viver', label: 'Villanueva de Viver (2023)', name: 'Villanueva de Viver', detail: 'Alto Mijares · Castellón y Teruel · marzo 2023' },
+];
+// desplegable propio (enhanceSelect sobre un <select> con la URL de cada incendio)
+{
+  const root = new URL('./', import.meta.url); // app.js está en la raíz de public/
+  const cur = Math.max(0, FIRE_LIST.findIndex((f) => f.dataDir === F.dataDir));
+  const href = (f) => new URL(f.dir, root).href;
+  $('.brand').insertAdjacentHTML('beforeend', `<div class="fire-switch"><span id="fire-switch-lbl">Incendio:</span>
+    <select id="fire-sel">${FIRE_LIST.map((f, i) => `<option value="${href(f)}" data-a="${esc(f.name)}" data-b="${esc(f.detail)}"${i === cur ? ' selected' : ''}>${esc(f.label)}</option>`).join('')}</select></div>`);
+  const sel = $('#fire-sel');
+  enhanceSelect(sel, { cls: 'fire', label: $('#fire-switch-lbl') });
+  sel.addEventListener('change', () => { location.href = sel.value; });
+  addEventListener('pageshow', () => { sel.value = href(FIRE_LIST[cur]); }); // al volver con "atrás"
+}
 
 // --- móvil: el panel funciona como hoja inferior con tres estados: 'min' (solo la pestaña), 'peek' y 'open'
 {
@@ -869,6 +1148,16 @@ for (const o of [].concat(F.otherFire || [])) $('.brand').insertAdjacentHTML('be
   $('#map').addEventListener('pointerdown', (e) => { if (!e.target.closest('.leaflet-control')) setState('min'); });
   map.on('click dragstart zoomstart', () => setState('min'));
   MOBILE.addEventListener('change', () => { if (!MOBILE.matches) document.body.classList.remove('sheet-open', 'sheet-min'); });
+}
+
+// --- accesibilidad: grupos de controles con nombre y estado de los botones de alternar
+{
+  const named = (el, role, label) => el && (el.setAttribute('role', role), el.setAttribute('aria-label', label));
+  named($('.layer-list'), 'radiogroup', 'Capa de análisis');
+  named($('#scope'), 'group', 'Mostrar solo');
+  named($('#pscope'), 'group', 'Escenario del plan');
+  document.querySelectorAll('#scope .chip, #pscope .chip').forEach((x) => { x.type = 'button'; x.setAttribute('aria-pressed', x.classList.contains('on')); });
+  document.querySelectorAll('.chip[data-p]').forEach((x) => (x.type = 'button'));
 }
 
 renderTheme();

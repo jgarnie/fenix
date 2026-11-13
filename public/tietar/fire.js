@@ -127,5 +127,4 @@ export const FIRE = {
     <a href="https://www.eldiario.es/castilla-y-leon/politica/manueco-anuncia-plan-90-millones-recuperacion-zonas-arrasadas-incendios-castilla-leon_1_13417281.html" target="_blank" rel="noopener">elDiario.es</a>.</li>`,
   fuentesCeam: '',
   officialLimit: 'la Junta estima 37.800 ha y en los primeros días se llegó a hablar de más de 50.000. Las diferencias vienen de cómo se traza el perímetro, de qué se cuenta como quemado y de que este mapa incluye también los focos de San Martín de Valdeiglesias y Almorox – Villa del Prado',
-  otherFire: [{ href: '../', label: 'Incendio de Espadà (2026)' }, { href: '../bejis/', label: 'Incendio de Bejís (2022)' }, { href: '../villanueva-de-viver/', label: 'Incendio del Alto Mijares (2023)' }],
 };

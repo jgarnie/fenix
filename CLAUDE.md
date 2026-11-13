@@ -39,8 +39,8 @@ Publicado en https://jgarnie.github.io/fenix/ (GitHub Pages desde `public/`, ver
 - Todo dato de los textos (`fire.js`) lleva fuente enlazada; si algo es incierto o contradictorio, decirlo en el texto.
 - Mantener el aviso de "no es fuente oficial" y la firma del autor: tarjeta "Autor" al final de la pestaña Fuentes y
   crédito semitransparente abajo a la derecha del mapa con email (`L.Control.Credit` en `app.js`, clase `.map-credit`); el nombre lleva a la tarjeta `#autor`.
-- Al añadir un incendio: entrada en `FIRES` (build_data.py, trees.py, build_api.mjs y build_point.py), carpeta `public/<x>/`, enlace `otherFire` en los
-  demás `fire.js`, `.gitignore`, `publish_data.sh`, README y tarjeta og.
+- Al añadir un incendio: entrada en `FIRES` (build_data.py, trees.py, build_api.mjs y build_point.py), carpeta `public/<x>/`, entrada en `FIRE_LIST` (app.js: `name`, `detail` y `label`)
+  (`public/app.js`, el selector "Incendio:" de la cabecera; ya no hay `otherFire` en cada `fire.js`), `.gitignore`, `publish_data.sh`, README y tarjeta og.
 - No publicar (push a `main`, `publish_data.sh`, `npm publish` del MCP, releases con el `.mcpb` ni `wrangler deploy`) sin confirmación del usuario.
 - Las respuestas del MCP terminan siempre con la fuente, el aviso de no oficial y la firma del autor: mantenerlo.
 
@@ -64,3 +64,4 @@ Publicado en https://jgarnie.github.io/fenix/ (GitHub Pages desde `public/`, ver
 - **Imágenes Sentinel-2**: elegir la tesela que cubra el 100 % del perímetro; si el margen queda sin datos, `fill_tile`
   lo completa con la tesela vecina de la misma pasada (solo afecta a las imágenes del comparador).
 - **Catálogo de montes de Aragón** (IDEAragon `VISOR2D:v_montes`): no indica el titular; filtrar el bbox en EPSG:25830.
+- **Desplegables**: todos los `<select>` de la app usan `enhanceSelect()` (app.js): el `<select>` nativo queda oculto e `inert` y guarda el valor (el código lo lee y escucha su `change`); botón + lista propia en `#sel-layer`. Opciones con `data-a`/`data-b` (texto principal/secundario) y `<optgroup>` como secciones. Al cambiar `.value` por código el botón se actualiza solo.

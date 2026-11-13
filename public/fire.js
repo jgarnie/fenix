@@ -108,5 +108,4 @@ export const FIRE = {
     <li>Coordenadas de los parajes: Nomenclátor Geográfico Básico de España (IGN), vía CartoCiudad. El Puntal de Nules es el Pic de la Font de Cabres (639 m), según <a href="https://de.wikiloc.com/routen-wandern/ume1963-el-puntal-de-nules-pic-de-la-font-de-cabres-639-m-80185664" target="_blank" rel="noopener">esta ruta de Wikiloc</a>.</li>
   </ul>`,
   officialLimit: 'la cifra oficial (9.568 ha) usa el perímetro exterior e incluye islas no quemadas',
-  otherFire: [{ href: 'bejis/', label: 'Incendio de Bejís (2022)' }, { href: 'tietar/', label: 'Incendio del valle del Tiétar (2026)' }, { href: 'villanueva-de-viver/', label: 'Incendio del Alto Mijares (2023)' }],
 };
