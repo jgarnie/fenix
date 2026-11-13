@@ -55,6 +55,7 @@ python3 scripts/trees.py tietar
 python3 scripts/build_data.py villanueva-de-viver   # Alto Mijares: data-raw/villanueva-de-viver/ → public/villanueva-de-viver/data/
 python3 scripts/trees.py villanueva-de-viver
 node scripts/build_api.mjs              # resúmenes JSON para IAs y el servidor MCP → public/api/ (sí se versiona)
+python3 scripts/build_point.py          # rejilla troceada para el MCP remoto → data/point.json + point.bin.gz
 ```
 
 Los datos generados (`public/data/` y `public/bejis/data/`) no se versionan en este repo: la web publicada los lee del repo

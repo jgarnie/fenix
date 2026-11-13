@@ -1,6 +1,7 @@
 # descargas brutas regenerables (scripts/build_data.py)
 data-raw/
 node_modules/
+.wrangler/
 __pycache__/
 *.pyc
 .DS_Store

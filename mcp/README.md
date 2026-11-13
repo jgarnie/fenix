@@ -79,9 +79,11 @@ Cualquier cliente MCP por stdio: comando `npx -y fenix-mcp` (o `node mcp/src/std
 ## Desarrollo
 
 - `src/core.js`: lógica (descarga, decodificación de la rejilla, textos). Solo usa `fetch` y `DecompressionStream`,
-  así que también sirve para un servidor remoto (HTTP) en el futuro.
+  así que también sirve para el servidor remoto. Opción `point`: `'grid'` (rejilla completa, local) o `'tiles'`
+  (`point.json` + una tesela de `point.bin.gz` por HTTP Range, servidor remoto; ver `scripts/build_point.py`).
 - `src/tools.js`: definición de las herramientas MCP, común a cualquier transporte.
 - `src/stdio.js`: servidor local por stdio.
+- `worker/`: servidor remoto en Cloudflare Workers (MCP por HTTP + API REST/OpenAPI); ver [worker/README.md](worker/README.md).
 
 Datos: `public/api/*.json` (textos y estadísticas, generados con `node scripts/build_api.mjs`) y la rejilla
 `grid.bin.gz` de cada incendio en el repo `fenix-data`.

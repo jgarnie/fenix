@@ -18,8 +18,13 @@ Publicado en https://jgarnie.github.io/fenix/ (GitHub Pages desde `public/`, ver
   `fire.js`**; `public/api/` sí se versiona y se publica con el push a `main`. Al añadir un incendio, añadirlo a su lista `FIRES`.
 - `mcp/`: servidor MCP (paquete npm `fenix-mcp`). `src/core.js` lógica sin dependencias de transporte (fetch +
   DecompressionStream, lee `api/` de la web y `grid.bin.gz` de fenix-data; decodifica la rejilla igual que `app.js`),
-  `src/tools.js` herramientas, `src/stdio.js` servidor local. Pensado para reutilizar `core.js`/`tools.js` en un servidor
-  remoto (HTTP, p. ej. Cloudflare Workers). Pruebas en local: `FENIX_SITE=http://localhost:8765/ FENIX_DATA=local`.
+  `src/tools.js` herramientas, `src/stdio.js` servidor local. Pruebas en local: `FENIX_SITE=http://localhost:8765/ FENIX_DATA=local`.
+- `mcp/worker/`: el mismo MCP en Cloudflare Workers (`/mcp` Streamable HTTP sin estado) + API REST `/api/...` +
+  `/openapi.json` para un GPT personalizado (borrador en `mcp/worker/GPT.md`). Ver `mcp/worker/README.md`. En el plan
+  gratuito (10 ms de CPU, 128 MB) no cabe la rejilla completa: usa `createFenix({ point: 'tiles' })`, que lee
+  `data/point.json` y una tesela de `data/point.bin.gz` con HTTP Range. **Ejecutar `python3 scripts/build_point.py` tras
+  `build_data.py`** (los publica `publish_data.sh` con el resto de `data/`). `wrangler` y `@cfworker/json-schema` son
+  dependencias de desarrollo de `mcp/` (no entran en el `.mcpb`). `npx wrangler dev` en `mcp/worker` prueba sin cuenta.
   Extensión de Claude Desktop: `mcp/manifest.json` + `icon.png` → `mcp/dist/fenix.mcpb` (no versionado; se adjunta a una
   release de GitHub). Para regenerarla, subir la versión en `package.json` y `manifest.json` y seguir «Empaquetar la
   extensión» en `mcp/README.md` (copia con `npm ci --omit=dev`, `mcpb validate`, `mcpb pack`). Los patrones de
@@ -34,9 +39,9 @@ Publicado en https://jgarnie.github.io/fenix/ (GitHub Pages desde `public/`, ver
 - Todo dato de los textos (`fire.js`) lleva fuente enlazada; si algo es incierto o contradictorio, decirlo en el texto.
 - Mantener el aviso de "no es fuente oficial" y la firma del autor: tarjeta "Autor" al final de la pestaña Fuentes y
   crédito semitransparente abajo a la derecha del mapa con email (`L.Control.Credit` en `app.js`, clase `.map-credit`); el nombre lleva a la tarjeta `#autor`.
-- Al añadir un incendio: entrada en `FIRES` (build_data.py, trees.py y build_api.mjs), carpeta `public/<x>/`, enlace `otherFire` en los
+- Al añadir un incendio: entrada en `FIRES` (build_data.py, trees.py, build_api.mjs y build_point.py), carpeta `public/<x>/`, enlace `otherFire` en los
   demás `fire.js`, `.gitignore`, `publish_data.sh`, README y tarjeta og.
-- No publicar (push a `main`, `publish_data.sh`, `npm publish` del MCP ni releases con el `.mcpb`) sin confirmación del usuario.
+- No publicar (push a `main`, `publish_data.sh`, `npm publish` del MCP, releases con el `.mcpb` ni `wrangler deploy`) sin confirmación del usuario.
 - Las respuestas del MCP terminan siempre con la fuente, el aviso de no oficial y la firma del autor: mantenerlo.
 
 ## Detalles técnicos que han dado problemas

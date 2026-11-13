@@ -1,4 +1,4 @@
-// Herramientas MCP de Fénix: compartidas por el servidor local (stdio.js) y un futuro servidor remoto (HTTP).
+// Herramientas MCP de Fénix: compartidas por el servidor local (stdio.js) y el remoto (worker/src/worker.js).
 import { z } from 'zod';
 import { createFenix } from './core.js';
 
@@ -8,7 +8,7 @@ export const INSTRUCTIONS = 'Fénix ofrece datos de incendios forestales en Espa
   + 'actuaciones son una propuesta propia, no la planificación de la administración.';
 
 export function registerTools(server, opts = {}) {
-  const fx = createFenix(opts);
+  const fx = opts.fx || createFenix(opts);   // opts.fx: núcleo compartido entre peticiones (servidor remoto)
   const wrap = (fn) => async (args) => {
     try {
       return { content: [{ type: 'text', text: await fn(args) }] };

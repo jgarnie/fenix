@@ -1,0 +1,15 @@
+// Servidor remoto de Fénix (Cloudflare Workers, plan gratuito). Ver mcp/worker/README.md.
+//   npx wrangler dev      → http://localhost:8787 (pruebas, sin cuenta)
+//   npx wrangler deploy   → https://fenix-mcp.<subdominio>.workers.dev (requiere `npx wrangler login`)
+{
+  "$schema": "../node_modules/wrangler/config-schema.json",
+  "name": "fenix-mcp",
+  "main": "src/worker.js",
+  "compatibility_date": "2026-11-01",
+  "observability": { "enabled": true },
+  // Datos publicados (GitHub Pages). Para probar contra una copia local: npx wrangler dev --var FENIX_SITE:http://localhost:8811/ --var FENIX_DATA:local
+  "vars": {
+    "FENIX_SITE": "https://jgarnie.github.io/fenix/",
+    "FENIX_DATA": ""
+  }
+}
