@@ -102,6 +102,18 @@ a { color: var(--accent); }
 .sel-menu.cmp [role=option] { flex-direction: row; align-items: center; justify-content: space-between; gap: 18px; min-height: 34px; box-sizing: border-box; }
 .sel-menu.cmp [role=option] b { font-size: 13px; font-weight: 600; }
 .sel-menu.cmp [role=option] small { font-size: 12.5px; }
+/* filtro por municipio (pestaña Mapa): nombre y hectáreas en una fila; resumen del término */
+.sel-menu.mun [role=option] { flex-direction: row; align-items: center; justify-content: space-between; gap: 18px; min-height: 34px; box-sizing: border-box; }
+.sel-menu.mun [role=option] small { font-size: 12.5px; color: var(--muted); font-variant-numeric: tabular-nums; }
+#mun-card:empty { display: none; }
+.mun-card { margin-top: 10px; padding: 12px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--panel); }
+.mun-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
+.mun-head b { display: block; font-size: 15px; }
+.mun-head small { font-size: 12px; }
+.mun-card .kpis { margin: 10px 0 4px; }
+.mun-card .kpi b { font-size: 17px; }
+.mun-card h3 { margin-top: 12px; }
+.mun-card p.muted { font-size: 11.5px; margin: 10px 0 0; }
 @media (prefers-reduced-motion: reduce) {
   .sel-menu, .sel-menu.up, .sel-btn svg { transition: none; transform: none; }
 }

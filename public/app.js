@@ -38,7 +38,8 @@ function enhanceSelect(sel, { cls = '', label = null, alignTo = () => null } = {
   btn.setAttribute('aria-controls', `${id}-menu`);
   if (label) btn.setAttribute('aria-labelledby', `${label.id} ${btn.id}`);
   sel.after(btn);
-  const menu = Object.assign(document.createElement('div'), { id: `${id}-menu`, className: `sel-menu ${cls}`, tabIndex: -1, hidden: true });
+  // tabIndex 0: si la lista es larga y se desplaza, también se puede recorrer con el teclado (solo existe abierta)
+  const menu = Object.assign(document.createElement('div'), { id: `${id}-menu`, className: `sel-menu ${cls}`, tabIndex: 0, hidden: true });
   menu.setAttribute('role', 'listbox');
   if (label) menu.setAttribute('aria-labelledby', label.id);
   // las listas van en <body> (position: fixed, por encima del mapa y de la hoja inferior), dentro de una región
@@ -301,9 +302,10 @@ const MOBILE = matchMedia('(max-width: 860px)');
 // en móvil el panel tapa la parte inferior: centrar el incendio en la zona visible
 map.fitBounds(bounds.pad(-0.05), MOBILE.matches ? { paddingTopLeft: [0, 60], paddingBottomRight: [0, innerHeight * 0.42] } : {});
 
-for (const [name, z] of [['imgL', 300], ['imgR', 301], ['theme', 420], ['labels', 440], ['vec', 450]]) {
+for (const [name, z] of [['imgL', 300], ['imgR', 301], ['theme', 420], ['mask', 430], ['labels', 440], ['vec', 450]]) {
   map.createPane(name).style.zIndex = z;
 }
+map.getPane('mask').style.pointerEvents = 'none';
 map.getPane('vec').style.pointerEvents = 'none';
 map.getPane('labels').style.pointerEvents = 'none';
 
@@ -447,6 +449,8 @@ clip();
 const canvas = Object.assign(document.createElement('canvas'), { width: W, height: H });
 const ctx = canvas.getContext('2d');
 const theme = { key: 'none', opacity: 0.75, scope: 'all', insideOnly: true };
+// filtro por municipio: índice (1-based) en meta.municipios, como la capa G.mun; 0 = todos
+const munF = { idx: 0, name: null, layers: [] };
 let themeLayer = null;
 function renderTheme() {
   // los parajes del CEAM y sus etiquetas solo se ven con la capa Criterio CEAM
@@ -463,6 +467,7 @@ function renderTheme() {
     if (inside && !G.inside[i]) continue;
     if (theme.scope === 'public' && !PUBLIC(G.owner[i])) continue;
     if (theme.scope === 'pn' && !G.pn[i]) continue;
+    if (munF.idx && G.mun[i] !== munF.idx) continue;
     let c = t.color(i);
     if (!c) continue;
     if (typeof c === 'string') c = hex(c);
@@ -789,7 +794,14 @@ function recoveryTable() {
 // --- Mapa (capas)
 {
   const opts = { none: NO_THEME, ...THEMES };
+  const munList = Object.entries(S.municipios || {}).filter(([, v]) => v.total > 0).sort((a, b) => b[1].total - a[1].total);
   $('#tab-capas').innerHTML = `
+    <h2 id="mun-lbl">Municipio</h2>
+    <select id="mun-sel">
+      <option value="" data-a="Todos los municipios" data-b="${munList.length} municipios · ${ha(S.grid_ha)}">Todos los municipios</option>
+      ${munList.map(([n, v]) => `<option value="${esc(n)}" data-a="${esc(n)}" data-b="${ha(v.total)}">${esc(n)} · ${ha(v.total)}</option>`).join('')}
+    </select>
+    <div id="mun-card"></div>
     <h2>Capa de análisis</h2>
     <div class="layer-list">${Object.entries(opts).map(([k, t]) => `
       <label class="layer-opt ${k === theme.key ? 'active' : ''}" data-k="${k}">
@@ -840,6 +852,83 @@ function recoveryTable() {
     setImage('left'); setImage('right'); clip();
   }));
 }
+
+// --- filtro por municipio: solo se pinta su término, se atenúa el resto y se resume lo que ardió en él
+const norm = (t) => String(t || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
+function munCard() {
+  const el = $('#mun-card');
+  if (!munF.idx) { el.innerHTML = ''; return; }
+  let tot = 0, forest = 0, pub = 0;
+  const sev = {}, veg = {}, act = {};
+  for (let i = 0; i < N; i++) {
+    if (G.mun[i] !== munF.idx || !G.inside[i]) continue;
+    tot++;
+    if (FOREST(G.veg[i])) forest++;
+    if (PUBLIC(G.owner[i])) pub++;
+    sev[G.sev[i]] = (sev[G.sev[i]] || 0) + 1;
+    veg[G.veg[i]] = (veg[G.veg[i]] || 0) + 1;
+    act[G.act[i]] = (act[G.act[i]] || 0) + 1;
+  }
+  const h = (n) => n * PIX_HA;
+  const pct = (n) => (tot ? `${fmt((n / tot) * 100)} %` : '—');
+  const obj = (o, lbl, keys = Object.keys(o)) => Object.fromEntries(keys.filter((k) => o[k] && lbl[k]).map((k) => [lbl[k], h(o[k])]));
+  const vegTop = Object.keys(veg).filter((k) => +k).sort((a, b) => veg[b] - veg[a]).slice(0, 3);
+  const actLbl = Object.fromEntries(Object.entries(ACT_INFO).map(([k, v]) => [k, v.corto]));
+  const actKeys = Object.keys(act).filter((k) => +k && +k !== 5).sort((a, b) => act[b] - act[a]);
+  const feat = municipios.features.find((f) => f.properties.nom_mun === munF.name);
+  const where = feat?.properties.comarca;
+  el.innerHTML = `<div class="mun-card">
+    <div class="mun-head"><div><b>${esc(munF.name)}</b>${where ? `<small class="muted">${esc(where)}</small>` : ''}</div>
+      <button type="button" class="chip" id="mun-clear">Quitar filtro</button></div>
+    <div class="kpis">
+      <div class="kpi accent"><b>${ha(h(tot))}</b><span>quemadas en el término</span></div>
+      <div class="kpi"><b>${ha(h(forest))}</b><span>de ellas forestales (${pct(forest)})</span></div>
+      <div class="kpi"><b>${ha(h(pub))}</b><span>monte público (${pct(pub)})</span></div>
+      <div class="kpi"><b>${ha(h(tot - pub))}</b><span>sin catalogar, sobre todo privado (${pct(tot - pub)})</span></div>
+    </div>
+    <h3>Severidad</h3>${bars(obj(sev, C.sevLbl, ['1', '2', '3', '4', '5']), byLabel(C.sevLbl, C.sev))}
+    <h3>Qué había antes</h3>${bars(obj(veg, leg.veg, vegTop), byLabel(leg.veg, C.veg))}
+    ${actKeys.length ? `<h3>Actuación recomendada</h3>${bars(obj(act, actLbl, actKeys), byLabel(actLbl, C.act))}` : ''}
+    <p class="muted">Superficie vista quemada por satélite dentro del término; el reparto oficial puede variar. Pulsa el mapa para ver la ficha de cada punto.</p>
+  </div>`;
+  $('#mun-clear').onclick = () => { setMun(null); $('#mun-sel-btn')?.focus(); };
+}
+function setMun(name, { fit = true } = {}) {
+  const idx = name ? meta.municipios.indexOf(name) + 1 : 0;
+  munF.idx = idx; munF.name = idx ? name : null;
+  munF.layers.forEach((l) => map.removeLayer(l));
+  munF.layers = [];
+  const feat = idx && municipios.features.find((f) => f.properties.nom_mun === name);
+  if (feat) {
+    const line = L.geoJSON(feat, { pane: 'vec', interactive: false, style: { color: '#111', weight: 3.2, fill: false } });
+    const halo = L.geoJSON(feat, { pane: 'vec', interactive: false, style: { color: '#fff', weight: 6, opacity: 0.8, fill: false } });
+    // máscara: el mundo con el término como agujero, para atenuar todo lo de fuera
+    const polys = feat.geometry.type === 'Polygon' ? [feat.geometry.coordinates] : feat.geometry.coordinates;
+    const holes = polys.map((p) => p[0].map(([x, y]) => [y, x]));
+    const mask = L.polygon([[[-89, -179], [-89, 179], [89, 179], [89, -179]], ...holes],
+      { pane: 'mask', interactive: false, stroke: false, fillColor: '#fff', fillOpacity: 0.45 });
+    munF.layers = [mask, halo, line];
+    munF.layers.forEach((l) => l.addTo(map));
+    if (fit) map.fitBounds(line.getBounds().pad(0.05), MOBILE.matches ? { paddingTopLeft: [0, 60], paddingBottomRight: [0, innerHeight * 0.42] } : {});
+  }
+  const sel = $('#mun-sel');
+  if (sel && sel.value !== (munF.name || '')) sel.value = munF.name || '';
+  renderTheme();
+  munCard();
+  history.replaceState(null, '', munF.name ? `#municipio=${encodeURIComponent(munF.name)}` : location.pathname + location.search);
+  announce(munF.name ? `Mapa filtrado: solo el término municipal de ${munF.name}.` : 'Mapa sin filtro de municipio: se muestran todos.');
+}
+$('#mun-sel').addEventListener('change', (e) => setMun(e.target.value || null));
+enhanceSelect($('#mun-sel'), { cls: 'wide mun', label: $('#mun-lbl') });
+// #municipio=… en la URL (enlace compartible); los demás anclajes (#autor, #tabbtn-…) no tocan el filtro
+function munFromHash() {
+  const m = location.hash.match(/(?:^#|&)municipio=([^&]*)/);
+  if (!m) return null;
+  let q;
+  try { q = norm(decodeURIComponent(m[1].replace(/\+/g, ' '))); } catch { return null; }
+  return Object.keys(S.municipios || {}).find((n) => norm(n) === q) || null;
+}
+addEventListener('hashchange', () => { const n = munFromHash(); if (n && n !== munF.name) setMun(n); });
 
 // --- Plan
 // Precios unitarios: Tarifas forestales de la Junta de Extremadura, actualización 2024
@@ -1161,3 +1250,11 @@ const FIRE_LIST = [
 }
 
 renderTheme();
+{
+  const n = munFromHash();
+  if (n) {
+    // en escritorio se abre la pestaña Mapa para ver el resumen del municipio; en móvil se deja ver el mapa
+    if (!MOBILE.matches) document.querySelector('[data-tab=capas]')?.click();
+    setMun(n);
+  }
+}
