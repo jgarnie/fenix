@@ -45,9 +45,9 @@ Range (`python3 -m http.server` **no** lo admite) y arrancar con
 1. Generar y publicar los datos de punto: `python3 scripts/build_point.py` y `scripts/publish_data.sh` (sube `point.json`
    y `point.bin.gz` junto con el resto de `data/`).
 2. Iniciar sesión en Cloudflare (abre el navegador; plan gratuito, sin tarjeta): `! npx wrangler login` desde `mcp/worker`.
-3. `npx wrangler deploy` → `https://fenix-mcp.<subdominio>.workers.dev` (la primera vez pide elegir el subdominio
+3. `npx wrangler deploy` → `https://fenix-mcp.garcia-nieto-joaquin.workers.dev` (subdominio `garcia-nieto-joaquin`, de la cuenta de Cloudflare del autor; la primera vez pide elegir el subdominio
    `workers.dev` de la cuenta).
-4. Comprobar `https://fenix-mcp.<subdominio>.workers.dev/` y una consulta: `…/api/punto?lat=39.90975&lon=-0.21464`.
+4. Comprobar `https://fenix-mcp.garcia-nieto-joaquin.workers.dev/` y una consulta: `…/api/punto?lat=39.90975&lon=-0.21464`.
 
 Límites del plan gratuito: 100.000 peticiones al día; si se superan, deja de responder hasta el día siguiente (sin coste).
 

@@ -34,7 +34,48 @@ Los cuatro usan el mismo visor (`public/app.js`); los textos propios de cada inc
 - **Análisis de la Fundación CEAM** reproducidos con datos abiertos: sequedad de la vegetación antes del incendio, su criterio para decidir dónde reforzar la regeneración (30 % y 60 % de cobertura de leñosas rebrotadoras, evaluado a 1–2 años del incendio), los parajes que cita y una comparación de cifras.
 - **Ficha de cada punto:** al pulsar el mapa, qué había, qué debería haber, de quién es, la viabilidad de recuperarlo y cómo actuar.
 - **Plan:** superficie y coste por actuación según el alcance. Los costes salen de tarifas forestales oficiales y se pueden editar.
-- **Para asistentes de IA:** resúmenes en JSON (`public/api/`) y un servidor MCP ([`mcp/`](mcp/README.md)) para preguntar a Claude, ChatGPT u otros por los incendios o por un punto concreto. En Claude Desktop basta con [descargar la extensión `fenix.mcpb`](https://github.com/jgarnie/fenix/releases/latest/download/fenix.mcpb) y hacer doble clic.
+- **Para asistentes de IA:** pregúntale a Claude, ChatGPT u otros por los incendios o por un punto concreto. Ver [Úsalo con tu IA](#úsalo-con-tu-ia). Por dentro: resúmenes en JSON (`public/api/`) y un servidor MCP ([`mcp/`](mcp/README.md)).
+
+## Úsalo con tu IA
+
+Puedes preguntarle a tu asistente de IA por estos incendios: qué pasó en un pueblo, qué plan de restauración se propone o qué
+había (y qué debería crecer) en un punto concreto del mapa. Responde con los datos de Fénix y sus fuentes.
+
+**Claude Desktop** (Mac y Windows), lo más fácil:
+1. [Descarga `fenix.mcpb`](https://github.com/jgarnie/fenix/releases/latest/download/fenix.mcpb).
+2. Haz doble clic y pulsa **Instalar**. Saldrá un aviso de extensión «no verificada»: es normal, no está firmada.
+
+**Claude** (web, móvil y escritorio):
+1. Ajustes → **Conectores** → **Añadir conector personalizado**.
+2. Nombre: `Fénix`. URL: `https://fenix-mcp.garcia-nieto-joaquin.workers.dev/mcp`
+3. En un chat nuevo, activa Fénix en el menú de herramientas y pregunta.
+
+Según el plan, o si la cuenta es de una empresa, puede que no aparezca la opción de conectores personalizados.
+
+**ChatGPT:**
+1. Ajustes → **Aplicaciones y conectores** → Configuración avanzada → activa el **modo desarrollador**.
+2. **Crear** conector con nombre `Fénix` y la URL `https://fenix-mcp.garcia-nieto-joaquin.workers.dev/mcp`, sin autenticación.
+3. En un chat, elige Fénix en el menú «+» y pregunta.
+
+El modo desarrollador depende del plan de ChatGPT. **GPT de Fénix:** próximamente, para usarlo sin configurar nada.
+
+**Gemini:** la aplicación de Gemini (web y móvil) no admite conectores MCP. Puedes pedirle que lea un enlace concreto, por
+ejemplo `https://fenix-mcp.garcia-nieto-joaquin.workers.dev/api/punto?lat=39.90975&lon=-0.21464`, aunque no siempre lo hace bien. En **Gemini CLI** sí funciona:
+
+```bash
+gemini mcp add --transport http fenix https://fenix-mcp.garcia-nieto-joaquin.workers.dev/mcp
+```
+
+**Otras aplicaciones** compatibles con MCP (transporte HTTP): usa la URL `https://fenix-mcp.garcia-nieto-joaquin.workers.dev/mcp`.
+Para desarrolladores hay también una API REST en JSON: [`openapi.json`](https://fenix-mcp.garcia-nieto-joaquin.workers.dev/openapi.json).
+
+**Preguntas de ejemplo:**
+- ¿Qué incendios tiene Fénix?
+- ¿Cómo quedó Betxí tras el incendio de Espadà?
+- ¿Qué había y qué debería plantarse en 39.90975, -0.21464?
+- ¿Qué plan de restauración propone Fénix para Bejís?
+
+Las respuestas salen de este proyecto divulgativo, que no es una fuente oficial.
 
 ## Ejecutar
 

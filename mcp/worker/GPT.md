@@ -1,7 +1,7 @@
 # Borrador del GPT personalizado «Fénix»
 
 Para crearlo hace falta una cuenta de ChatGPT que permita crear GPT (Explorar GPT → Crear → Configurar). Antes, el
-Worker debe estar publicado: sustituir `https://fenix-mcp.<subdominio>.workers.dev` por la URL real.
+Worker debe estar publicado (lo está en `https://fenix-mcp.garcia-nieto-joaquin.workers.dev`).
 
 ## Nombre
 Fénix · incendios forestales
@@ -39,9 +39,9 @@ Cómo responder:
 - ¿Qué plan de restauración propone Fénix para Bejís y cuánto costaría?
 
 ## Acciones
-- Crear acción → Importar desde URL: `https://fenix-mcp.<subdominio>.workers.dev/openapi.json`
+- Crear acción → Importar desde URL: `https://fenix-mcp.garcia-nieto-joaquin.workers.dev/openapi.json`
 - Autenticación: ninguna.
-- Política de privacidad: `https://fenix-mcp.<subdominio>.workers.dev/privacidad`
+- Política de privacidad: `https://fenix-mcp.garcia-nieto-joaquin.workers.dev/privacidad`
 
 ## Capacidades
 Búsqueda web: opcional (desactivada evita que mezcle datos de otras fuentes). Lienzo y generación de imágenes: no.

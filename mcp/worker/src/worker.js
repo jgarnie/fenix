@@ -152,6 +152,9 @@ para preguntar a tu IA. Mapas: <a href="https://jgarnie.github.io/fenix/">jgarni
 <li>En un chat, elige el conector en el menú «+» y pregunta.</li></ol>
 <p class="muted">Los menús cambian a menudo y el modo desarrollador depende del plan de ChatGPT.</p>
 
+<h2>Gemini</h2>
+<p>La app de Gemini (web y móvil) no admite conectores MCP. En <b>Gemini CLI</b>: <code>gemini mcp add --transport http fenix ${origin}/mcp</code></p>
+
 <h2>Otras aplicaciones</h2>
 <p>Cualquier cliente MCP con transporte HTTP («Streamable HTTP») puede usar la URL de arriba. También hay una API REST en JSON:
 <a href="${origin}/openapi.json">openapi.json</a> (por ejemplo, <a href="${origin}/api/incendios">/api/incendios</a>).</p>
