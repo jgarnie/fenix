@@ -209,7 +209,7 @@ select, input[type=number] {
 #info dt { color: var(--muted); }
 #info dd { margin: 0; }
 #info .act { padding: 8px 10px; border-radius: 8px; margin: 8px 0; background: var(--chip); }
-.pill { display: inline-block; padding: 1px 8px; border-radius: 99px; font-size: 11.5px; font-weight: 600; color: #fff; }
+.pill { display: inline-block; padding: 3px 10px; border-radius: 10px; font-size: 11.5px; font-weight: 600; line-height: 1.4; color: #fff; }
 .score { font-size: 22px; font-weight: 700; font-variant-numeric: tabular-nums; }
 
 /* --- tablas plan */
