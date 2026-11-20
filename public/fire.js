@@ -6,7 +6,7 @@ export const ACT_INFO = {
     corto: 'Regeneración natural',
     que: 'La vegetación previa rebrota (alcornoque, carrasca, coscoja, lentisco, madroño, palmito…) o el pinar era maduro y sin incendios recientes, por lo que regenera por semilla.',
     como: [
-      'No cortar ni desbrozar los rebrotes; no descorchar alcornoques en al menos 5 años.',
+      'No cortar ni desbrozar los rebrotes; no descorchar los alcornoques durante varios años (hasta que recuperen la copa), según la normativa autonómica de descorche.',
       'Esperar a la brotación de la primavera de 2027 antes de declarar muertos alcornoques y carrascas.',
       'Excluir pastoreo y proteger frente a herbívoros 3–5 años donde haya presión.',
       'Seguimiento con parcelas de campo y NDVI (Sentinel-2) cada primavera.',
@@ -17,7 +17,7 @@ export const ACT_INFO = {
     corto: 'Regeneración asistida',
     que: 'Pinar con daño alto o pinar joven: probablemente no hay banco de piñas serótinas suficiente. Se ayuda con siembras y núcleos de plantación que aceleren la entrada de frondosas.',
     como: [
-      'Medir el regenerado de pino en primavera-verano 2027; actuar donde haya <1.000 plántulas/ha.',
+      'Medir el regenerado de pino en primavera-verano 2027 con parcelas de campo; actuar donde sea claramente escaso (el CEAM usa como referencia 1.000–3.000 pies/ha).',
       'Siembra de bellotas (alcornoque o carrasca, según la vegetación potencial) por puntos, protegidas.',
       'Plantación en bosquetes / núcleos de dispersión (400–600 plantas/ha) con protector, en otoño-invierno.',
       'Clareos del regenerado de pino a los 8–12 años para evitar masas densas muy inflamables.',
@@ -26,7 +26,7 @@ export const ACT_INFO = {
   },
   3: {
     corto: 'Restauración activa',
-    que: 'El pinar ocupaba suelos donde debería haber alcornocal o carrascal, o la zona ha ardido repetidamente y el matorral ya no evoluciona solo. Hay que reintroducir las especies de la vegetación potencial.',
+    que: 'El pinar quemado con daño alto ocupaba suelos donde debería haber alcornocal, o la zona ha ardido repetidamente y el matorral ya no evoluciona solo. Hay que reintroducir las especies de la vegetación potencial.',
     como: [
       'Plantación de 800–1.100 plantas/ha de las especies de la serie potencial (ver pestaña Cómo).',
       'Planta de la región de procedencia local (Banc de Llavors Forestals de la GVA).',
@@ -70,7 +70,7 @@ export const FIRE = {
   // imágenes Sentinel-2 del comparador (clave de escena → etiqueta); las fechas salen de meta.json
   images: [['abril', 'Primavera'], ['antes', 'Antes'], ['despues', 'Después'], ['ahora', 'Ahora']],
   swir: ['antes', 'despues', 'ahora'],
-  pnoa: 'Ortofoto PNOA (pre-incendio)',
+  pnoa: 'Ortofoto PNOA (antes)',
   // vuelos PNOA históricos que cubren la zona (al acercar mucho sustituyen a Sentinel-2); aún no hay vuelo posterior al incendio
   ortos: [{ year: 2024, label: 'antes del incendio', pre: true }],
   presets: [['antes|despues', 'Antes vs después'], ['antes|ahora', 'Antes vs ahora'], ['despues_swir|ahora_swir', 'Rebrote (falso color)'], ['pnoa|despues', 'Ortofoto vs después']],
@@ -95,6 +95,28 @@ export const FIRE = {
   // datos y método propios de este incendio en la pestaña Fuentes
   fuentesDatos: (S) => `
     <li><b>Área quemada:</b> <a href="https://rapidmapping.emergency.copernicus.eu/EMSR905" target="_blank" rel="noopener">Copernicus EMS Rapid Mapping EMSR905</a>, producto de evaluación (GRA v2, imagen del 31 jul 2026).</li>`,
+  // correcciones propias sobre los datos oficiales (se listan en Fuentes → Correcciones propias)
+  correcciones: (S, ha) => {
+    const c = S.correcciones;
+    if (!c) return [];  // datos anteriores a la v0.2.0 (durante la publicación): sin cifras, no se muestra
+    return [`<b>Vegetación potencial: refinado por sustrato.</b> El <i>Mapa de Series de Vegetación</i> de Rivas-Martínez (1987) es de escala 1:400.000
+      y sus manchas no siguen el contacto entre el rodeno (silíceo) y la caliza, que en Espadà se alternan cada pocos cientos de metros. Antes de corregirlo,
+      dentro de la superficie forestal quemada, <b>${ha(c.rm_alc_sobre_calizo_ha)}</b> de la serie del alcornocal caían sobre caliza, margas o detrítico calcáreo,
+      donde el alcornoque es raro (solo prospera en suelos descarbonatados), y <b>${ha(c.alc_real_en_carrascal_rm_ha)}</b> del alcornocal real del Mapa Forestal
+      (de ${ha(c.alc_real_ha)}) caían en manchas de carrascal.
+      Se mantiene el piso bioclimático del mapa (mesomediterráneo o termomediterráneo) y se elige la serie según el sustrato del
+      <a href="https://mapas.igme.es/gis/rest/services/Cartografia_Geologica/IGME_Geode_50/MapServer" target="_blank" rel="noopener">IGME GEODE 1:50.000</a>:
+      <ul>
+        <li>alcornocal (23b, silicícola) sobre caliza, margas, arcillas y yesos o detrítico terciario calcáreo → carrascal del mismo piso bioclimático
+        (22b en el mesomediterráneo, 27c en el termomediterráneo): <b>${ha(c.pot_alc_a_carr_ha)}</b> de superficie forestal quemada
+        (${ha(c.pot_alc_a_carr_22b_ha)} a 22b y ${ha(c.pot_alc_a_carr_27c_ha)} a 27c). Se respeta el alcornocal allí donde el Mapa Forestal lo registra,
+        aunque el sustrato sea calizo (${ha(c.alc_real_sobre_calizo_ha)} quemadas, probablemente sobre suelos descarbonatados): ahí manda la vegetación real;</li>
+        <li>carrascal mesomediterráneo (22b) sobre rodeno → alcornocal (23b): <b>${ha(c.pot_carr_a_alc_ha)}</b>;</li>
+        <li>el carrascal termomediterráneo (27c) sobre rodeno se mantiene, porque la revisión de 2011 (Rivas-Martínez y col., <i>Itinera Geobotanica</i> 18) reconoce su faciación sobre areniscas del rodeno con <i>Calicotome spinosa</i>;</li>
+        <li>fondos de valle, depósitos de ladera y zonas sin dato geológico no se tocan.</li>
+      </ul>
+      Es una interpretación propia, no un dato oficial. Cambia también, en consecuencia, la actuación recomendada (la restauración activa del pinar quemado se plantea donde debería haber alcornocal) y la viabilidad.`];
+  },
   fuentesOficial: '<li><b>Cifras oficiales</b> (9.568 ha, 89 km de perímetro, 4,2 M€): Centro de Coordinación de Emergencias y Generalitat, según prensa.</li>',
   fuentesCeam: `
   <h2>Fundación CEAM</h2>
@@ -105,7 +127,7 @@ export const FIRE = {
     <a href="https://castellonplaza.com/castellonplaza/comarcas/informe-del-ceam-sobre-el-incendio-de-la-vall-duixo-la-vegetacion-perdio-el-51-de-humedad-en-los-meses-previos" target="_blank" rel="noopener">pérdida de humedad previa</a> (Castellón Plaza).</li>
     <li>Protocolo y umbrales: manual <i>Postfire-DSS</i> de la Fundación CEAM, según El Periòdic.</li>
     <li>El CEAM no ha publicado sus mapas: las capas de sequedad y de criterio CEAM de esta app reproducen sus análisis con datos abiertos y pueden no coincidir exactamente con los suyos.</li>
-    <li>Coordenadas de los parajes: Nomenclátor Geográfico Básico de España (IGN), vía CartoCiudad. El Puntal de Nules es el Pic de la Font de Cabres (639 m), según <a href="https://de.wikiloc.com/routen-wandern/ume1963-el-puntal-de-nules-pic-de-la-font-de-cabres-639-m-80185664" target="_blank" rel="noopener">esta ruta de Wikiloc</a>.</li>
+    <li>Coordenadas de los parajes: Nomenclátor Geográfico Básico de España (IGN), vía CartoCiudad. El Puntal de Nules es el Pic de la Font de Cabres (639 m), según <a href="https://es.wikiloc.com/routen-wandern/ume1963-el-puntal-de-nules-pic-de-la-font-de-cabres-639-m-80185664" target="_blank" rel="noopener">esta ruta de Wikiloc</a>.</li>
   </ul>`,
   officialLimit: 'la cifra oficial (9.568 ha) usa el perímetro exterior e incluye islas no quemadas',
 };

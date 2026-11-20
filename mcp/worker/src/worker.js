@@ -12,8 +12,13 @@ import { CfWorkerJsonSchemaValidator } from '@modelcontextprotocol/sdk/validatio
 import { createFenix } from '../../src/core.js';
 import { registerTools, INSTRUCTIONS } from '../../src/tools.js';
 import { openapi } from './openapi.js';
+import { TEMAS, guia } from '../../src/guides.js';
 
-const VERSION = '0.2.0';
+const BOOL_KEYS = ['forestal', 'reincendio_corto'];  // espacio_protegido admite sí/no o un nombre: lo decide el núcleo
+const has = (o, k) => Object.prototype.hasOwnProperty.call(o, k);
+// decodifica un segmento de ruta; null si está mal codificado (→ 400)
+const dec = (s) => { try { return decodeURIComponent(s); } catch { return null; } };
+import { VERSION } from '../../src/version.js';  // generado desde public/version.json (scripts/bump_version.mjs)
 const AUTOR = { nombre: 'Joaquín García Nieto', email: 'garcia.nieto.joaquin@gmail.com', linkedin: 'https://www.linkedin.com/in/jgarnie/' };
 const AVISO = 'Fénix es un proyecto divulgativo e independiente, no una fuente oficial. Las capas derivadas (severidad, actuaciones, '
   + 'viabilidad, costes) son elaboración propia. Para decisiones, consultar a la administración forestal competente.';
@@ -70,9 +75,49 @@ async function api(path, params, env) {
     return ok(await fx.listar(), incendios.map(({ slug, nombre, subtitulo, descripcion, anyo, mapa, superficie_satelite_ha, oficial, municipios, bounds }) => (
       { slug, nombre, subtitulo, descripcion, anyo, mapa, superficie_satelite_ha, oficial, municipios, bounds })));
   }
+  const sp = /^\/api\/incendios\/([^/]+)\/superficies$/.exec(path);
+  if (sp) {
+    const q = dec(sp[1]);
+    if (q === null) return bad('Ruta mal codificada.');
+    const f = await fx.findFire(q);
+    if (!f) return bad(await fx.resumen(q), 404);
+    // filtros como parámetros: ?municipio=Tales&vegetacion_antes=alcornocal&severidad=alta,moderada-alta&reincendio_corto=true&agrupar_por=municipio,severidad
+    const filtros = Object.create(null);   // sin prototipo: claves como __proto__ o constructor son filtros (desconocidos) normales
+    for (const [k, v] of params) if (k !== 'agrupar_por' && v.trim() !== '') filtros[k] = BOOL_KEYS.includes(k) ? ['1', 'true', 'si', 'sí'].includes(v.toLowerCase()) : v.split(',');
+    const out = {};
+    const texto = await fx.superficies(f.slug, { filtros, agrupar_por: (params.get('agrupar_por') || '').split(',').filter(Boolean) }, out);
+    if (out.error_filtro) return bad(texto);   // filtro o agrupación desconocidos, o valor sin coincidencias: 400 con los valores válidos
+    return ok(texto, out, { incendio: f.slug });
+  }
+  if (path === '/api/guia') {
+    const tema = params.get('tema') || '';
+    if (!has(TEMAS, tema)) return bad(`Parámetro tema obligatorio: ${Object.keys(TEMAS).join(', ')}.`);
+    const q = params.get('incendio');
+    const ctx = q ? await fx.contexto(q).catch(() => null) : null;
+    if (q && !ctx) return bad(await fx.resumen(q), 404);
+    const texto = guia(tema, ctx, (params.get('municipio') || '').trim() || null) + fx.firma(ctx ? await fx.findFire(ctx.slug) : null);
+    return ok(texto, { tema, incendio: ctx?.slug || null });
+  }
+  const zp = /^\/api\/incendios\/([^/]+)\/prioridades$/.exec(path);
+  if (zp) {
+    const q = dec(zp[1]);
+    if (q === null) return bad('Ruta mal codificada.');
+    const f = await fx.findFire(q);
+    if (!f) return bad(await fx.resumen(q), 404);
+    const lim = Number(params.get('limite') || 5);
+    if (!Number.isInteger(lim) || lim < 1 || lim > 8) return bad('Parámetro limite: un número entero entre 1 y 8.');
+    const tp = params.get('tipo') || 'todas';
+    if (!['todas', 'erosion', 'regeneracion', 'reincendio'].includes(tp)) return bad('Parámetro tipo: todas, erosion, regeneracion o reincendio.');
+    const out = {};
+    const texto = await fx.prioridades(f.slug, {
+      municipio: (params.get('municipio') || '').trim() || null, solo_publico: ['1', 'true', 'si', 'sí'].includes((params.get('solo_publico') || '').toLowerCase()), limite: lim, tipo: tp,
+    }, out);
+    return ok(texto, out, { incendio: f.slug });
+  }
   let m = /^\/api\/incendios\/([^/]+)(\/plan)?$/.exec(path);
   if (m) {
-    const q = decodeURIComponent(m[1]);
+    const q = dec(m[1]);
+    if (q === null) return bad('Ruta mal codificada.');
     const f = await fx.findFire(q);
     if (!f) return bad(await fx.resumen(q), 404);
     const d = await fx.detail(f.slug);
@@ -84,8 +129,10 @@ async function api(path, params, env) {
     if (!params.has('lat') || !params.has('lon') || !Number.isFinite(lat) || !Number.isFinite(lon) || Math.abs(lat) > 90 || Math.abs(lon) > 180) {
       return bad('Parámetros lat y lon obligatorios, en grados decimales WGS84 (p. ej. lat=39.90975&lon=-0.21464).');
     }
+    const qi = (params.get('incendio') || '').trim();
+    if (qi && !(await fx.findFire(qi))) return bad(await fx.resumen(qi), 404);
     const out = {};
-    const texto = await fx.punto(lat, lon, params.get('incendio') || undefined, out);
+    const texto = await fx.punto(lat, lon, qi || undefined, out);
     return ok(texto, out);
   }
   if (path === '/api/municipio') {
@@ -99,24 +146,118 @@ async function api(path, params, env) {
 }
 
 export default {
-  async fetch(request, env) {
+  async fetch(request, env, ctx) {
+    const t0 = Date.now();
     const url = new URL(request.url);
     const path = url.pathname.replace(/\/+$/, '') || '/';
     if (request.method === 'OPTIONS') return new Response(null, { status: 204, headers: CORS });
+    // estadística anónima: se lee una copia de la petición MCP (método y argumentos) antes de atenderla
+    const rpc = path === '/mcp' && request.method === 'POST' ? request.clone().json().catch(() => null) : null;
+    let res;
     try {
-      if (path === '/mcp') return withCors(await mcp(request, env));
-      if (request.method !== 'GET' && request.method !== 'HEAD') return bad('Método no permitido', 405);
-      if (path === '/openapi.json') return json(openapi(url.origin, VERSION));
-      if (path === '/') return html(landing(url.origin));
-      if (path === '/privacidad') return html(privacy(url.origin));
-      if (path === '/favicon.ico') return new Response(null, { status: 204 });
-      const r = await api(path, url.searchParams, env);
-      return r || bad(`No existe ${path}. Ver ${url.origin}/ y ${url.origin}/openapi.json`, 404);
+      if (path === '/mcp') res = withCors(await mcp(request, env));
+      else if (request.method !== 'GET' && request.method !== 'HEAD') res = bad('Método no permitido', 405);
+      else if (path === '/openapi.json') res = json(openapi(url.origin, VERSION));
+      else if (path === '/') res = html(landing(url.origin));
+      else if (path === '/privacidad') res = html(privacy(url.origin));
+      else if (path === '/favicon.ico') return new Response(null, { status: 204 });
+      else res = (await api(path, url.searchParams, env)) || bad(`No existe ${path}. Ver ${url.origin}/ y ${url.origin}/openapi.json`, 404);
     } catch (e) {
-      return bad(`Error al consultar Fénix: ${e.message}`, 502);
+      res = bad(`Error al consultar Fénix: ${e.message}`, 502);
     }
+    const rec = track(request, env, path, url.searchParams, rpc, res.status, Date.now() - t0);
+    if (ctx?.waitUntil) ctx.waitUntil(rec); else rec.catch(() => {});
+    return res;
   },
 };
+
+// ------------------------------------------------------------------ estadística de uso anónima
+// Una fila por petición en Workers Analytics Engine (binding STATS, dataset fenix_mcp) y la misma fila como log
+// JSON (Workers Logs, visible 3 días en el panel; los registros de invocación, con la URL completa, están desactivados en
+// wrangler.jsonc). Solo campos cerrados: nunca IP, User-Agent completo, coordenadas ni texto libre; el cliente se reduce
+// a una familia (lista cerrada) y el municipio se guarda solo si coincide con uno de los incendios de Fénix ("otro" si no).
+// Orden de columnas (scripts/mcp_stats.mjs depende de él):
+//   blob1 tipo (mcp|rest|pagina) · blob2 ruta/método · blob3 herramienta · blob4 incendio · blob5 municipio · blob6 tipo
+//   de prioridad · blob7 cliente · blob8 versión del cliente · blob9 país · blob10 resultado (ok|error)
+//   double1 milisegundos · double2 código HTTP
+const ROUTE_TOOL = { '/api/incendios': 'listar_incendios', '/api/punto': 'consultar_punto', '/api/municipio': 'buscar_municipio', '/api/guia': 'guia_experta' };
+const norm = (s) => String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().trim();
+// lista cerrada: el nombre que declara el cliente MCP (texto libre) nunca se guarda tal cual
+const clientFamily = (ua) => {
+  const u = String(ua || '');
+  if (/claude|anthropic/i.test(u)) return 'Claude';
+  if (/openai|chatgpt/i.test(u)) return 'ChatGPT';
+  if (/cursor/i.test(u)) return 'Cursor';
+  if (/visual studio|vscode|copilot/i.test(u)) return 'VS Code';
+  if (/gemini|google/i.test(u)) return 'Gemini';
+  if (/python/i.test(u)) return 'python';
+  if (/node|undici/i.test(u)) return 'node';
+  if (/curl|wget/i.test(u)) return 'curl';
+  if (/mozilla/i.test(u)) return 'navegador';
+  return u ? 'otro' : 'desconocido';
+};
+const clean = (s, n = 40) => String(s || '').replace(/[^\p{L}\p{N} ._/{}-]/gu, '').slice(0, n);
+// métodos MCP conocidos (cualquier otro se registra como "otro")
+const MCP_METHODS = new Set(['initialize', 'notifications/initialized', 'ping', 'tools/list', 'tools/call', 'prompts/list', 'prompts/get',
+  'resources/list', 'resources/templates/list', 'resources/read', 'completion/complete', 'logging/setLevel', 'notifications/cancelled']);
+const TOOLS = new Set(['listar_incendios', 'resumen_incendio', 'plan_restauracion', 'consultar_punto', 'buscar_municipio',
+  'zonas_prioritarias', 'consultar_superficies', 'guia_experta']);
+const VERSION_RE = /^\d{1,4}(\.\d{1,4}){0,3}$/;
+
+async function track(request, env, path, params, rpcPromise, status, ms) {
+  try {
+    let kind = 'pagina', route = path, tool = '', args = {}, client = clientFamily(request.headers.get('User-Agent')), clientVer = '';
+    if (path === '/mcp') {
+      kind = 'mcp';
+      const body = await rpcPromise;
+      const msg = Array.isArray(body) ? body[0] : body;
+      route = MCP_METHODS.has(msg?.method) ? msg.method : (msg ? 'otro' : request.method === 'GET' ? 'GET' : 'otro');
+      if (msg?.method === 'tools/call') {
+        tool = TOOLS.has(msg.params?.name) ? msg.params.name : 'otra';
+        const a = msg.params?.arguments || {};
+        const fm = a.filtros?.municipio;
+        args = { incendio: a.incendio, municipio: a.municipio || a.nombre || (Array.isArray(fm) ? fm[0] : fm), tipo: a.tipo };
+      }
+      if (msg?.method === 'initialize' && msg.params?.clientInfo) {
+        if (msg.params.clientInfo.name) client = clientFamily(msg.params.clientInfo.name);
+        const v = String(msg.params.clientInfo.version || '');
+        clientVer = VERSION_RE.test(v) ? v : '';
+      }
+    } else if (path.startsWith('/api/')) {
+      kind = 'rest';
+      const m = /^\/api\/incendios\/([^/]+)(\/plan|\/prioridades|\/superficies)?$/.exec(path);
+      tool = m ? ({ '/plan': 'plan_restauracion', '/prioridades': 'zonas_prioritarias', '/superficies': 'consultar_superficies' }[m[2]] || 'resumen_incendio') : (ROUTE_TOOL[path] || 'otra');
+      route = m ? `/api/incendios/{incendio}${m[2] || ''}` : path;
+      args = { incendio: m ? dec(m[1]) : params.get('incendio'), municipio: (params.get('municipio') || params.get('nombre') || '').split(',')[0], tipo: params.get('tipo') };
+    } else if (!['/', '/privacidad', '/openapi.json'].includes(path)) {
+      route = 'otra';
+    }
+    // incendio y municipio: solo valores conocidos de Fénix
+    let fire = '', mun = '';
+    if (norm(args.incendio) || norm(args.municipio)) {
+      const { incendios } = await fenix(env).index();
+      if (norm(args.incendio)) {
+        const q = norm(args.incendio);
+        const f = incendios.find((x) => norm(x.slug) === q || norm(x.nombre).includes(q));
+        fire = f ? f.slug : 'otro';
+      }
+      if (norm(args.municipio)) {
+        const q = norm(args.municipio);
+        const names = incendios.flatMap((x) => (x.municipios || []).map((mm) => mm.nombre));
+        mun = names.find((n) => norm(n) === q) || 'otro';
+      }
+    }
+    const tipo = ['todas', 'erosion', 'regeneracion', 'reincendio'].includes(norm(args.tipo)) ? norm(args.tipo) : '';
+    const country = clean(request.cf?.country, 3);
+    const result = status < 400 ? 'ok' : 'error';
+    const blobs = [kind, route, tool, fire, mun, tipo, client, clientVer, country, result];
+    if (env.STATS?.writeDataPoint) env.STATS.writeDataPoint({ indexes: [kind], blobs, doubles: [ms, status] });
+    console.log(JSON.stringify({ fenix_uso: 1, tipo: kind, ruta: route, herramienta: tool, incendio: fire, municipio: mun,
+      prioridad: tipo, cliente: client, cliente_version: clientVer, pais: country, resultado: result, ms, http: status }));
+  } catch {
+    // la estadística nunca debe romper una respuesta
+  }
+}
 
 // ------------------------------------------------------------------ páginas
 const page = (title, body) => `<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
@@ -161,10 +302,15 @@ para preguntar a tu IA. Mapas: <a href="https://jgarnie.github.io/fenix/">jgarni
 
 <h2>Preguntas de ejemplo</h2>
 <ul><li>¿Qué incendios tiene Fénix?</li><li>¿Cómo quedó Betxí tras el incendio de Espadà?</li>
-<li>¿Qué había y qué debería plantarse en 39.90975, -0.21464?</li><li>¿Qué plan de restauración propone Fénix para Bejís?</li></ul>
+<li>¿Qué había y qué debería plantarse en 39.90975, -0.21464?</li><li>¿Qué plan de restauración propone Fénix para Bejís?</li>
+<li>¿Dónde es más urgente repoblar en Bejís y con qué?</li>
+<li>¿Cuántas hectáreas de monte público ardieron con severidad alta en Bejís?</li>
+<li>Prepárame un informe para el Ayuntamiento de El Toro.</li></ul>
+<p class="muted">Herramientas: listar_incendios, resumen_incendio, plan_restauracion, consultar_punto, buscar_municipio, zonas_prioritarias, consultar_superficies (hectáreas cruzando capas) y guia_experta (criterios y pasos de restauración; también como prompts guia_*).</p>
 
 <footer class="muted">${AVISO}<br>Creado por <a href="${AUTOR.linkedin}">${AUTOR.nombre}</a> ·
-<a href="mailto:${AUTOR.email}">${AUTOR.email}</a> · <a href="https://github.com/jgarnie/fenix">código abierto</a> · <a href="${origin}/privacidad">privacidad</a></footer>`);
+<a href="mailto:${AUTOR.email}">${AUTOR.email}</a> · <a href="https://github.com/jgarnie/fenix">código abierto</a> · <a href="${origin}/privacidad">privacidad</a>
+· <a href="https://github.com/jgarnie/fenix/blob/main/CHANGELOG.md">Fénix v${VERSION}</a></footer>`);
 }
 
 function privacy(origin) {
@@ -172,7 +318,12 @@ function privacy(origin) {
 <h1>Política de privacidad</h1>
 <p class="muted">Servidor de Fénix para asistentes de IA (${origin})</p>
 <ul>
-<li>Este servicio no pide registro, no usa cookies y no guarda las preguntas ni las coordenadas consultadas.</li>
+<li>Este servicio no pide registro, no usa cookies y no guarda las preguntas, las coordenadas consultadas ni la dirección IP.</li>
+<li>Para saber cuánto se usa, cuenta cada consulta de forma anónima: qué herramienta se usó, sobre qué incendio y municipio de Fénix,
+el tipo de aplicación (Claude, ChatGPT…), el país (según Cloudflare), si funcionó y cuánto tardó. Nada de eso identifica a nadie.
+Los recuentos se guardan en Cloudflare (Workers Analytics Engine, unos 3 meses) y, con esos mismos campos, en los registros
+del servidor (Workers Logs, 3 días); los registros automáticos de cada petición, que incluirían la URL consultada, están desactivados.
+Solo los ve el autor.</li>
 <li>Solo responde con datos públicos de los mapas de Fénix (<a href="https://jgarnie.github.io/fenix/">jgarnie.github.io/fenix</a>), que no contienen datos personales.</li>
 <li>Funciona en Cloudflare Workers. Como cualquier servidor web, Cloudflare puede registrar de forma temporal datos técnicos de las peticiones
 (dirección IP, fecha, ruta) con fines de seguridad y diagnóstico, según su <a href="https://www.cloudflare.com/privacypolicy/">política de privacidad</a>.</li>

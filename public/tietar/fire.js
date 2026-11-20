@@ -80,7 +80,7 @@ export const FIRE = {
   // imágenes Sentinel-2 del comparador (clave de escena → etiqueta); las fechas salen de meta.json
   images: [['abril', 'Primavera'], ['antes', 'Antes'], ['despues', 'Después'], ['ahora', 'Ahora']],
   swir: ['antes', 'despues', 'ahora'],
-  pnoa: 'Ortofoto PNOA (pre-incendio)',
+  pnoa: 'Ortofoto PNOA (antes)',
   // vuelos PNOA históricos que cubren la zona (al acercar mucho sustituyen a Sentinel-2); aún no hay vuelo posterior al incendio
   ortos: [{ year: 2023, label: 'antes del incendio', pre: true }],
   presets: [['antes|despues', 'Antes vs después'], ['antes|ahora', 'Antes vs ahora'], ['despues_swir|ahora_swir', 'Rebrote (falso color)'], ['orto2023|despues', 'Ortofoto 2023 vs después']],
@@ -118,7 +118,14 @@ export const FIRE = {
     <li><b>Reserva Natural del Valle de Iruelas:</b> <a href="https://www.miteco.gob.es/es/biodiversidad/servicios/banco-datos-naturaleza/informacion-disponible/enp_descargas.html" target="_blank" rel="noopener">Espacios Naturales Protegidos</a> (MITECO, 2025).</li>
     <li><b>Términos municipales:</b> Instituto Geográfico Nacional (unidades administrativas).</li>`,
   licencias: `<li>Montes de utilidad pública: Junta de Castilla y León y Comunidad de Madrid. Mapa Forestal de España y Espacios Naturales Protegidos: MITECO. Términos municipales: IGN, CC BY 4.0 scne.es. Incendios previos: EFFIS, © Unión Europea.</li>`,
-  limitMontes: 'La capa de montes públicos incluye los catálogos de utilidad pública de Castilla y León y Madrid; la pequeña parte quemada en Toledo (unas 750 ha) no se ha cruzado con el catálogo de Castilla-La Mancha. Puede haber otras fincas públicas no catalogadas. Los incendios previos solo se conocen desde 2016.',
+  limitMontes: 'La capa de montes públicos incluye los catálogos de utilidad pública de Castilla y León y Madrid; la pequeña parte quemada en Toledo (unas 980 ha: La Iglesuela del Tiétar, Almorox y Sartajada) no se ha cruzado con el catálogo de Castilla-La Mancha. Puede haber otras fincas públicas no catalogadas. Los incendios previos solo se conocen desde 2016.',
+  // errores propios ya corregidos (se listan en Fuentes → Correcciones propias; la altitud la añade app.js)
+  erroresCorregidos: () => [`<b>Sustrato (corregido en noviembre de 2026):</b> las unidades del
+    <a href="https://mapas.igme.es/gis/rest/services/Cartografia_Geologica/IGME_Geode_50/MapServer" target="_blank" rel="noopener">IGME GEODE 1:50.000</a>
+    que no contenían ninguna palabra de roca silícea conocida se clasificaban por defecto como «calizo». En el granito de Gredos eso afectaba a canchales,
+    filones de cuarzo, navas, depósitos cuaternarios de arenas, gravas y cantos, alteritas y lamprófidos: unas 860 ha del área quemada (660 forestales) salían como caliza.
+    Ahora los canchales cuentan como depósitos de ladera (377 ha), las navas como fondo de valle (147 ha) y el resto como silíceo (336 ha).
+    Solo quedan como calizos los mármoles cámbricos y los depósitos con carbonatos (unas 127 ha). No cambia la vegetación potencial, las actuaciones ni la viabilidad.`],
   fuentesOficial: `<li><b>Superficie, fechas, causa y desalojos:</b> Junta de Castilla y León según
     <a href="https://www.eldiario.es/castilla-y-leon/sociedad/junta-castilla-leon-rebaja-37-800-hectareas-superficie-afectada-incendio-avila_1_13459661.html" target="_blank" rel="noopener">elDiario.es</a>,
     <a href="https://www.infobae.com/espana/2026/08/06/estabilizado-el-incendio-de-burgohondo-avila-tras-quince-dias-activos-y-mas-de-50000-hectareas-afectadas/" target="_blank" rel="noopener">Infobae</a> y

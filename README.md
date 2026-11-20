@@ -74,6 +74,10 @@ Para desarrolladores hay también una API REST en JSON: [`openapi.json`](https:/
 - ¿Cómo quedó Betxí tras el incendio de Espadà?
 - ¿Qué había y qué debería plantarse en 39.90975, -0.21464?
 - ¿Qué plan de restauración propone Fénix para Bejís?
+- ¿Dónde es más urgente repoblar en Bejís y con qué?
+- ¿Cuántas hectáreas de monte público ardieron con severidad alta en Bejís?
+- ¿Cuánto de lo que ardió en 2016 en Artana ha vuelto a arder?
+- Prepárame un informe para el Ayuntamiento de El Toro sobre su monte quemado.
 
 Las respuestas salen de este proyecto divulgativo, que no es una fuente oficial.
 
@@ -140,4 +144,4 @@ Generalitat Valenciana, el Ministerio ni ningún otro organismo. No debe usarse 
 delimitar propiedades ni sustituir el criterio de técnicos forestales. Los datos y resultados se ofrecen tal cual, sin garantía.
 
 La capa de propiedad procede del catálogo público de montes y no contiene datos de propietarios particulares.
-La aplicación no usa cookies ni analítica. Las teselas del mapa base se cargan desde los servidores del IGN.
+La aplicación no usa cookies. Las visitas se cuentan de forma anónima con Cloudflare Web Analytics (sin cookies ni seguimiento entre webs) y el servidor MCP/API cuenta las consultas (herramienta, incendio, municipio, tipo de aplicación, país), sin guardar preguntas, coordenadas ni direcciones IP. Las teselas del mapa base se cargan desde los servidores del IGN.

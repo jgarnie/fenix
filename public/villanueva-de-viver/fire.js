@@ -77,7 +77,7 @@ export const FIRE = {
   // imágenes Sentinel-2 del comparador (clave de escena → etiqueta); las fechas salen de meta.json
   images: [['abril', 'Invierno'], ['antes', 'Antes'], ['despues', 'Después'], ['y2024', '1 año'], ['y2025', '2 años'], ['y2026', '3 años'], ['ahora', 'Ahora']],
   swir: ['antes', 'despues', 'y2025', 'y2026'],
-  pnoa: 'Ortofoto PNOA (vuelo más reciente)',
+  pnoa: 'Ortofoto PNOA (reciente)',
   // vuelos PNOA históricos que cubren la zona (al acercar mucho sustituyen a Sentinel-2)
   ortos: [{ year: 2021, label: 'antes del incendio', pre: true }, { year: 2024, label: 'un año después', pre: false }],
   presets: [['antes|despues', 'Antes vs después'], ['despues|y2026', 'Después vs 3 años'], ['antes|y2026', 'Antes vs 3 años'], ['despues_swir|y2026_swir', 'Rebrote (falso color)'], ['orto2021|orto2024', 'Ortofotos 2021 vs 2024']],

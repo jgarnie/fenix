@@ -9,6 +9,19 @@ const eur = (n) => n >= 1e6 ? `${fmt(n / 1e6, 2)} M€` : `${fmt(n / 1e3, 0)} k�
 const hex = (h) => [parseInt(h.slice(1, 3), 16), parseInt(h.slice(3, 5), 16), parseInt(h.slice(5, 7), 16)];
 const esc = (t) => String(t ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
 
+// ------------------------------------------------------------------ recuento anónimo de visitas
+// Cloudflare Web Analytics: sin cookies, sin huella del navegador ni seguimiento entre webs. Pegar aquí el token del
+// sitio (panel de Cloudflare → Analytics & Logs → Web Analytics → jgarnie.github.io → "Manage site" → fragmento JS,
+// valor de "token"). Vacío = no se carga nada. Solo cuenta en la web publicada, no en local.
+const CF_BEACON_TOKEN = '795219b6cc0a4a8d8c92f99b30958ec1';
+if (CF_BEACON_TOKEN && location.hostname === 'jgarnie.github.io') {
+  const s = document.createElement('script');
+  s.defer = true;
+  s.src = 'https://static.cloudflareinsights.com/beacon.min.js';
+  s.dataset.cfBeacon = JSON.stringify({ token: CF_BEACON_TOKEN });
+  document.head.appendChild(s);
+}
+
 // ------------------------------------------------------------------ desplegables propios (sobre un <select>)
 // Mejora progresiva: el <select> nativo sigue en el DOM (oculto e inert) y guarda el valor, así que el resto del
 // código lo lee y escucha su 'change' como siempre. Se añade un botón y una lista (role=listbox) en <body> con
@@ -139,9 +152,16 @@ function enhanceSelect(sel, { cls = '', label = null, alignTo = () => null } = {
     else if (e.key === 'ArrowUp') focusOpt(i - 1);
     else if (e.key === 'Home') focusOpt(0);
     else if (e.key === 'End') focusOpt(opts.length - 1);
-    else if (e.key === 'Enter' || e.key === ' ') choose(Math.max(0, i));
+    else if (e.key === 'Enter' || e.key === ' ') { if (i >= 0) choose(i); }
     else if (e.key === 'Escape') close();
-    else if (e.key === 'Tab') { close(false); return; }
+    else if (e.key === 'Tab') {
+      // el menú vive al final de <body>: cerrar y seguir el orden de tabulación desde el botón, no desde el menú
+      close();
+      const f = [...document.querySelectorAll('a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea, [tabindex]:not([tabindex="-1"])')]
+        .filter((x) => !x.closest('[hidden], [inert], #sel-layer') && x.getClientRects().length);
+      const k = f.indexOf(btn);
+      f[k + (e.shiftKey ? -1 : 1)]?.focus();
+    }
     else if (e.key.length === 1) { // búsqueda por las primeras letras
       typed = (Date.now() - typedAt > 700 ? '' : typed) + norm(e.key);
       typedAt = Date.now();
@@ -215,7 +235,7 @@ const THEMES = {
   veg: { name: 'Vegetación antes del incendio', desc: 'Mapa Forestal de España 1:50.000', inside: false,
     color: (i) => C.veg[val('veg', i)], legend: () => cats(C.veg, leg.veg, used('veg')) },
   pot: { name: 'Vegetación que debería haber', desc: 'Mapa de Series de Vegetación de España (MITECO)', inside: false,
-    color: (i) => C.pot[val('pot', i)], legend: () => cats(C.pot, Object.fromEntries(Object.entries(POT_INFO).map(([k, v]) => [k, v.corto])), used('pot')) },
+    color: (i) => C.pot[val('pot', i)], legend: () => potLegend() },
   eros: { name: 'Riesgo de erosión', desc: 'Severidad × pendiente', inside: true,
     color: (i) => C.eros[val('eros', i)], legend: () => cats(C.eros, leg.eros) },
   act: { name: 'Actuación recomendada', desc: 'Modelo de decisión (pestaña Cómo)', inside: true,
@@ -258,21 +278,54 @@ function ramp(t, stops) {
 function cats(colors, labels, keys) {
   return (keys || Object.keys(colors)).map((k) => `<div class="it"><span class="sw" style="background:${colors[k]}"></span>${labels[k]}</div>`).join('');
 }
+// superficie de cada serie potencial dentro del área quemada (stats.potential, por etiqueta de la leyenda)
+const potHa = (k) => S.potential?.[leg.pot[k]] || 0;
+// leyenda de la vegetación potencial: cada serie se despliega con su código, piso y especies
+function potLegend() {
+  return used('pot').map((k) => {
+    const p = POT_INFO[k] || {};
+    const det = [
+      p.codigo ? `<p><b>Serie ${p.codigo}</b> · ${p.serie}</p>` : `<p>${p.serie || ''}</p>`,
+      p.piso ? `<p>${p.piso}</p>` : '',
+      p.especies ? `<p><span class="muted">Especies que la definen${p.especiesNota ? ` (${p.especiesNota})` : ''}:</span> <span class="species">${p.especies}</span></p>` : '',
+    ].join('');
+    return `<div class="pot-it"><button type="button" class="pot-tg" aria-expanded="false" aria-controls="potd-${k}">
+      <span class="sw" style="background:${C.pot[k]}"></span><span class="pot-name">${p.corto || leg.pot[k]}</span>
+      <span class="pot-ha">${potHa(k) ? ha(potHa(k)) : ''}</span>
+      <svg class="pot-chev" viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 4.5 6 8l3.5-3.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+      <div class="pot-det" id="potd-${k}" hidden><div>${det}</div></div></div>`;
+  }).join('') + '<small class="muted pot-hint">Pulsa una serie para ver sus especies. Superficie dentro del área quemada.</small>';
+}
+function togglePotRow(btn) {
+  const det = document.getElementById(btn.getAttribute('aria-controls'));
+  if (!det) return;
+  const open = btn.getAttribute('aria-expanded') !== 'true';
+  btn.setAttribute('aria-expanded', open);
+  clearTimeout(det._t);
+  if (open) {
+    det.hidden = false;
+    requestAnimationFrame(() => requestAnimationFrame(() => det.classList.add('open')));
+  } else {
+    det.classList.remove('open');
+    det._t = setTimeout(() => { det.hidden = true; }, SEL_REDUCED.matches ? 0 : 200);
+  }
+}
 function rampLegend(stops, a, b) {
   return `<div class="ramp" style="background:linear-gradient(90deg,${stops.join(',')})"></div><div class="ramp-lbl"><span>${a}</span><span>${b}</span></div>`;
 }
 
 // ------------------------------------------------------------------ mapa
 const map = L.map('map', { zoomControl: false, attributionControl: true, minZoom: 9, maxZoom: 18 });
-// autoría: discreta, abajo a la derecha, entre los créditos de las fuentes y el zoom
+// llamada a pedir mapas: discreta, abajo a la derecha, entre los créditos de las fuentes y el zoom.
+// El nombre y el email del autor solo están en la tarjeta "Autor" (pestaña Fuentes), a la que lleva el enlace.
 L.Control.Credit = L.Control.extend({
   options: { position: 'bottomright' },
   onAdd() {
     const d = L.DomUtil.create('div', 'map-credit');
-    d.innerHTML = `Creado por <a href="#autor" class="credit-author" title="Ver autor y contacto">Joaquín García Nieto</a> · <a href="mailto:garcia.nieto.joaquin@gmail.com" title="Escríbeme"><span class="credit-long">garcia.nieto.joaquin@gmail.com</span><span class="credit-short">✉</span></a><span class="credit-long"> · proyecto divulgativo, no oficial</span>`;
-    d.title = 'Proyecto independiente con fines divulgativos. No es una fuente oficial: ver Aviso en la pestaña Fuentes.';
+    d.innerHTML = `<a href="#autor" class="credit-author" title="Proyecto divulgativo, no oficial. Pide el mapa de otro incendio o de tu municipio"><span class="credit-long">¿Quieres el mapa de un incendio? Pídemelo</span><span class="credit-short">Pide un mapa</span></a>`;
+    d.title = 'Proyecto divulgativo, no oficial';
     L.DomEvent.disableClickPropagation(d);
-    // el nombre lleva a la tarjeta "Autor" (pestaña Fuentes); en móvil también despliega el panel
+    // el enlace lleva a la tarjeta "Autor" (pestaña Fuentes); en móvil también despliega el panel
     d.querySelector('.credit-author').addEventListener('click', (e) => {
       e.preventDefault();
       document.querySelector('[data-tab=fuentes]').click();
@@ -289,13 +342,22 @@ L.Control.Credit = L.Control.extend({
 });
 new L.Control.Credit().addTo(map);
 L.control.zoom({ position: 'bottomright' }).addTo(map);
-// en móvil los créditos ocupan mucho sobre el mapa: se pliegan en un botón ⓘ que los despliega al tocarlo
-map.attributionControl.setPrefix('<button type="button" class="attr-toggle" aria-label="Mostrar créditos" aria-expanded="false">ⓘ</button><a href="https://leafletjs.com">Leaflet</a>');
-map.attributionControl.getContainer().addEventListener('click', (e) => {
-  const b = e.target.closest('.attr-toggle');
-  if (!b) return;
-  const open = b.parentElement.classList.toggle('open');
-  b.setAttribute('aria-expanded', open);
+// los créditos de las fuentes ocupan mucho sobre el mapa: se pliegan (en todos los tamaños) en un botón ⓘ
+// que los despliega; las licencias completas están además en la pestaña Fuentes. El estado se recuerda por visitante.
+// Leaflet vuelve a pintar el prefijo cada vez que cambian los créditos, así que el botón se genera con su estado.
+const ATTR_KEY = 'fenix-creditos-abiertos';
+let attrOpen = false;
+try { attrOpen = localStorage.getItem(ATTR_KEY) === '1'; } catch { /* sin almacenamiento: plegado */ }
+const attrPrefix = (open) => `<button type="button" class="attr-toggle" aria-label="${open ? 'Ocultar' : 'Mostrar'} créditos" aria-expanded="${open}">ⓘ</button><a href="https://leafletjs.com">Leaflet</a>`;
+const attrBox = map.attributionControl.getContainer();
+attrBox.classList.toggle('open', attrOpen);
+map.attributionControl.setPrefix(attrPrefix(attrOpen));
+attrBox.addEventListener('click', (e) => {
+  if (!e.target.closest('.attr-toggle')) return;
+  attrOpen = attrBox.classList.toggle('open');
+  map.attributionControl.setPrefix(attrPrefix(attrOpen));
+  attrBox.querySelector('.attr-toggle')?.focus(); // el botón se ha regenerado: devolverle el foco
+  try { localStorage.setItem(ATTR_KEY, attrOpen ? '1' : '0'); } catch { /* sin almacenamiento */ }
 });
 const bounds = L.latLngBounds(meta.bounds);
 const MOBILE = matchMedia('(max-width: 860px)');
@@ -483,7 +545,7 @@ function renderLegend() {
   const t = THEMES[theme.key];
   const el = $('#legend');
   el.style.display = t ? '' : 'none';
-  if (t) el.innerHTML = `<h4>${t.name}</h4>${t.legend()}`;
+  if (t) el.innerHTML = `<h3 class="lg-title">${t.name}</h3>${t.legend()}`;
 }
 
 // --- vectores
@@ -537,13 +599,30 @@ function pixelAt(latlng) {
   return x < 0 || y < 0 || x >= W || y >= H ? -1 : y * W + x;
 }
 let marker = null;
+function closeInfo() {
+  const el = $('#info');
+  const back = el.contains(document.activeElement);
+  el.classList.add('hidden');
+  document.body.classList.remove('info-open');
+  if (marker) { map.removeLayer(marker); marker = null; }
+  if (back) map.getContainer().focus();
+}
 function queryPoint(ll, byKeyboard = false) {
   const i = pixelAt(ll);
-  if (i < 0) return;
+  if (i < 0) { // fuera de la zona cartografiada: se cierra la ficha anterior
+    if (!$('#info').classList.contains('hidden')) closeInfo();
+    announce('Punto fuera del área cartografiada de este incendio.');
+    return;
+  }
   if (marker) marker.setLatLng(ll); else marker = L.circleMarker(ll, { radius: 6, color: '#fff', weight: 2, fillColor: '#111', fillOpacity: 1, pane: 'vec' }).addTo(map);
   showInfo(i, ll, byKeyboard);
 }
-map.on('click', (e) => queryPoint(e.latlng));
+// móvil: el primer toque en el mapa con la hoja abierta solo la minimiza (no abre una ficha)
+let swallowMapClick = false;
+map.on('click', (e) => {
+  if (swallowMapClick) { swallowMapClick = false; return; }
+  queryPoint(e.latlng);
+});
 // accesibilidad: el mapa se maneja con teclado (flechas para moverse, + y − para el zoom) e Intro consulta el centro
 {
   const mc = map.getContainer();
@@ -572,18 +651,20 @@ function showInfo(i, ll, byKeyboard = false) {
   const inside = !!G.inside[i];
   const v = G.veg[i], p = G.pot[i], a = G.act[i], o = G.owner[i], s = G.sev[i], e = G.eros[i];
   const nd = (k) => fmt((G[k][i] - 100) / 100, 2);
+  // fuera de la huella de las imágenes Sentinel-2 los tres NDVI valen exactamente 0 (código 100): sin datos
+  const noImg = G.ndvi_b[i] === 100 && G.ndvi_a[i] === 100 && G.ndvi_n[i] === 100;
   const pi = POT_INFO[p] || POT_INFO[7];
   const ai = ACT_INFO[a];
   const rows = [
     ['Estado', inside ? `Dentro del área quemada · ${pill(C.sev[s] || '#999', 'Severidad ' + (C.sevLbl[s] || 's/d').toLowerCase())}` : `Fuera del área quemada (${F.ems})`],
-    ['dNBR', `${fmt((G.dnbr[i] - 100) / 100, 2)}`],
-    ['NDVI', `${nd('ndvi_b')} antes → ${nd('ndvi_a')} después → ${nd('ndvi_n')} ahora`],
+    ['dNBR', noImg ? 'sin datos (fuera de las imágenes de satélite)' : `${fmt((G.dnbr[i] - 100) / 100, 2)}`],
+    ['NDVI', noImg ? 'sin datos' : `${nd('ndvi_b')} antes → ${nd('ndvi_a')} después → ${nd('ndvi_n')} ahora`],
     ['Vegetación antes', v ? pill(C.veg[v], leg.veg[v]) : 's/d'],
-    ['Propiedad', o ? `${pill(C.owner[o], leg.owner[o])}${monte ? `<br><small>${monte.properties.denominacion || ''} ${monte.properties.num_up ? '· nº ' + monte.properties.num_up : ''} · ${monte.properties.municipio}</small>` : ''}` : 'No catalogado como monte público (probablemente privado)'],
+    ['Propiedad', o ? `${pill(C.owner[o], leg.owner[o])}${monte ? `<br><small>${[String(monte.properties.denominacion || '').trim(), String(monte.properties.num_up || '').trim() && `nº ${String(monte.properties.num_up).trim()}`, monte.properties.municipio].filter(Boolean).join(' · ')}</small>` : ''}` : 'No catalogado como monte público (probablemente privado)'],
     ['Municipio', G.mun[i] ? meta.municipios[G.mun[i] - 1] : 's/d'],
     ...(HAS_PN ? [[PARK_SHORT, G.pn[i] ? `Sí · ${F.park}` : 'No']] : []),
     ['Sustrato', leg.sub[G.sub[i]] || 's/d'],
-    ['Altitud · pendiente', `${fmt(G.elev[i] * 5)} m · ${fmt(G.slope[i])} %`],
+    ['Altitud · pendiente', `${fmt(G.elev[i] * (meta.elev_step || 5) + (meta.elev_offset || 0))} m · ${fmt(G.slope[i])} %`],
     ['Incendios previos', fuegos.length ? fuegos.join(', ') : `Ninguno desde ${F.firesFrom}`],
     [`Sequedad ${month(SC.abril)} → ${month(SC.antes)}`, G.dndmi[i] ? `NDMI ${fmt((G.dndmi[i] - 100) / 100, 2)}` : 's/d'],
     ...(G.ceam[i] && !F.hideCeam ? [['Criterio CEAM', `${pill(C.ceam[G.ceam[i]], leg.ceam[G.ceam[i]])}<br><small>Cobertura vegetal estimada: ${fmt(G.recov[i])} % (${CEAM_DATE}). El CEAM lo evalúa a 1–2 años del incendio.</small>`]] : []),
@@ -603,15 +684,12 @@ function showInfo(i, ll, byKeyboard = false) {
   const el = $('#info');
   el.innerHTML = html;
   el.classList.remove('hidden');
+  el.scrollTop = 0;
+  document.body.classList.add('info-open');
   // lectores de pantalla: se anuncia la ficha; con teclado, el foco va a la ficha y al cerrarla vuelve al mapa
   announce(`Ficha del punto: ${inside ? 'dentro del área quemada' : 'fuera del área quemada'}${G.mun[i] ? `, ${meta.municipios[G.mun[i] - 1]}` : ''}.`);
   if (byKeyboard) $('#info-title').focus();
-  $('.close', el).onclick = () => {
-    const back = el.contains(document.activeElement);
-    el.classList.add('hidden');
-    if (marker) { map.removeLayer(marker); marker = null; }
-    if (back) map.getContainer().focus();
-  };
+  $('.close', el).onclick = closeInfo;
 }
 // región viva (oculta) para avisos a lectores de pantalla
 function announce(msg) {
@@ -668,6 +746,9 @@ $('.skip-link').addEventListener('click', (e) => { e.preventDefault(); $('.tabs 
   lg.setAttribute('role', 'region');
   lg.setAttribute('aria-label', 'Leyenda de la capa');
   lg.tabIndex = 0;
+  lg.addEventListener('click', (e) => { const b = e.target.closest('.pot-tg'); if (b) togglePotRow(b); });
+  L.DomEvent.disableClickPropagation(lg);
+  L.DomEvent.disableScrollPropagation(lg);
 }
 
 function bars(obj, colors, total) {
@@ -801,6 +882,7 @@ function recoveryTable() {
       <option value="" data-a="Todos los municipios" data-b="${munList.length} municipios · ${ha(S.grid_ha)}">Todos los municipios</option>
       ${munList.map(([n, v]) => `<option value="${esc(n)}" data-a="${esc(n)}" data-b="${ha(v.total)}">${esc(n)} · ${ha(v.total)}</option>`).join('')}
     </select>
+    <p id="mun-note" class="muted" role="status" hidden></p>
     <div id="mun-card"></div>
     <h2>Capa de análisis</h2>
     <div class="layer-list">${Object.entries(opts).map(([k, t]) => `
@@ -894,6 +976,8 @@ function munCard() {
   $('#mun-clear').onclick = () => { setMun(null); $('#mun-sel-btn')?.focus(); };
 }
 function setMun(name, { fit = true } = {}) {
+  const note = $('#mun-note');
+  if (note) note.hidden = true;
   const idx = name ? meta.municipios.indexOf(name) + 1 : 0;
   munF.idx = idx; munF.name = idx ? name : null;
   munF.layers.forEach((l) => map.removeLayer(l));
@@ -928,7 +1012,20 @@ function munFromHash() {
   try { q = norm(decodeURIComponent(m[1].replace(/\+/g, ' '))); } catch { return null; }
   return Object.keys(S.municipios || {}).find((n) => norm(n) === q) || null;
 }
-addEventListener('hashchange', () => { const n = munFromHash(); if (n && n !== munF.name) setMun(n); });
+// sincroniza con el ancla al cambiarla a mano o con atrás/adelante: sin #municipio= se quita el filtro; un nombre
+// que no está en este incendio se avisa (sin cambiar el filtro)
+function syncMunHash() {
+  if (!/(?:^#|&)municipio=/.test(location.hash)) {
+    if (munF.name && !/^#(autor|correcciones|series-incendio|tabbtn-)/.test(location.hash)) setMun(null, { fit: false });
+    return;
+  }
+  const n = munFromHash();
+  if (n) { if (n !== munF.name) setMun(n); return; }
+  announce('Ese municipio no tiene superficie quemada en este incendio.');
+  const box = $('#mun-note');
+  if (box) { box.hidden = false; box.textContent = 'El municipio del enlace no aparece en este incendio: se muestran todos.'; }
+}
+addEventListener('hashchange', syncMunHash);
 
 // --- Plan
 // Precios unitarios: Tarifas forestales de la Junta de Extremadura, actualización 2024
@@ -1000,8 +1097,10 @@ function renderPlan() {
   if (refocus) $(refocus)?.focus();
   // se recalcula en el siguiente ciclo: así, si el cambio llega al salir con Tab, el foco ya está en el control siguiente y se conserva
   const later = () => setTimeout(renderPlan);
-  document.querySelectorAll('[data-c]').forEach((inp) => (inp.onchange = () => { plan.cost[inp.dataset.c] = +inp.value || 0; later(); }));
-  $('#budget').onchange = (e) => { plan.budget = +e.target.value || 0; later(); };
+  // vacío o no numérico: se mantiene el valor anterior; negativos: 0
+  const num = (v, prev) => (String(v).trim() === '' || !Number.isFinite(+v) ? prev : Math.max(0, +v));
+  document.querySelectorAll('[data-c]').forEach((inp) => (inp.onchange = () => { plan.cost[inp.dataset.c] = num(inp.value, plan.cost[inp.dataset.c]); later(); }));
+  $('#budget').onchange = (e) => { plan.budget = num(e.target.value, plan.budget); later(); };
   $('#recargo').onchange = (e) => { plan.recargo = e.target.value; later(); };
 }
 {
@@ -1053,6 +1152,17 @@ function renderPlan() {
 }
 
 // --- Cómo
+// enlace de la tabla de series a "Correcciones propias" (pestaña Fuentes)
+$('#tab-como').addEventListener('click', (e) => {
+  if (!e.target.closest('.to-correcciones')) return;
+  e.preventDefault();
+  document.querySelector('[data-tab=fuentes]').click();
+  const smooth = !SEL_REDUCED.matches;
+  requestAnimationFrame(() => setTimeout(() => {
+    const h = document.getElementById('correcciones');
+    if (h) { h.tabIndex = -1; h.scrollIntoView({ behavior: smooth ? 'smooth' : 'auto', block: 'start' }); h.focus({ preventScroll: true }); }
+  }, 300));
+});
 {
   const act = (a) => `<details><summary><span class="sw" style="display:inline-block;background:${a === EMERG ? C.eros[4] : C.act[Object.keys(ACT_INFO).find((k) => ACT_INFO[k] === a)]}"></span> ${a.corto}</summary><p>${a.que}</p><ul>${a.como.map((x) => `<li>${x}</li>`).join('')}</ul></details>`;
   $('#tab-como').innerHTML = `
@@ -1076,13 +1186,21 @@ function renderPlan() {
     </div>
     <h2>Actuaciones</h2>
     ${act(EMERG)}${[1, 2, 3, 4].map((n) => act(ACT_INFO[n])).join('')}
-    <h2>Vegetación potencial de la zona</h2>
-    <p class="muted">Series del Mapa de Series de Vegetación de España (Rivas-Martínez, 1987; MITECO) presentes en el área quemada.
-    Las especies son las que nombra la descripción oficial de cada serie (Rivas-Martínez et al., 2011). Indican hacia dónde evolucionaría
-    el bosque; no son una lista de plantación, que debe decidir un técnico con planta de la región de procedencia local.</p>
-    ${used('pot').filter((k) => k !== 7).map((k) => { const p = POT_INFO[k]; return `<details><summary><span class="sw" style="display:inline-block;background:${C.pot[k]}"></span> ${p.corto}</summary>
-      <p><small class="muted">Serie ${p.codigo}: ${p.serie}</small></p><p>${p.piso}</p>${p.especies ? `<p><b>Especies que la definen:</b> <span class="species">${p.especies}</span></p>` : ''}
-      ${p.revision ? `<p class="muted">${p.revision}</p>` : ''}</details>`; }).join('')}
+    <h2 id="series-incendio">Series de vegetación de este incendio</h2>
+    <p class="muted">Series del <i>Mapa de Series de Vegetación de España</i> (Rivas-Martínez, 1987; MITECO) presentes en el área quemada, con su
+    superficie dentro de ella. Las especies son las que nombra la descripción oficial de cada serie (Rivas-Martínez y col., 2011). Indican hacia dónde
+    evolucionaría el bosque; no son una lista de plantación, que debe decidir un técnico con planta de la región de procedencia local.
+    ${F.correcciones ? ' En este incendio la serie se ha corregido según el sustrato en parte del área: ver <a href="#correcciones" class="to-correcciones">Correcciones propias</a> en Fuentes.' : ''}</p>
+    <table class="series-table">
+      <thead><tr><th scope="col">Serie</th><th scope="col" class="num">Superficie</th><th scope="col">Especies que la definen</th></tr></thead>
+      <tbody>${used('pot').filter((k) => k !== 7).map((k) => { const p = POT_INFO[k]; return `<tr>
+        <td><span class="sname"><span class="sw" style="background:${C.pot[k]}"></span><span>${p.corto}${p.codigo ? ` · ${p.codigo}` : ''}<small>${p.piso || p.serie}</small></span></span></td>
+        <td class="num">${potHa(k) ? ha(potHa(k)) : '—'}</td>
+        <td class="spp">${p.especies ? `<span class="species">${p.especies}</span>` : '<span class="muted">—</span>'}</td></tr>`; }).join('')}</tbody>
+    </table>
+    ${used('pot').some((k) => POT_INFO[k]?.revision) ? `<details><summary>Nombres oficiales y notas de la revisión de 2011</summary><ul>
+      ${used('pot').filter((k) => k !== 7).map((k) => { const p = POT_INFO[k]; return `<li><b>${p.corto}</b> (serie ${p.codigo}): ${p.serie}.${p.revision ? ` <span class="muted">${p.revision}</span>` : ''}${p.especiesNota ? ` <span class="muted">Especies: ${p.especiesNota}.</span>` : ''}</li>`; }).join('')}
+    </ul></details>` : ''}
     <h2>Lo que conviene evitar</h2>
     <ul>
       <li>Repoblar de forma masiva con pino antes de saber qué regenera solo.</li>
@@ -1101,6 +1219,21 @@ function renderPlan() {
 }
 
 // --- Fuentes
+// Correcciones propias: cambios hechos sobre los datos oficiales en este incendio (fire.js: correcciones) y errores
+// propios ya corregidos (fire.js: erroresCorregidos, más la altitud, común, a partir de stats.correcciones)
+function correccionesHtml() {
+  const C = S.correcciones || {};
+  const oficiales = F.correcciones ? F.correcciones(S, ha) : [];
+  const errores = [...(F.erroresCorregidos ? F.erroresCorregidos(S, ha) : [])];
+  if (C.elev_sobre_1275_ha > 0) {
+    errores.push(`<b>Altitud (corregido en noviembre de 2026):</b> la rejilla guardaba la altitud (en pasos de 10 m) con un tope de 1.275 m,
+      así que ${ha(C.elev_sobre_1275_ha)} del área quemada, que están más altas (hasta ${fmt(C.elev_max_m)} m), aparecían con 1.275 m en la ficha de cada punto y en el servidor MCP.
+      Ahora se guarda desde la cota mínima de cada incendio, hasta 2.550 m por encima. No afectaba a la pendiente, la erosión ni la viabilidad, que se calculan con el modelo de elevaciones original.`);
+  }
+  return `<h2 id="correcciones">Correcciones propias sobre los datos oficiales</h2>
+  <ul>${oficiales.length ? oficiales.map((x) => `<li>${x}</li>`).join('') : '<li>Ninguna en este incendio: los datos oficiales se usan tal cual, con las reglas de clasificación descritas en Método.</li>'}</ul>
+  ${errores.length ? `<h3>Errores propios ya corregidos</h3><ul>${errores.map((x) => `<li>${x}</li>`).join('')}</ul>` : ''}`;
+}
 $('#tab-fuentes').innerHTML = `
   <h2>Datos</h2>
   <ul>
@@ -1121,7 +1254,8 @@ $('#tab-fuentes').innerHTML = `
     <li><b>Severidad:</b> dNBR = NBR(antes) − NBR(después), con NBR = (B8 − B12)/(B8 + B12). Umbrales de Key &amp; Benson (USGS): 0,10 · 0,27 · 0,44 · 0,66.</li>
     <li><b>Vegetación potencial:</b> serie de vegetación que asigna a cada punto el <i>Mapa de Series de Vegetación de España</i> (Rivas-Martínez, 1987), salvo riberas y usos no forestales, que salen del Mapa Forestal.
     El mapa es de escala nacional (originalmente 1:400.000), así que sus límites son muy generales: indica la serie dominante de la zona, no la de cada ladera. No incluye pinares naturales en estas zonas,
-    aunque la revisión de 2011 sí reconoce series de pinar (por ejemplo, de pino laricio en el Sistema Ibérico).</li>
+    aunque la revisión de 2011 sí reconoce series de pinar (por ejemplo, de pino laricio en el Sistema Ibérico).
+    Se usa tal cual salvo donde este incendio indica una corrección (ver <a href="#correcciones">Correcciones propias</a>).</li>
     <li><b>Actuación:</b> ${F.metodoActuacion || `rebrotadoras → regeneración natural; pinar maduro poco dañado y sin incendios desde ${(S.fire_year || 2026) - 15} → natural; resto de pinar → asistida; pinar con daño alto donde debería haber alcornocal o zonas con ≥2 incendios previos → restauración activa.`}</li>
     <li><b>Árboles quemados:</b> densidad (árboles/ha con diámetro ≥ 7,5 cm) de las parcelas IFN3 dentro del área quemada, media por tipo de bosque
     × hectáreas quemadas de ese tipo; clases con menos de 3 parcelas se completan con las más cercanas, y en matorral y pastizal se cuentan 0.
@@ -1135,6 +1269,7 @@ $('#tab-fuentes').innerHTML = `
     <li><b>Erosión:</b> (clase de severidad − 1) × pendiente/25 %.</li>
     <li><b>Viabilidad:</b> base según la cercanía entre lo que había y lo que debería haber; ajustes por severidad, recurrencia (−12 por incendio previo), pendiente &gt;50 %, solanas secas sobre rodeno y rebrote observado (+10).</li>
   </ul>
+${correccionesHtml()}
 ${F.fuentesCeam}
   <h2>Licencias y atribución</h2>
   <ul>
@@ -1152,7 +1287,13 @@ ${F.fuentesCeam}
   <p>Proyecto independiente con fines informativos y divulgativos. <b>No es una fuente oficial</b> y no tiene relación con ${F.organismos || 'la Generalitat Valenciana'}, el Ministerio ni ningún otro organismo.
   No debe usarse para tomar decisiones de emergencia, delimitar propiedades ni sustituir el criterio de técnicos forestales. Los datos se ofrecen tal cual, sin garantía.
   La propiedad indicada procede del catálogo público de montes y no identifica a propietarios particulares.</p>
-  <p>La app no usa cookies ni analítica. Las teselas del mapa base se cargan desde los servidores del IGN.</p>
+  <p>La app no usa cookies. Las visitas se cuentan de forma anónima con
+  <a href="https://www.cloudflare.com/web-analytics/" target="_blank" rel="noopener">Cloudflare Web Analytics</a>, que no usa cookies,
+  no identifica a nadie ni sigue a las personas entre webs (<a href="https://www.cloudflare.com/privacypolicy/" target="_blank" rel="noopener">política de privacidad de Cloudflare</a>).
+  El servidor para asistentes de IA cuenta igual las consultas (herramienta, incendio, municipio, tipo de aplicación y país),
+  sin guardar preguntas, coordenadas ni direcciones IP
+  (<a href="https://fenix-mcp.garcia-nieto-joaquin.workers.dev/privacidad" target="_blank" rel="noopener">detalles</a>).
+  Las teselas del mapa base se cargan desde los servidores del IGN.</p>
   <h2>Limitaciones</h2>
   <ul>
     <li>El área de Copernicus (${ha(S.ems_ha)}) es lo que se ve quemado desde satélite; ${F.officialLimit}.</li>
@@ -1175,14 +1316,32 @@ const authorLinks = [
   AUTHOR.email && `<a href="mailto:${AUTHOR.email}">${AUTHOR.email}</a>`,
   `<a href="${AUTHOR.github}" target="_blank" rel="noopener">GitHub</a>`,
 ].filter(Boolean);
+// petición de mapas: correo con asunto y plantilla ya rellenos
+const MAP_REQUEST = `mailto:${AUTHOR.email}?subject=${encodeURIComponent('Petición de mapa – Fénix')}&body=${encodeURIComponent(
+  'Hola, Joaquín:\n\nMe gustaría un mapa de Fénix de:\n\n- Incendio o zona (municipio, paraje): \n- Fecha aproximada del incendio: \n- Para qué lo necesito (ayuntamiento, asociación, prensa, propietario…): \n\nGracias.\n')}`;
 $('#tab-fuentes').insertAdjacentHTML('beforeend', `<div class="author-card" id="autor">
   <h2>Autor</h2>
+  <div class="author-cta">
+    <h3>¿Necesitas el mapa de otro incendio (o de tu municipio)?</h3>
+    <p>Hago mapas como estos para ayuntamientos, asociaciones, periodistas y propietarios: cualquier incendio de España,
+    con la misma metodología (antes y después, severidad, monte público, vegetación y plan de restauración).</p>
+    <a class="cta-btn" href="${MAP_REQUEST}">Pedir un mapa</a>
+    <p class="muted">Proyecto divulgativo e independiente, no es una fuente oficial.</p>
+  </div>
   <p>Proyecto independiente de <b>${AUTHOR.name}</b>, hecho con datos abiertos de satélite y cartografía pública.
   ¿Te interesa, quieres colaborar o usarlo en tu municipio o asociación? Escríbeme.</p>
   <p class="author-links">${authorLinks.join(' · ')}</p>
   <p class="muted">Código abierto en <a href="https://github.com/jgarnie/fenix" target="_blank" rel="noopener">github.com/jgarnie/fenix</a>.</p>
+  <p class="muted" id="fenix-version"></p>
   <p class="muted"><b>Pregúntale a tu IA por estos incendios:</b> Fénix funciona con Claude y ChatGPT. <a href="https://github.com/jgarnie/fenix#%C3%BAsalo-con-tu-ia" target="_blank" rel="noopener">Cómo conectarlo</a> · <a href="https://github.com/jgarnie/fenix/releases/latest/download/fenix.mcpb">Descargar para Claude Desktop</a>.</p>
 </div>`);
+
+// versión del proyecto (única fuente: public/version.json, ver scripts/bump_version.mjs) y fecha de generación de los datos
+fetch(new URL(`version.json?v=${Date.now()}`, import.meta.url)).then((r) => (r.ok ? r.json() : null)).then((v) => {
+  if (!v) return;
+  $('#fenix-version').innerHTML = `Fénix v${v.version}${meta.generated ? ` · datos generados el ${day(meta.generated)}` : ''}`
+    + ` · <a href="${v.changelog}" target="_blank" rel="noopener">historial de cambios</a>`;
+}).catch(() => {});
 
 // --- selector de incendio: la lista vive aquí (una sola vez para todos); `dir` es la carpeta dentro de public/
 // y `dataDir` el de cada fire.js, que sirve para marcar el incendio actual. Al añadir un incendio, añadirlo aquí.
@@ -1234,7 +1393,11 @@ const FIRE_LIST = [
   }, { passive: true });
   panel.addEventListener('touchend', () => { y0 = null; });
   // al tocar o usar el mapa, se minimiza del todo
-  $('#map').addEventListener('pointerdown', (e) => { if (!e.target.closest('.leaflet-control')) setState('min'); });
+  $('#map').addEventListener('pointerdown', (e) => {
+    if (e.target.closest('.leaflet-control')) return;
+    swallowMapClick = MOBILE.matches && state() !== 'min';
+    setState('min');
+  });
   map.on('click dragstart zoomstart', () => setState('min'));
   MOBILE.addEventListener('change', () => { if (!MOBILE.matches) document.body.classList.remove('sheet-open', 'sheet-min'); });
 }
@@ -1252,6 +1415,7 @@ const FIRE_LIST = [
 renderTheme();
 {
   const n = munFromHash();
+  if (!n && /(?:^#|&)municipio=/.test(location.hash)) syncMunHash();   // enlace con un municipio que no está en este incendio
   if (n) {
     // en escritorio se abre la pestaña Mapa para ver el resumen del municipio; en móvil se deja ver el mapa
     if (!MOBILE.matches) document.querySelector('[data-tab=capas]')?.click();

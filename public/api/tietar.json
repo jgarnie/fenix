@@ -179,7 +179,7 @@
  "administracion": "la Junta o la Comunidad de Madrid",
  "vegetacion_potencial_resumen": "encinar silicícola en las zonas bajas y melojar (roble melojo) en las altas",
  "nota_superficie": "la Junta estima 37.800 ha y en los primeros días se llegó a hablar de más de 50.000. Las diferencias vienen de cómo se traza el perímetro, de qué se cuenta como quemado y de que este mapa incluye también los focos de San Martín de Valdeiglesias y Almorox – Villa del Prado",
- "destacado": "Este mapa reúne todo lo que ardió junto en julio de 2026 entre Ávila y el oeste de Madrid: el incendio de Burgohondo,\nel foco de San Martín de Valdeiglesias (Navas del Rey, Robledo de Chavela…) y el incendio de Almorox – Villa del Prado, en los encinares del Alberche.\nEmpezaron por separado, pero sus áreas quemadas acabaron tocándose y Copernicus los cartografió en la misma activación.",
+ "destacado": "Este mapa reúne todo lo que ardió junto en julio de 2026 entre Ávila y el oeste de Madrid: el incendio de Burgohondo, el foco de San Martín de Valdeiglesias (Navas del Rey, Robledo de Chavela…) y el incendio de Almorox – Villa del Prado, en los encinares del Alberche. Empezaron por separado, pero sus áreas quemadas acabaron tocándose y Copernicus los cartografió en la misma activación.",
  "estadisticas": {
   "ya_habia_ardido_ha": 866.1,
   "desde": 2016,
@@ -458,7 +458,7 @@
   "Apoyar a las asociaciones de custodia del territorio, a los viticultores de Cebreros y San Martín de Valdeiglesias y a la ganadería extensiva que mantiene los cortafuegos verdes."
  ],
  "fuentes": {
-  "texto": "- Área quemada: Copernicus EMS Rapid Mapping EMSR900 (https://rapidmapping.emergency.copernicus.eu/EMSR900): delimitación final de la AOI03 La Atalaya (28 jul 2026) unida a las evaluaciones de daños de las AOI02 y AOI04–07 (Villa del Prado, Piedralaves, San Martín de Valdeiglesias, Navas del Rey, La Rinconada). La AOI02 corresponde al incendio de Almorox – Villa del Prado, que se incluye porque su área quemada toca la del resto.\n- Monte público: montes de utilidad pública de la Junta de Castilla y León (IDECyL) (https://idecyl.jcyl.es) y de la Comunidad de Madrid (IDEM) (https://idem.comunidad.madrid).\n- Vegetación previa: Mapa Forestal de España 1:50.000 (https://www.miteco.gob.es/es/biodiversidad/servicios/banco-datos-naturaleza/informacion-disponible/mfe50.html) de Ávila, Madrid y Toledo (MITECO).\n- Incendios 2016–2025: EFFIS (https://forest-fire.emergency.copernicus.eu) (Copernicus), áreas quemadas cartografiadas por satélite, en general de más de 30 ha.\n- Reserva Natural del Valle de Iruelas: Espacios Naturales Protegidos (https://www.miteco.gob.es/es/biodiversidad/servicios/banco-datos-naturaleza/informacion-disponible/enp_descargas.html) (MITECO, 2025).\n- Términos municipales: Instituto Geográfico Nacional (unidades administrativas).\n- Superficie, fechas, causa y desalojos: Junta de Castilla y León según\nelDiario.es (https://www.eldiario.es/castilla-y-leon/sociedad/junta-castilla-leon-rebaja-37-800-hectareas-superficie-afectada-incendio-avila_1_13459661.html),\nInfobae (https://www.infobae.com/espana/2026/08/06/estabilizado-el-incendio-de-burgohondo-avila-tras-quince-dias-activos-y-mas-de-50000-hectareas-afectadas/) y\nEl Debate (https://www.eldebate.com/espana/castilla-y-leon/20260902/justicia-investiga-origen-posibles-responsabilidades-incendio-burgohondo-avila_454495.html).\nPlan de recuperación: Ávilared (https://avilared.com/art/94019/medio-ambiente-destina-15-millones-recuperar-zonas-forestales-incendios-castilla-leon) y\nelDiario.es (https://www.eldiario.es/castilla-y-leon/politica/manueco-anuncia-plan-90-millones-recuperacion-zonas-arrasadas-incendios-castilla-leon_1_13417281.html).",
+  "texto": "- Área quemada: Copernicus EMS Rapid Mapping EMSR900 (https://rapidmapping.emergency.copernicus.eu/EMSR900): delimitación final de la AOI03 La Atalaya (28 jul 2026) unida a las evaluaciones de daños de las AOI02 y AOI04–07 (Villa del Prado, Piedralaves, San Martín de Valdeiglesias, Navas del Rey, La Rinconada). La AOI02 corresponde al incendio de Almorox – Villa del Prado, que se incluye porque su área quemada toca la del resto.\n- Monte público: montes de utilidad pública de la Junta de Castilla y León (IDECyL) (https://idecyl.jcyl.es) y de la Comunidad de Madrid (IDEM) (https://idem.comunidad.madrid).\n- Vegetación previa: Mapa Forestal de España 1:50.000 (https://www.miteco.gob.es/es/biodiversidad/servicios/banco-datos-naturaleza/informacion-disponible/mfe50.html) de Ávila, Madrid y Toledo (MITECO).\n- Incendios 2016–2025: EFFIS (https://forest-fire.emergency.copernicus.eu) (Copernicus), áreas quemadas cartografiadas por satélite, en general de más de 30 ha.\n- Reserva Natural del Valle de Iruelas: Espacios Naturales Protegidos (https://www.miteco.gob.es/es/biodiversidad/servicios/banco-datos-naturaleza/informacion-disponible/enp_descargas.html) (MITECO, 2025).\n- Términos municipales: Instituto Geográfico Nacional (unidades administrativas).\n- Superficie, fechas, causa y desalojos: Junta de Castilla y León según elDiario.es (https://www.eldiario.es/castilla-y-leon/sociedad/junta-castilla-leon-rebaja-37-800-hectareas-superficie-afectada-incendio-avila_1_13459661.html), Infobae (https://www.infobae.com/espana/2026/08/06/estabilizado-el-incendio-de-burgohondo-avila-tras-quince-dias-activos-y-mas-de-50000-hectareas-afectadas/) y El Debate (https://www.eldebate.com/espana/castilla-y-leon/20260902/justicia-investiga-origen-posibles-responsabilidades-incendio-burgohondo-avila_454495.html). Plan de recuperación: Ávilared (https://avilared.com/art/94019/medio-ambiente-destina-15-millones-recuperar-zonas-forestales-incendios-castilla-leon) y elDiario.es (https://www.eldiario.es/castilla-y-leon/politica/manueco-anuncia-plan-90-millones-recuperacion-zonas-arrasadas-incendios-castilla-leon_1_13417281.html).",
   "enlaces": [
    {
     "texto": "Copernicus EMS Rapid Mapping EMSR900",
@@ -529,7 +529,14 @@
     "url": "http://extremambiente.juntaex.es/files/2024/forestales/Tarifas%20SOGF_2024.pdf"
    }
   ],
-  "limites": "La capa de montes públicos incluye los catálogos de utilidad pública de Castilla y León y Madrid; la pequeña parte quemada en Toledo (unas 750 ha) no se ha cruzado con el catálogo de Castilla-La Mancha. Puede haber otras fincas públicas no catalogadas. Los incendios previos solo se conocen desde 2016."
+  "limites": "La capa de montes públicos incluye los catálogos de utilidad pública de Castilla y León y Madrid; la pequeña parte quemada en Toledo (unas 980 ha: La Iglesuela del Tiétar, Almorox y Sartajada) no se ha cruzado con el catálogo de Castilla-La Mancha. Puede haber otras fincas públicas no catalogadas. Los incendios previos solo se conocen desde 2016."
+ },
+ "correcciones": {
+  "sobre_datos_oficiales": [],
+  "errores_corregidos": [
+   "Sustrato (corregido en noviembre de 2026): las unidades del IGME GEODE 1:50.000 (https://mapas.igme.es/gis/rest/services/Cartografia_Geologica/IGME_Geode_50/MapServer) que no contenían ninguna palabra de roca silícea conocida se clasificaban por defecto como «calizo». En el granito de Gredos eso afectaba a canchales, filones de cuarzo, navas, depósitos cuaternarios de arenas, gravas y cantos, alteritas y lamprófidos: unas 860 ha del área quemada (660 forestales) salían como caliza. Ahora los canchales cuentan como depósitos de ladera (377 ha), las navas como fondo de valle (147 ha) y el resto como silíceo (336 ha). Solo quedan como calizos los mármoles cámbricos y los depósitos con carbonatos (unas 127 ha). No cambia la vegetación potencial, las actuaciones ni la viabilidad.",
+   "Altitud (corregido en noviembre de 2026): la rejilla guardaba la altitud (en pasos de 10 m) con un tope de 1.275 m; 7640 ha del área quemada, más altas (hasta 1998 m), aparecían con 1.275 m. Ahora se guarda desde la cota mínima de cada incendio, hasta 2.550 m por encima."
+  ]
  },
  "metodo": {
   "severidad": "dNBR = NBR(antes) − NBR(después), con NBR = (B8 − B12)/(B8 + B12), Sentinel-2. Umbrales de Key & Benson (USGS): 0,10 · 0,27 · 0,44 · 0,66.",
@@ -546,5 +553,7 @@
   "linkedin": "https://www.linkedin.com/in/jgarnie/",
   "github": "https://github.com/jgarnie",
   "codigo": "https://github.com/jgarnie/fenix"
- }
+ },
+ "version": "0.2.1",
+ "datos_generados": "2026-11-20"
 }

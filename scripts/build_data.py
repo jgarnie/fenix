@@ -57,6 +57,7 @@ FIRES = {
             "ahora": "S2A_30TYK_20260908_1_L2A",    # última escena con 0 % de nubes sobre el perímetro
         },
         "ceam": "ahora",
+        "pot_edafico": True,  # refinado edáfico de las series de Rivas-Martínez (ver "Vegetación potencial")
     },
     "bejis": {
         "year": 2022,
@@ -681,7 +682,12 @@ veg = burn(mfe, mfe["veg"])
 SILICEO = ("arenisc", "argilit", "pizarra", "cuarc", "arenas y cantos")
 if FIRE.get("hercinico"):  # macizo hercínico: granitos y metamórficas
     SILICEO += ("granit", "granodiorit", "gneis", "neis", "migmat", "esquist", "pórfid", "porfid", "aplit", "pegmat",
-                "leucogran", "monzogran", "tonalit", "diorit", "filit", "metasediment", "arcosa", "arcós")
+                "leucogran", "monzogran", "tonalit", "diorit", "filit", "metasediment", "arcosa", "arcós",
+                # filones de cuarzo, lamprófidos y rocas básicas, alteritas del granito y depósitos cuaternarios
+                # (arenas, gravas, cantos) hechos de granito: no son calizos. Antes caían en la clase por defecto (2).
+                "cuarzo", "lamprófid", "lamprofid", "rocas básicas", "reolito", "alterit", "arenas", "gravas", "cantos")
+# en el macizo hercínico solo son calizos los mármoles y los depósitos con carbonatos
+NO_SIL = ("calizas",) + (("carbonat", "mármol", "marmol") if FIRE.get("hercinico") else ())
 
 
 # Rocas detríticas del Cenozoico (arcillas, areniscas y conglomerados terciarios): en el levante ibérico sus cantos
@@ -700,11 +706,11 @@ def geo_code(d, eda=""):
     d = d.lower() if isinstance(d, str) else ""
     eda = eda.upper() if isinstance(eda, str) else ""
     if "masa" in d and "agua" in d: return 0
-    if "fondos de valle" in d or "rambla" in d or "aluvial" in d: return 4
+    if "fondos de valle" in d or "rambla" in d or "aluvial" in d or "endorreic" in d: return 4
     if "yeso" in d: return 3
-    if any(k in d for k in ("coluvi", "glacis", "abanico", "terraza", "conos", "playa", "albufera", "cordón")): return 5
+    if any(k in d for k in ("coluvi", "glacis", "abanico", "terraza", "conos", "playa", "albufera", "cordón", "canchal")): return 5
     if SEP_TERC and any(e in eda for e in CENOZOICO) and any(k in d for k in DETRIT): return 6
-    if any(k in d for k in SILICEO) and "calizas" not in d and (FIRE.get("hercinico") or "marga" not in d): return 1
+    if any(k in d for k in SILICEO) and not any(k in d for k in NO_SIL) and (FIRE.get("hercinico") or "marga" not in d): return 1
     return 2
 
 
@@ -712,11 +718,11 @@ _like = lambda w: f"LOWER(DESC_UNIT) LIKE '%{w}%'"
 _any = lambda ws: "(" + " OR ".join(_like(w) for w in ws) + ")"
 GEO_RULES = [  # mismo orden de prioridad que geo_code (la primera regla que se cumple gana), como filtros SQL
     (0, f"{_like('masa')} AND {_like('agua')}"),
-    (4, _any(["fondos de valle", "rambla", "aluvial"])),
+    (4, _any(["fondos de valle", "rambla", "aluvial", "endorreic"])),
     (3, _like("yeso")),
-    (5, _any(["coluvi", "glacis", "abanico", "terraza", "conos", "playa", "albufera", "cord_n"])),
+    (5, _any(["coluvi", "glacis", "abanico", "terraza", "conos", "playa", "albufera", "cord_n", "canchal"])),
 ] + ([(6, "(" + " OR ".join(f"UPPER(NAME_EDA1) LIKE '%{e}%'" for e in CENOZOICO) + f") AND {_any(DETRIT)}")] if SEP_TERC else []) + [
-    (1, f"{_any(SILICEO)} AND NOT {_like('calizas')}" + ("" if FIRE.get("hercinico") else f" AND NOT {_like('marga')}")),
+    (1, f"{_any(SILICEO)} AND NOT {_any(NO_SIL)}" + ("" if FIRE.get("hercinico") else f" AND NOT {_like('marga')}")),
 ]
 
 
@@ -835,6 +841,25 @@ unknown = set(series.SERIES) - set(SERIES_CLASS)
 if unknown:
     raise SystemExit(f"Series sin clase asignada en SERIES_CLASS: {unknown}")
 pot = burn(series, series.SERIES.map(SERIES_CLASS))
+pot_rm = pot.copy()  # Rivas-Martínez tal cual (para contar las correcciones)
+# Refinado edáfico (opción "pot_edafico" del incendio): el mapa de series es 1:400.000 y sus manchas no siguen el
+# contacto entre rodeno y caliza, que en Espadà se alterna cada pocos cientos de metros. Se mantiene el piso
+# bioclimático de Rivas-Martínez (campo PISO) y se elige la serie por el sustrato del IGME 1:50.000:
+#  - alcornocal (23b, silicícola) sobre caliza, margas, yesos o detrítico terciario calcáreo (sub 2, 3, 6) → carrascal
+#    del mismo piso: mesomediterráneo (H) → 22b; termomediterráneo (I) → 27c. Se respeta el alcornocal donde el Mapa
+#    Forestal lo registra (veg 1): ahí manda la vegetación real.
+#  - carrascal mesomediterráneo (22b/22ba, basófilo) sobre rodeno silíceo (sub 1) → alcornocal 23b.
+#  - el carrascal termomediterráneo (27c) sobre rodeno se mantiene: la revisión de 2011 (Rivas-Martínez et al.)
+#    reconoce su faciación sobre areniscas del rodeno con Calicotome spinosa.
+# Sustratos ambiguos (sin datos, fondos de valle, depósitos de ladera: sub 0, 4, 5) no se tocan.
+pot_fix = {}
+if FIRE.get("pot_edafico"):
+    piso = burn(series, series.PISO.map({"I": 1, "H": 2}).fillna(0))
+    to_carr = (pot == 1) & np.isin(sub, [2, 3, 6]) & (veg != 1)
+    to_alc = (pot == 3) & (sub == 1)
+    pot[to_carr] = np.where(piso[to_carr] == 1, 2, 3)
+    pot[to_alc] = 1
+    pot_fix = {"alc_a_carr": to_carr, "carr_a_alc": to_alc}
 pot[veg == 7] = 6
 pot[np.isin(veg, [10, 11, 12])] = 7
 
@@ -990,14 +1015,39 @@ stats["veg_vs_pot"] = {VEG[v]: {POT[p]: ha(valid & (veg == v) & (pot == p)) for 
 # superficie de pinar (incluye mixto) para el resumen
 stats["pine_ha"] = ha(inside & np.isin(veg, [2, 3, 4, 14, 16, 18]))
 
+# correcciones propias sobre los datos oficiales (se citan en la pestaña Fuentes de cada incendio)
+# (máscaras de recuento sin riberas: veg 7 pasa después a la clase 6 sea cual sea la serie)
+nr = inside & forest & (veg != 7)
+stats["correcciones"] = {
+    "pot_alc_a_carr_ha": ha(nr & pot_fix["alc_a_carr"]) if pot_fix else 0.0,
+    "pot_alc_a_carr_22b_ha": ha(nr & pot_fix["alc_a_carr"] & (pot == 3)) if pot_fix else 0.0,
+    "pot_alc_a_carr_27c_ha": ha(nr & pot_fix["alc_a_carr"] & (pot == 2)) if pot_fix else 0.0,
+    "pot_carr_a_alc_ha": ha(nr & pot_fix["carr_a_alc"]) if pot_fix else 0.0,
+    # situación antes de corregir (Rivas-Martínez tal cual), dentro del área quemada forestal
+    "rm_alc_sobre_calizo_ha": ha(nr & (pot_rm == 1) & np.isin(sub, [2, 3, 6])),
+    "alc_real_ha": ha(inside & (veg == 1)),
+    "alc_real_en_carrascal_rm_ha": ha(inside & (veg == 1) & np.isin(pot_rm, [2, 3])),
+    "alc_real_en_carrascal_ha": ha(inside & (veg == 1) & np.isin(pot, [2, 3])),
+    "alc_real_sobre_calizo_ha": ha(inside & (veg == 1) & np.isin(sub, [2, 3, 6])),
+    "pot_rm_igual_pct": round(float((pot_rm == pot)[inside & forest].mean() * 100), 1),
+    "elev_max_m": int(np.nanmax(elev[inside])),
+    "elev_sobre_1275_ha": ha(inside & (elev > 1277.5)),
+}
+
 # ----------------------------------------------------------------------------- exportación
 log("7/7 Exportando")
+# altitud: uint8 en pasos de ELEV_STEP m desde ELEV_OFF (meta.json); 255 pasos = 2550 m de desnivel en la rejilla
+ELEV_STEP = 10
+ELEV_OFF = int(np.floor(np.nanmin(elev) / 10) * 10)
+if np.nanmax(elev) - ELEV_OFF > 255 * ELEV_STEP:
+    log(f"  AVISO: desnivel de {np.nanmax(elev) - ELEV_OFF:.0f} m: la altitud se recorta a {ELEV_OFF + 2550} m")
 layers = {
     "inside": inside.astype("uint8"), "sev": sev, "owner": owner, "veg": veg, "sub": sub, "pot": pot,
     "act": act, "eros": eros, "feas": feas, "recur": recur,
     "last": np.where(last_fire > 0, last_fire - 1900, 0).astype("uint8"),
     "slope": np.clip(slope_pct, 0, 255).astype("uint8"),
-    "elev": np.clip(elev / 5, 0, 255).astype("uint8"),
+    # altitud en pasos de 10 m desde ELEV_OFF (antes /5 desde 0: no pasaba de 1275 m y truncaba Gredos y el Javalambre)
+    "elev": np.clip(np.round((elev - ELEV_OFF) / ELEV_STEP), 0, 255).astype("uint8"),
     "dnbr": np.clip(dnbr * 100 + 100, 0, 255).astype("uint8"),
     "ndvi_b": np.clip(ndvi_b * 100 + 100, 0, 255).astype("uint8"),
     "ndvi_a": np.clip(ndvi_a * 100 + 100, 0, 255).astype("uint8"),
@@ -1011,7 +1061,7 @@ layers = {
 # redondeo de las capas continuas: solo se muestran en la ficha o colorean rampas, y así gzip comprime
 # mucho mejor (Bejís 4,5 → 2,8 MB). Paso en unidades codificadas: pendiente 5 %, altitud 10 m,
 # dNBR y NDVI previo 0,05, NDVI después/ahora y NDMI 0,02 (colorean capas del mapa), cobertura 5 %.
-QUANT = {"slope": (5, 0), "elev": (2, 0), "dnbr": (5, 100), "ndvi_b": (5, 100), "ndvi_a": (2, 100),
+QUANT = {"slope": (5, 0), "dnbr": (5, 100), "ndvi_b": (5, 100), "ndvi_a": (2, 100),
          "ndvi_n": (2, 100), "dndmi": (2, 100), "recov": (5, 0)}
 for k, (step, off) in QUANT.items():
     a = layers[k]
@@ -1025,9 +1075,12 @@ with gzip.GzipFile(os.path.join(OUT, "grid.bin.gz"), "wb", compresslevel=9, mtim
     for k in order:
         f.write(np.ascontiguousarray(layers[k]).tobytes())
 
+with open(os.path.join(ROOT, "public", "version.json"), encoding="utf-8") as f:  # versión del proyecto (bump_version.mjs)
+    VERSION = json.load(f)["version"]
 meta = {
+    "version": VERSION, "generated": time.strftime("%Y-%m-%d"),
     "width": W, "height": H, "bounds": BOUNDS, "pixel_ha": PIX_HA, "ground_m": GROUND,
-    "layers": order,
+    "layers": order, "elev_step": ELEV_STEP, "elev_offset": ELEV_OFF,
     "municipios": list(muni.nom_mun),
     "legends": {"ceam": CEAM, "owner": OWNER, "veg": VEG, "sub": GEO, "pot": POT, "act": ACT, "eros": EROS, "feas": FEAS},
     "stats": stats,

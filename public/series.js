@@ -8,10 +8,10 @@ export const POT_INFO = {
     corto: 'Alcornocal',
     codigo: '23b',
     serie: 'Meso-termomediterránea valenciano-castellonense subhúmeda del alcornoque (Asplenio onopteridis–Querceto suberis sigmetum)',
-    piso: 'Mesomediterráneo, sobre suelos silíceos (rodeno)',
+    piso: 'Mesomediterráneo y termomediterráneo, sobre suelos silíceos (rodeno)',
     especies: 'Quercus suber, Asplenium onopteris, Quercus rotundifolia, Calicotome spinosa',
     revision: 'En la revisión de 2011 sigue siendo la serie 23b, silicícola, con una faciación mesomediterránea típica y otra termomediterránea con Chamaerops humilis.',
-    color: '#d95f02',
+    color: '#e08214',
   },
   2: {
     corto: 'Carrascal termomediterráneo',
@@ -20,7 +20,7 @@ export const POT_INFO = {
     piso: 'Termomediterráneo, sobre calizas',
     especies: 'Quercus rotundifolia, Rubia longifolia, Pistacia lentiscus, Erica multiflora',
     revision: 'En 2011 se amplía al mesomediterráneo inferior, con faciaciones de Chamaerops humilis (termomediterránea), de Pistacia lentiscus (mesomediterránea termófila) y de Calicotome spinosa (sobre areniscas del rodeno).',
-    color: '#e6ab02',
+    color: '#ffd92f',
   },
   3: {
     corto: 'Carrascal mesomediterráneo',
@@ -28,9 +28,9 @@ export const POT_INFO = {
     serie: 'Mesomediterránea manchega y aragonesa basófila de la encina (Bupleuro rigidi–Querceto rotundifoliae sigmetum)',
     piso: 'Mesomediterráneo, sobre calizas',
     especies: 'Quercus rotundifolia, Hedera helix, Teline patens, Genista hispanica',
-    especiesNota: 'de la serie 22d de la revisión de 2011',
+    especiesNota: 'de la serie 22d de la revisión de 2011, que incluye una faciación silicícola: no todas son propias de suelos calizos',
     revision: 'El mapa de 1987 asigna esta zona a la serie manchega y aragonesa (22b). La revisión de 2011 describe los carrascales valencianos de este piso como una serie propia, la 22d (Hedero helicis–Querco rotundifoliae sigmetum), con faciaciones altopalanciana y turiana septentrional silicícola. Las especies indicadas son las de esa serie 22d.',
-    color: '#00582a',
+    color: '#5a5a1e',
   },
   4: {
     corto: 'Carrascal supramediterráneo con sabina albar',
@@ -39,7 +39,7 @@ export const POT_INFO = {
     piso: 'Supramediterráneo, sobre calizas',
     especies: 'Quercus rotundifolia, Juniperus thurifera, Rhamnus infectoria, Satureja gracilis',
     revision: 'Se mantiene en 2011 (22a), con faciaciones ibérico-maestracenses de Juniperus sabina y otra termófila con Quercus coccifera.',
-    color: '#7570b3',
+    color: '#c2a5cf',
   },
   5: {
     corto: 'Sabinar albar',
@@ -48,7 +48,7 @@ export const POT_INFO = {
     piso: 'Supramediterráneo',
     especies: 'Juniperus thurifera, Juniperus hemisphaerica, Artemisia assoana, Festuca asperifolia',
     revision: 'Se mantiene en 2011 (15b), con una faciación típica calcícola de Juniperus hemisphaerica.',
-    color: '#a6761d',
+    color: '#bf812d',
   },
   6: {
     corto: 'Vegetación de ribera',
@@ -57,7 +57,7 @@ export const POT_INFO = {
     piso: 'Fondos de valle y cauces (también donde el Mapa Forestal indica bosque de ribera)',
     especies: '',
     revision: 'El mapa de 1987 no detalla las especies de las riberas.',
-    color: '#1f78b4',
+    color: '#0571b0',
   },
   7: { corto: 'Uso no forestal', codigo: '', serie: 'Cultivos, núcleos urbanos, infraestructuras o agua (según el Mapa Forestal)', piso: '', especies: '', revision: '', color: '#d9d9d9' },
   8: {
@@ -67,7 +67,7 @@ export const POT_INFO = {
     piso: 'Mesomediterráneo semiárido',
     especies: 'Quercus coccifera, Rhamnus lycioides',
     revision: '',
-    color: '#c51b7d',
+    color: '#ae017e',
   },
   9: {
     corto: 'Encinar silicícola guadarrámico',
@@ -76,7 +76,7 @@ export const POT_INFO = {
     piso: 'Supra y mesomediterráneo, sobre granitos y otros suelos silíceos. En las zonas bajas, faciación mesomediterránea con retama (24ab)',
     especies: 'Quercus rotundifolia, Juniperus lagunae (J. oxycedrus), Carex distachya, Lavandula pedunculata; en la faciación baja, Retama sphaerocarpa',
     revision: 'Se mantiene en 2011 (24a), renombrada Junipero lagunae–Querco rotundifoliae sigmetum; la faciación de retama conserva el código 24ab.',
-    color: '#1b7837',
+    color: '#b8a03a',
   },
   10: {
     corto: 'Encinar silicícola luso-extremadurense',
@@ -85,7 +85,7 @@ export const POT_INFO = {
     piso: 'Mesomediterráneo, sobre suelos silíceos (incluye la faciación mesófila con quejigo, 24cc)',
     especies: 'Quercus rotundifolia, Pyrus bourgaeana, Cytisus bourgaei, Lavandula sampaioana',
     revision: 'Se mantiene en 2011 (24c). La antigua faciación con quejigo (24cc) pasa a la 24cb o a la serie del quejigo Quercus broteroi (25a).',
-    color: '#b8a03a',
+    color: '#a6611a',
   },
   11: {
     corto: 'Melojar',
@@ -94,7 +94,7 @@ export const POT_INFO = {
     piso: 'Supramediterráneo, sobre suelos silíceos',
     especies: 'Quercus pyrenaica, Luzula forsteri, Milium vernale, Cistus laurifolius',
     revision: 'Se mantiene en 2011 (18a), con una faciación nueva, alberchense, de Genista falcata (18ad), propia del valle del Alberche.',
-    color: '#4a7c2a',
+    color: '#00441b',
   },
   12: {
     corto: 'Piornal de alta montaña',
@@ -104,7 +104,7 @@ export const POT_INFO = {
     especies: 'Cytisus oromediterraneus, Echinospartum barnadesii, Juniperus alpina, Festuca iberica',
     especiesNota: 'de la serie 13a de la revisión de 2011, en la que queda incluida',
     revision: 'La revisión de 2011 no mantiene la 13b: su asociación principal pasa a formar parte de la serie 13a (Avenello ibericae–Junipero alpinae sigmetum).',
-    color: '#9e7bb5',
+    color: '#40004b',
   },
   13: {
     corto: 'Melojar mesomediterráneo',
@@ -113,7 +113,7 @@ export const POT_INFO = {
     piso: 'Mesomediterráneo húmedo, sobre suelos silíceos',
     especies: 'Quercus pyrenaica, Arbutus unedo, Viburnum tinus, Bupleurum falcatum',
     revision: 'Se mantiene en 2011 (18h).',
-    color: '#7fbc41',
+    color: '#d9f0a3',
   },
   14: {
     corto: 'Enebral rastrero y piornal',
@@ -122,7 +122,7 @@ export const POT_INFO = {
     piso: 'Oromediterráneo, en las cumbres',
     especies: 'Juniperus alpina, Avenella iberica, Cytisus oromediterraneus, Festuca iberica',
     revision: 'Se mantiene en 2011 (13a), renombrada Avenello ibericae–Junipero alpinae sigmetum.',
-    color: '#c2a5cf',
+    color: '#e78ac3',
   },
   15: {
     corto: 'Quejigar',
@@ -132,6 +132,6 @@ export const POT_INFO = {
     especies: 'Quercus faginea (roble valenciano o quejigo), Viola willkommii, Acer opalus subsp. granatense, Amelanchier ovalis',
     especiesNota: 'especies características del quejigar maestracense según la bibliografía fitosociológica, no de la memoria de 2011',
     revision: 'Serie endémica de la península, propia del Maestrazgo, el Sistema Ibérico y el somontano aragonés. En el Alto Mijares ocupa las zonas altas y las umbrías, en contacto con los carrascales (22b).',
-    color: '#8c6d31',
+    color: '#4d9221',
   },
 };

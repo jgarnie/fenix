@@ -59,3 +59,25 @@ Límites del plan gratuito: 100.000 peticiones al día; si se superan, deja de r
   misma URL. Los menús y la disponibilidad por plan cambian a menudo.
 - **GPT personalizado público** (lo más fácil para cualquiera): ver [GPT.md](GPT.md).
 - Otros clientes MCP: la URL `/mcp` con transporte *Streamable HTTP*.
+
+## Estadística de uso (anónima)
+
+Cada petición escribe una fila en **Workers Analytics Engine** (binding `STATS`, dataset `fenix_mcp`, se guarda 3 meses)
+y la misma fila como log JSON (`fenix_uso`) en **Workers Logs** (3 días). Ver `track()` en `src/worker.js`.
+Los registros automáticos de invocación de Workers Logs (que guardarían la URL completa de cada petición, con las
+coordenadas de `/api/punto`) están desactivados en `wrangler.jsonc` (`observability.logs.invocation_logs: false`).
+
+- Se guarda: tipo (mcp/rest/pagina), ruta o método MCP, herramienta, incendio y municipio **solo si son de Fénix**
+  (si no, `otro`), tipo de prioridad, familia de la aplicación (lista cerrada a partir del nombre del cliente MCP o del
+  User-Agent: Claude, ChatGPT, Cursor, VS Code, Gemini, python, node, curl, navegador, otro), versión del cliente solo si es
+  numérica, país (Cloudflare), ok/error, milisegundos y código HTTP. Los métodos MCP y las herramientas desconocidas se
+  registran como `otro`.
+- Nunca: IP, User-Agent completo, coordenadas, preguntas ni texto libre. Un fallo al contar no afecta a la respuesta.
+- Los milisegundos solo miden esperas de red (en Workers el reloj no avanza durante el cálculo).
+
+**Ver los datos**
+- Rápido (últimos 3 días): panel de Cloudflare → Workers & Pages → `fenix-mcp` → **Logs** → filtrar `fenix_uso` y
+  agrupar por `herramienta`, `incendio`, `municipio`, `cliente` o `pais`.
+- Hasta 3 meses: `CF_ACCOUNT_ID=… CF_API_TOKEN=… node scripts/mcp_stats.mjs` (7 y 30 días; o `… mcp_stats.mjs 90`).
+  Token: panel → Mi perfil → API Tokens → Create token → Custom token → permiso **Account · Account Analytics · Read**
+  → solo tu cuenta. El *Account ID* está en la página de inicio de la cuenta (o en Workers & Pages, columna derecha).

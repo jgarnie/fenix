@@ -56,7 +56,9 @@ a { color: var(--accent); }
 .author-card { margin-top: 18px; padding-top: 4px; border-top: 1px solid var(--line); font-size: 12.5px; color: var(--muted); }
 /* desplegables propios (enhanceSelect en app.js): botón + lista con fundido; el <select> nativo queda oculto */
 #sel-layer { position: absolute; top: 0; left: 0; width: 0; height: 0; } /* fuera de la rejilla de <body> */
-.sel-native { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+/* !important: reglas con id (p. ej. #recargo { width: 100% }) no deben devolverle tamaño al select oculto */
+.sel-native { position: absolute !important; width: 1px !important; height: 1px !important; padding: 0 !important; margin: -1px !important; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0 !important; }
+#tab-plan td:last-child, #tab-plan tfoot td { white-space: nowrap; }
 .sel-btn {
   display: inline-flex; align-items: center; justify-content: space-between; gap: 8px; min-width: 0;
   padding: 5px 12px 5px 10px; border: 1px solid var(--control); border-radius: 8px; background: var(--panel);
@@ -196,11 +198,42 @@ select, input[type=number] {
 
 /* --- leyenda e info */
 #legend { left: 12px; bottom: 26px; padding: 10px 12px; max-width: 300px; font-size: 12px; max-height: 46%; overflow: auto; }
-#legend h4 { margin: 0 0 6px; font-size: 12.5px; }
+#legend h3.lg-title { margin: 0 0 6px; font-size: 12.5px; }
 #legend .it { display: flex; gap: 7px; align-items: center; margin: 3px 0; }
 #legend .ramp { height: 10px; border-radius: 3px; margin: 4px 0 2px; }
 #legend .ramp-lbl { display: flex; justify-content: space-between; color: var(--muted); }
-#info { right: 12px; top: 64px; width: 340px; max-height: calc(100% - 90px); overflow: auto; padding: 12px 14px; font-size: 12.5px; }
+/* vegetación potencial: filas desplegables con código, piso y especies */
+#legend .pot-it { margin: 1px -6px; }
+#legend .pot-tg {
+  display: flex; align-items: center; gap: 7px; width: 100%; min-height: 26px; padding: 3px 6px; border: 0; border-radius: 6px;
+  background: none; color: var(--ink); font: inherit; text-align: left; cursor: pointer;
+}
+#legend .pot-tg:hover { background: var(--accent-soft); }
+#legend .pot-tg:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+#legend .pot-name { flex: 1 1 auto; }
+#legend .pot-ha { flex: none; color: var(--muted); font-variant-numeric: tabular-nums; }
+#legend .pot-chev { flex: none; width: 10px; height: 10px; color: var(--muted); transition: transform .2s ease; }
+#legend .pot-tg[aria-expanded="true"] .pot-chev { transform: rotate(180deg); }
+#legend .pot-det { display: grid; grid-template-rows: 0fr; opacity: 0; transition: grid-template-rows .2s ease, opacity .2s ease; }
+#legend .pot-det.open { grid-template-rows: 1fr; opacity: 1; }
+#legend .pot-det[hidden] { display: none; }
+#legend .pot-det > div { overflow: hidden; padding: 0 6px 0 24px; }
+#legend .pot-det p { margin: 2px 0 6px; line-height: 1.4; }
+#legend .pot-hint { display: block; margin-top: 6px; line-height: 1.35; }
+/* tabla de series de vegetación (pestaña Cómo) */
+.series-table th, .series-table td { text-align: left; }
+.series-table td.num, .series-table th.num { text-align: right; white-space: nowrap; }
+.series-table .sname { display: flex; gap: 6px; align-items: flex-start; font-weight: 600; }
+.series-table .sname .sw { margin-top: 3px; }
+.series-table small { display: block; color: var(--muted); font-weight: 400; }
+@media (max-width: 480px) {
+  .series-table thead { display: none; }
+  .series-table tr { display: grid; grid-template-columns: 1fr auto; gap: 2px 8px; padding: 8px 0; border-bottom: 1px solid var(--line); }
+  .series-table td { display: block; border: 0; padding: 0; }
+  .series-table td.spp { grid-column: 1 / -1; }
+}
+/* por encima de los controles de Leaflet (z-index 1000) y sin llegar al zoom de abajo a la derecha */
+#info { right: 12px; top: 64px; width: 340px; max-height: calc(100% - 64px - 120px); overflow: auto; padding: 12px 14px; font-size: 12.5px; z-index: 1100; overscroll-behavior: contain; }
 #info.hidden { display: none; }
 #info h3 { margin: 0 0 2px; font-size: 14px; }
 #info .close { position: absolute; right: 4px; top: 2px; width: 32px; height: 32px; padding: 0; border: 0; border-radius: 6px; background: none; font-size: 20px; line-height: 1; cursor: pointer; color: var(--muted); }
@@ -236,11 +269,30 @@ details ul { padding-left: 18px; margin: 6px 0; }
 .pixelated { image-rendering: pixelated; }
 
 .sheet-handle { display: none; }
-.attr-toggle { display: none; }
-.leaflet-control.map-credit { margin: 0 0 2px; padding: 1px 6px; border-radius: 4px; font-size: 11px; line-height: 1.4;
+/* créditos de las fuentes plegados en todos los tamaños: solo el botón ⓘ; al pulsarlo se despliegan */
+.attr-toggle {
+  display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; margin-right: 4px;
+  border: 0; padding: 0; background: none; color: #333; font: 15px/1 system-ui, sans-serif; cursor: pointer; vertical-align: middle;
+}
+.leaflet-control-attribution:not(.open) { clear: none; margin: 0 4px 4px 0; font-size: 0; padding: 0; border-radius: 12px; }
+.leaflet-control-attribution:not(.open) .attr-toggle { margin: 0; }
+.leaflet-control-attribution:not(.open) > :not(.attr-toggle) { display: none; }
+.leaflet-control-attribution.open { max-width: min(680px, calc(100vw - 16px)); white-space: normal; }
+/* "pide un mapa": semitransparente, a la izquierda del zoom y con el ⓘ a su izquierda en la misma línea */
+.leaflet-control.map-credit { margin: 0 8px 4px 0; padding: 0 8px; height: 24px; line-height: 24px; border-radius: 12px; font-size: 11.5px;
   color: rgba(0, 0, 0, .72); background: rgba(255, 255, 255, .78); white-space: nowrap; } /* semitransparente pero legible (≥4,5:1 sobre cualquier fondo) */
 .map-credit a { color: inherit; text-decoration: underline dotted; }
+.map-credit a:hover { color: #000; text-decoration-style: solid; }
 .map-credit .credit-short { display: none; }
+/* tarjeta "Autor": llamada a pedir mapas */
+.author-cta { margin: 6px 0 12px; padding: 10px 12px; border-radius: var(--radius); background: var(--accent-soft); color: var(--ink); }
+.author-cta h3 { margin: 0 0 4px; font-size: 13.5px; }
+.author-cta p { margin: 0 0 8px; }
+.author-cta .muted { margin: 8px 0 0; font-size: 11.5px; }
+.cta-btn { display: inline-block; padding: 7px 14px; border-radius: 8px; background: var(--accent); color: var(--panel);
+  font-weight: 600; text-decoration: none; }
+.cta-btn:hover { filter: brightness(1.08); }
+.cta-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
 /* --- móvil: el panel es una hoja inferior que se expande y contrae */
 @media (max-width: 860px) {
@@ -271,6 +323,7 @@ details ul { padding-left: 18px; margin: 6px 0; }
   #compare-bar label { min-width: 0; }
   #compare-bar .cmp-cap { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
   #compare-bar .sel-btn.cmp { width: 100%; font-size: 12px; padding: 6px 12px 6px 9px; }
+  #compare-bar .sel-btn.cmp > span { white-space: normal; line-height: 1.15; overflow-wrap: anywhere; } /* en dos líneas antes que cortado */
   /* menús con letra y filas más grandes para el dedo */
   .sel-menu [role=option] { min-height: 40px; box-sizing: border-box; white-space: normal; } /* textos largos: en varias líneas */
   .sel-menu.cmp [role=option] > * { white-space: nowrap; }
@@ -278,28 +331,19 @@ details ul { padding-left: 18px; margin: 6px 0; }
   .sel-menu [role=option] small, .sel-menu.cmp [role=option] small { font-size: 13px; }
   /* el botón Comparar se queda en un icono (su nombre accesible sigue siendo "Comparar") */
   #cmp-toggle { width: 34px; height: 30px; padding: 0; font-size: 0; display: grid; place-items: center; }
-  #cmp-toggle::before { content: "⇆"; font-size: 17px; line-height: 1; }
+  #cmp-toggle::before { content: "◧"; font-size: 17px; line-height: 1; } /* pantalla partida: activa o quita el comparador */
   .cmp-label { top: 56px; }
-  #info { left: 8px; right: 8px; width: auto; top: 120px; bottom: auto; max-height: calc(100vh - var(--sheet) - 132px); }
+  /* ficha compacta arriba, como mucho el 45 % de la pantalla, con desplazamiento propio; la leyenda se oculta mientras */
+  #info { left: 8px; right: 8px; width: auto; top: 50px; bottom: auto; max-height: min(45vh, calc(100vh - var(--sheet) - 70px)); }
+  body.info-open #legend { display: none; }
   #legend { left: 8px; bottom: calc(var(--sheet) + 10px); max-width: 60%; max-height: 30vh; }
   .leaflet-bottom { bottom: var(--sheet); transition: bottom .28s ease; }
   #legend { transition: bottom .28s ease; }
   body.sheet-open #legend, body.sheet-open #info { display: none; }
-  /* créditos plegados: solo el botón ⓘ; al tocarlo se despliegan */
-  .attr-toggle {
-    display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; margin-right: 4px;
-    border: 0; padding: 0; background: none; color: #333; font: 15px/1 system-ui, sans-serif; cursor: pointer; vertical-align: middle;
-  }
+  /* "pide un mapa" en versión corta (el ⓘ de los créditos y su plegado son comunes, más arriba) */
   .map-credit .credit-long { display: none; }
-  .map-credit .credit-short { display: inline; text-decoration: none; font-size: 13px; }
+  .map-credit .credit-short { display: inline; font-size: 12px; }
   .map-credit a { display: inline-block; min-width: 24px; text-align: center; } /* área táctil ≥24 px (WCAG 2.5.8) */
-  /* el ⓘ de los créditos va a la izquierda del nombre, en la misma línea (al desplegarlo baja a su propia línea) */
-  .leaflet-control.map-credit { margin: 0 8px 4px 0; height: 24px; line-height: 22px; }
-  .leaflet-control-attribution:not(.open) { clear: none; margin: 0 4px 4px 0; }
-  .leaflet-control-attribution:not(.open) { font-size: 0; padding: 0; border-radius: 12px; }
-  .leaflet-control-attribution:not(.open) .attr-toggle { margin: 0; }
-  .leaflet-control-attribution:not(.open) > :not(.attr-toggle) { display: none; }
-  .leaflet-control-attribution.open { max-width: calc(100vw - 16px); white-space: normal; }
 }
 
 #recargo { width: 100%; max-width: 100%; }
@@ -318,7 +362,7 @@ details ul { padding-left: 18px; margin: 6px 0; }
 
 /* movimiento reducido: sin animaciones del panel inferior, la leyenda ni los controles del mapa */
 @media (prefers-reduced-motion: reduce) {
-  #panel, .leaflet-bottom, #legend { transition: none !important; }
+  #panel, .leaflet-bottom, #legend, #legend .pot-det, #legend .pot-chev { transition: none !important; }
 }
 
 /* móviles muy estrechos (≤ 380 px): un punto menos de letra en los selectores del comparador */

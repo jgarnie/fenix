@@ -11,6 +11,8 @@ const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const PUB = path.join(ROOT, 'public');
 const SITE = 'https://jgarnie.github.io/fenix/';
 const DATA = 'https://jgarnie.github.io/fenix-data/';
+// versión del proyecto: única fuente en public/version.json (scripts/bump_version.mjs)
+const VERSION = JSON.parse(fs.readFileSync(path.join(PUB, 'version.json'), 'utf8')).version;
 
 // slug → carpeta dentro de public/ ('' = raíz, Espadà)
 const FIRES = [
@@ -40,6 +42,7 @@ const ENT = { '&gt;': '>', '&lt;': '<', '&amp;': '&', '&nbsp;': ' ', '&quot;': '
 function text(html) {
   if (html == null) return null;
   return String(html)
+    .replace(/\s+/g, ' ')   // como en HTML: los saltos de línea del código fuente no son saltos de texto
     .replace(/<a\s[^>]*href="([^"]+)"[^>]*>([\s\S]*?)<\/a>/g, (_, u, t) => `${t} (${u})`)
     .replace(/<li[^>]*>/g, '\n- ')
     .replace(/<br\s*\/?>/g, '\n')
@@ -165,9 +168,17 @@ for (const { slug, dir } of FIRES) {
       text(F.ayuda),
     ].filter(Boolean),
     fuentes: { texto: text(fuentesHtml), enlaces: [...links(fuentesHtml), ...COMUNES], limites: text(F.limitMontes) },
+    // correcciones propias sobre los datos oficiales y errores propios corregidos (como en Fuentes de la web)
+    correcciones: {
+      sobre_datos_oficiales: (call(F.correcciones, S, ha) || []).map(text),
+      errores_corregidos: [...(call(F.erroresCorregidos, S, ha) || []).map(text),
+        ...((S.correcciones?.elev_sobre_1275_ha || 0) > 0 ? [`Altitud (corregido en noviembre de 2026): la rejilla guardaba la altitud (en pasos de 10 m) con un tope de 1.275 m; ${ha(S.correcciones.elev_sobre_1275_ha)} del área quemada, más altas (hasta ${fmt(S.correcciones.elev_max_m)} m), aparecían con 1.275 m. Ahora se guarda desde la cota mínima de cada incendio, hasta 2.550 m por encima.`] : [])],
+    },
     metodo: METODO,
     aviso: AVISO,
     autor: AUTOR,
+    version: VERSION,
+    datos_generados: meta.generated || null,
   };
   fs.writeFileSync(path.join(out, `${slug}.json`), JSON.stringify(full, null, 1));
   console.log(`${slug}: ${fmt(fs.statSync(path.join(out, `${slug}.json`)).size / 1024, 1)} KB`);
@@ -175,7 +186,8 @@ for (const { slug, dir } of FIRES) {
 
 fs.writeFileSync(path.join(out, 'incendios.json'), JSON.stringify({
   proyecto: 'Fénix · mapas de incendios forestales en España después del fuego',
-  web: SITE, generado: new Date().toISOString().slice(0, 10),
+  web: SITE, version: VERSION, generado: new Date().toISOString().slice(0, 10),
+  changelog: 'https://github.com/jgarnie/fenix/blob/main/CHANGELOG.md',
   incendios: index, aviso: AVISO, autor: AUTOR,
   detalle: 'Detalle de cada incendio en api/<slug>.json',
 }, null, 1));

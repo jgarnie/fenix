@@ -6,7 +6,11 @@
   "name": "fenix-mcp",
   "main": "src/worker.js",
   "compatibility_date": "2026-11-01",
-  "observability": { "enabled": true },
+  // Workers Logs solo guarda las líneas de estadística anónima (console.log de track). Los registros de invocación
+  // (URL completa de cada petición, que incluiría coordenadas de /api/punto) están desactivados.
+  "observability": { "enabled": true, "logs": { "enabled": true, "invocation_logs": false } },
+  // Estadística de uso anónima (ver src/worker.js → track y scripts/mcp_stats.mjs). El dataset se crea solo al primer dato.
+  "analytics_engine_datasets": [{ "binding": "STATS", "dataset": "fenix_mcp" }],
   // Datos publicados (GitHub Pages). Para probar contra una copia local: npx wrangler dev --var FENIX_SITE:http://localhost:8811/ --var FENIX_DATA:local
   "vars": {
     "FENIX_SITE": "https://jgarnie.github.io/fenix/",

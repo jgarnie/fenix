@@ -1,7 +1,9 @@
 {
  "proyecto": "Fénix · mapas de incendios forestales en España después del fuego",
  "web": "https://jgarnie.github.io/fenix/",
- "generado": "2026-11-12",
+ "version": "0.2.1",
+ "generado": "2026-11-20",
+ "changelog": "https://github.com/jgarnie/fenix/blob/main/CHANGELOG.md",
  "incendios": [
   {
    "slug": "espada",

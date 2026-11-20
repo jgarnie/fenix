@@ -1,6 +1,6 @@
 {
   "name": "fenix-mcp",
-  "version": "0.1.0",
+  "version": "0.2.1",
   "description": "Servidor MCP de Fénix: datos de incendios forestales en España (área quemada, severidad, vegetación, monte público, plan de restauración) para asistentes de IA.",
   "type": "module",
   "bin": {

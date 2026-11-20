@@ -125,9 +125,9 @@
    "Agua / humedal": 12.3
   },
   "vegetacion_potencial_ha": {
-   "Alcornocal (23b, Asplenio onopteridis–Querceto suberis S.)": 2737.5,
+   "Alcornocal (23b, Asplenio onopteridis–Querceto suberis S.)": 2223.8,
    "Carrascal termomediterráneo (27c, Rubio longifoliae–Querceto rotundifoliae S.)": 2321.7,
-   "Carrascal mesomediterráneo (22b, Bupleuro rigidi–Querceto rotundifoliae S.)": 1778.4,
+   "Carrascal mesomediterráneo (22b, Bupleuro rigidi–Querceto rotundifoliae S.)": 2292.1,
    "Uso no forestal (agrícola, urbano, agua)": 515.2
   },
   "erosion_ha": {
@@ -137,9 +137,9 @@
    "Muy alto": 517.9
   },
   "viabilidad_ha": {
-   "Baja (<45)": 4205.1,
-   "Media (45–70)": 2204.6,
-   "Alta (≥70)": 427.9
+   "Baja (<45)": 4106,
+   "Media (45–70)": 2232.1,
+   "Alta (≥70)": 499.5
   },
   "criterio_ceam_ha": {
    "<30 %: estudiar plantación o siembra selectiva": {
@@ -216,7 +216,7 @@
     "nombre": "Regeneración natural",
     "que": "La vegetación previa rebrota (alcornoque, carrasca, coscoja, lentisco, madroño, palmito…) o el pinar era maduro y sin incendios recientes, por lo que regenera por semilla.",
     "como": [
-     "No cortar ni desbrozar los rebrotes; no descorchar alcornoques en al menos 5 años.",
+     "No cortar ni desbrozar los rebrotes; no descorchar los alcornoques durante varios años (hasta que recuperen la copa), según la normativa autonómica de descorche.",
      "Esperar a la brotación de la primavera de 2027 antes de declarar muertos alcornoques y carrascas.",
      "Excluir pastoreo y proteger frente a herbívoros 3–5 años donde haya presión.",
      "Seguimiento con parcelas de campo y NDVI (Sentinel-2) cada primavera."
@@ -234,36 +234,36 @@
     "nombre": "Regeneración asistida",
     "que": "Pinar con daño alto o pinar joven: probablemente no hay banco de piñas serótinas suficiente. Se ayuda con siembras y núcleos de plantación que aceleren la entrada de frondosas.",
     "como": [
-     "Medir el regenerado de pino en primavera-verano 2027; actuar donde haya <1.000 plántulas/ha.",
+     "Medir el regenerado de pino en primavera-verano 2027 con parcelas de campo; actuar donde sea claramente escaso (el CEAM usa como referencia 1.000–3.000 pies/ha).",
      "Siembra de bellotas (alcornoque o carrasca, según la vegetación potencial) por puntos, protegidas.",
      "Plantación en bosquetes / núcleos de dispersión (400–600 plantas/ha) con protector, en otoño-invierno.",
      "Clareos del regenerado de pino a los 8–12 años para evitar masas densas muy inflamables."
     ],
-    "ha_total": 2764.1,
-    "ha_publico": 85,
-    "ha_privado": 2679.1,
-    "ha_erosion_alta": 934,
+    "ha_total": 2939.8,
+    "ha_publico": 86.1,
+    "ha_privado": 2853.7,
+    "ha_erosion_alta": 965.3,
     "coste_eur_ha": 3125,
     "calendario": "2027 – 2030",
-    "coste_escenario_eur": 285467
+    "coste_escenario_eur": 289161
    },
    {
     "clave": 3,
     "nombre": "Restauración activa",
-    "que": "El pinar ocupaba suelos donde debería haber alcornocal o carrascal, o la zona ha ardido repetidamente y el matorral ya no evoluciona solo. Hay que reintroducir las especies de la vegetación potencial.",
+    "que": "El pinar quemado con daño alto ocupaba suelos donde debería haber alcornocal, o la zona ha ardido repetidamente y el matorral ya no evoluciona solo. Hay que reintroducir las especies de la vegetación potencial.",
     "como": [
      "Plantación de 800–1.100 plantas/ha de las especies de la serie potencial (ver pestaña Cómo).",
      "Planta de la región de procedencia local (Banc de Llavors Forestals de la GVA).",
      "Hoyos manuales en pendiente, protectores, riego de apoyo el primer verano y reposición de marras.",
      "Ejecutar tras la estabilización del suelo, en la ventana de plantación de otoño-invierno 2027–28."
     ],
-    "ha_total": 1266.8,
-    "ha_publico": 107.8,
-    "ha_privado": 1159,
-    "ha_erosion_alta": 777.5,
+    "ha_total": 1091.2,
+    "ha_publico": 106.8,
+    "ha_privado": 984.4,
+    "ha_erosion_alta": 746.2,
     "coste_eur_ha": 6963,
     "calendario": "2027 – 2031",
-    "coste_escenario_eur": 806682
+    "coste_escenario_eur": 799199
    },
    {
     "clave": 4,
@@ -282,7 +282,7 @@
     "coste_escenario_eur": 0
    }
   ],
-  "coste_total_escenario_eur": 6634499,
+  "coste_total_escenario_eur": 6630710,
   "presupuesto_referencia_eur": 2700000,
   "referencia": "Referencia: la Generalitat anunció 4,2 M€ (oct 2026), de los que 2,7 M€ van a recuperación forestal y caminos.",
   "metodo_actuacion": "rebrotadoras → regeneración natural; pinar maduro poco dañado y sin incendios recientes → natural; resto de pinar → asistida; pinar con daño alto donde debería haber alcornocal o zonas con ≥2 incendios previos → restauración activa."
@@ -290,11 +290,11 @@
  "series_potenciales": [
   {
    "clave": 1,
-   "ha": 2737.5,
+   "ha": 2223.8,
    "corto": "Alcornocal",
    "codigo": "23b",
    "serie": "Meso-termomediterránea valenciano-castellonense subhúmeda del alcornoque (Asplenio onopteridis–Querceto suberis sigmetum)",
-   "piso": "Mesomediterráneo, sobre suelos silíceos (rodeno)",
+   "piso": "Mesomediterráneo y termomediterráneo, sobre suelos silíceos (rodeno)",
    "especies": "Quercus suber, Asplenium onopteris, Quercus rotundifolia, Calicotome spinosa",
    "revision": "En la revisión de 2011 sigue siendo la serie 23b, silicícola, con una faciación mesomediterránea típica y otra termomediterránea con Chamaerops humilis."
   },
@@ -310,13 +310,13 @@
   },
   {
    "clave": 3,
-   "ha": 1778.4,
+   "ha": 2292.1,
    "corto": "Carrascal mesomediterráneo",
    "codigo": "22b",
    "serie": "Mesomediterránea manchega y aragonesa basófila de la encina (Bupleuro rigidi–Querceto rotundifoliae sigmetum)",
    "piso": "Mesomediterráneo, sobre calizas",
    "especies": "Quercus rotundifolia, Hedera helix, Teline patens, Genista hispanica",
-   "especiesNota": "de la serie 22d de la revisión de 2011",
+   "especiesNota": "de la serie 22d de la revisión de 2011, que incluye una faciación silicícola: no todas son propias de suelos calizos",
    "revision": "El mapa de 1987 asigna esta zona a la serie manchega y aragonesa (22b). La revisión de 2011 describe los carrascales valencianos de este piso como una serie propia, la 22d (Hedero helicis–Querco rotundifoliae sigmetum), con faciaciones altopalanciana y turiana septentrional silicícola. Las especies indicadas son las de esa serie 22d."
   },
   {
@@ -358,7 +358,7 @@
   "Apoyar a las asociaciones de custodia del territorio y a la economía local del corcho."
  ],
  "fuentes": {
-  "texto": "- Área quemada: Copernicus EMS Rapid Mapping EMSR905 (https://rapidmapping.emergency.copernicus.eu/EMSR905), producto de evaluación (GRA v2, imagen del 31 jul 2026).\n- Cifras oficiales (9.568 ha, 89 km de perímetro, 4,2 M€): Centro de Coordinación de Emergencias y Generalitat, según prensa.\nFundación CEAM\n- Cifras y conclusiones: nota de la Generalitat sobre el análisis del CEAM (https://comunica.gva.es/es/detalle?id=413511022&site=373428693),\nzonas por severidad (https://www.elperiodic.com/pcastellon/fuego-quema-parque-natural-serra-despada-pero-todo-ardido-igual-zonas-arrasadas-menos_1087008) y\nprotocolo de restauración (https://www.elperiodic.com/pcastellon/cuando-podra-reforestar-serra-despada-esto-debe-ocurrir-primero_1086815) (El Periòdic) y\npérdida de humedad previa (https://castellonplaza.com/castellonplaza/comarcas/informe-del-ceam-sobre-el-incendio-de-la-vall-duixo-la-vegetacion-perdio-el-51-de-humedad-en-los-meses-previos) (Castellón Plaza).\n- Protocolo y umbrales: manual Postfire-DSS de la Fundación CEAM, según El Periòdic.\n- El CEAM no ha publicado sus mapas: las capas de sequedad y de criterio CEAM de esta app reproducen sus análisis con datos abiertos y pueden no coincidir exactamente con los suyos.\n- Coordenadas de los parajes: Nomenclátor Geográfico Básico de España (IGN), vía CartoCiudad. El Puntal de Nules es el Pic de la Font de Cabres (639 m), según esta ruta de Wikiloc (https://de.wikiloc.com/routen-wandern/ume1963-el-puntal-de-nules-pic-de-la-font-de-cabres-639-m-80185664).",
+  "texto": "- Área quemada: Copernicus EMS Rapid Mapping EMSR905 (https://rapidmapping.emergency.copernicus.eu/EMSR905), producto de evaluación (GRA v2, imagen del 31 jul 2026).\n- Cifras oficiales (9.568 ha, 89 km de perímetro, 4,2 M€): Centro de Coordinación de Emergencias y Generalitat, según prensa. Fundación CEAM\n- Cifras y conclusiones: nota de la Generalitat sobre el análisis del CEAM (https://comunica.gva.es/es/detalle?id=413511022&site=373428693), zonas por severidad (https://www.elperiodic.com/pcastellon/fuego-quema-parque-natural-serra-despada-pero-todo-ardido-igual-zonas-arrasadas-menos_1087008) y protocolo de restauración (https://www.elperiodic.com/pcastellon/cuando-podra-reforestar-serra-despada-esto-debe-ocurrir-primero_1086815) (El Periòdic) y pérdida de humedad previa (https://castellonplaza.com/castellonplaza/comarcas/informe-del-ceam-sobre-el-incendio-de-la-vall-duixo-la-vegetacion-perdio-el-51-de-humedad-en-los-meses-previos) (Castellón Plaza).\n- Protocolo y umbrales: manual Postfire-DSS de la Fundación CEAM, según El Periòdic.\n- El CEAM no ha publicado sus mapas: las capas de sequedad y de criterio CEAM de esta app reproducen sus análisis con datos abiertos y pueden no coincidir exactamente con los suyos.\n- Coordenadas de los parajes: Nomenclátor Geográfico Básico de España (IGN), vía CartoCiudad. El Puntal de Nules es el Pic de la Font de Cabres (639 m), según esta ruta de Wikiloc (https://es.wikiloc.com/routen-wandern/ume1963-el-puntal-de-nules-pic-de-la-font-de-cabres-639-m-80185664).",
   "enlaces": [
    {
     "texto": "Copernicus EMS Rapid Mapping EMSR905",
@@ -382,7 +382,7 @@
    },
    {
     "texto": "esta ruta de Wikiloc",
-    "url": "https://de.wikiloc.com/routen-wandern/ume1963-el-puntal-de-nules-pic-de-la-font-de-cabres-639-m-80185664"
+    "url": "https://es.wikiloc.com/routen-wandern/ume1963-el-puntal-de-nules-pic-de-la-font-de-cabres-639-m-80185664"
    },
    {
     "texto": "Imágenes Sentinel-2 L2A (Copernicus) vía Earth Search",
@@ -411,6 +411,12 @@
   ],
   "limites": null
  },
+ "correcciones": {
+  "sobre_datos_oficiales": [
+   "Vegetación potencial: refinado por sustrato. El Mapa de Series de Vegetación de Rivas-Martínez (1987) es de escala 1:400.000 y sus manchas no siguen el contacto entre el rodeno (silíceo) y la caliza, que en Espadà se alternan cada pocos cientos de metros. Antes de corregirlo, dentro de la superficie forestal quemada, 982 ha de la serie del alcornocal caían sobre caliza, margas o detrítico calcáreo, donde el alcornoque es raro (solo prospera en suelos descarbonatados), y 47 ha del alcornocal real del Mapa Forestal (de 451 ha) caían en manchas de carrascal. Se mantiene el piso bioclimático del mapa (mesomediterráneo o termomediterráneo) y se elige la serie según el sustrato del IGME GEODE 1:50.000 (https://mapas.igme.es/gis/rest/services/Cartografia_Geologica/IGME_Geode_50/MapServer):\n- alcornocal (23b, silicícola) sobre caliza, margas, arcillas y yesos o detrítico terciario calcáreo → carrascal del mismo piso bioclimático (22b en el mesomediterráneo, 27c en el termomediterráneo): 926 ha de superficie forestal quemada (926 ha a 22b y 0 ha a 27c). Se respeta el alcornocal allí donde el Mapa Forestal lo registra, aunque el sustrato sea calizo (71 ha quemadas, probablemente sobre suelos descarbonatados): ahí manda la vegetación real;\n- carrascal mesomediterráneo (22b) sobre rodeno → alcornocal (23b): 412 ha;\n- el carrascal termomediterráneo (27c) sobre rodeno se mantiene, porque la revisión de 2011 (Rivas-Martínez y col., Itinera Geobotanica 18) reconoce su faciación sobre areniscas del rodeno con Calicotome spinosa;\n- fondos de valle, depósitos de ladera y zonas sin dato geológico no se tocan.\nEs una interpretación propia, no un dato oficial. Cambia también, en consecuencia, la actuación recomendada (la restauración activa del pinar quemado se plantea donde debería haber alcornocal) y la viabilidad."
+  ],
+  "errores_corregidos": []
+ },
  "metodo": {
   "severidad": "dNBR = NBR(antes) − NBR(después), con NBR = (B8 − B12)/(B8 + B12), Sentinel-2. Umbrales de Key & Benson (USGS): 0,10 · 0,27 · 0,44 · 0,66.",
   "vegetacion_potencial": "Serie de vegetación del Mapa de Series de Vegetación de España (Rivas-Martínez, 1987), escala nacional: indica la serie dominante de la zona, no la de cada ladera.",
@@ -426,5 +432,7 @@
   "linkedin": "https://www.linkedin.com/in/jgarnie/",
   "github": "https://github.com/jgarnie",
   "codigo": "https://github.com/jgarnie/fenix"
- }
+ },
+ "version": "0.2.1",
+ "datos_generados": "2026-11-20"
 }

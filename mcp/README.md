@@ -18,6 +18,9 @@ capas derivadas (severidad, actuaciones, viabilidad, costes) son elaboración pr
 | `plan_restauracion(incendio)` | Actuaciones propuestas con hectáreas en monte público y privado, qué hacer y cómo, calendario y costes orientativos |
 | `consultar_punto(lat, lon, incendio?)` | Qué pasó en unas coordenadas: si ardió y con qué severidad, vegetación, propietario y monte, municipio, sustrato, altitud, incendios previos, vegetación potencial con sus especies, viabilidad y actuación recomendada (rejilla de 25 m) |
 | `buscar_municipio(nombre)` | En qué incendios ardió superficie de un municipio y cuántas hectáreas |
+| `zonas_prioritarias(incendio, municipio?, solo_publico?, limite?, tipo?)` | Dónde es más urgente actuar y con qué: zonas de 1 km² con más superficie en riesgo (erosión alta; pasado un año, además cobertura vegetal < 30 %; y reincendio: zonas que ya habían ardido hace menos de 15 años, donde el pinar no se regenera), con monte público y titular, qué había, vegetación potencial con especies, actuación propuesta, avisos y enlace al mapa. Precalculado con `scripts/build_priority.py` |
+| `consultar_superficies(incendio, filtros?, agrupar_por?)` | Consultas libres de hectáreas: filtra y agrupa por municipio, severidad, propiedad, vegetación antes, sustrato, serie potencial, actuación, erosión, espacio protegido, año del incendio anterior, cobertura (CEAM), forestal y reincendio < 15 años. Sin filtros, lista los valores posibles. Tabla precalculada con `scripts/build_cube.py` |
+| `guia_experta(tema, incendio?, municipio?)` | Guía de experto: criterios de restauración y qué herramientas consultar en qué orden. Temas: `plan_repoblacion`, `informe_ayuntamiento`, `evaluar_punto`, `reincendio`, `que_plantar`. Las mismas guías están como prompts MCP `guia_<tema>` |
 
 `incendio` admite el identificador (`espada`, `bejis`, `tietar`, `villanueva-de-viver`), el nombre o un municipio afectado.
 
@@ -27,6 +30,9 @@ Ejemplos de preguntas:
 - «¿Ardió el punto 39.9097, -0.2146? ¿Qué debería plantarse allí?»
 - «¿Cuántas hectáreas se quemaron en Montanejos y qué plan de restauración se propone?»
 - «¿Qué parte del incendio de Bejís es monte público?»
+- «¿Dónde es más urgente repoblar en Bejís y con qué? ¿Y solo en monte público?»
+- «¿Cuántas hectáreas de alcornocal sobre caliza ardieron en Espadà, por municipio?»
+- «Prepárame un informe para el Ayuntamiento de Artana» (la IA sigue la guía `informe_ayuntamiento`)
 
 ## Instalación fácil en Claude Desktop (sin programar)
 
@@ -109,5 +115,8 @@ Para probar contra una copia local (`python3 -m http.server 8765` en `public/`):
 ```bash
 FENIX_SITE=http://localhost:8765/ FENIX_DATA=local node src/stdio.js
 ```
+
+Las consultas por punto usan teselas (`point.json` + un trozo de `point.bin.gz` por HTTP Range), como el servidor remoto;
+si un incendio no las tiene publicadas, se descarga la rejilla entera. `FENIX_POINT=grid` fuerza la rejilla.
 
 Licencia MIT. Los datos de origen tienen sus propias licencias (ver la pestaña Fuentes de cada mapa).
